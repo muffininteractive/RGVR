@@ -1,0 +1,55 @@
+{
+    "name": "rgvr-aframe-project",
+    "version": "1.0.0",
+    "description": "Projeto A-Frame com Vite para desenvolvimento VR/AR",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build",
+        "preview": "vite preview",
+        "serve": "vite preview --port 3000",
+        "clean": "rm -rf dist node_modules/.vite",
+        "lint": "eslint . --ext .js,.html",
+        "format": "prettier --write ."
+    },
+    "keywords": [
+        "aframe",
+        "webxr",
+        "vr",
+        "ar",
+        "3d",
+        "virtual-reality",
+        "augmented-reality",
+        "webvr"
+    ],
+    "author": "Hugo Euzébio",
+    "license": "MIT",
+    "devDependencies": {
+        "vite": "^5.4.0",
+        "@vitejs/plugin-legacy": "^5.4.0",
+        "terser": "^5.24.0",
+        "eslint": "^8.54.0",
+        "prettier": "^3.1.0"
+    },
+    "dependencies": {
+        "aframe": "^1.7.0"
+    },
+    "browserslist": [
+        "> 1%",
+        "last 2 versions",
+        "not dead",
+        "not ie 11"
+    ],
+    "engines": {
+        "node": ">=16.0.0",
+        "npm": ">=8.0.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/seu-usuario/rgvr-aframe-project.git"
+    },
+    "bugs": {
+        "url": "https://github.com/seu-usuario/rgvr-aframe-project/issues"
+    },
+    "homepage": "https://github.com/seu-usuario/rgvr-aframe-project#readme"
+}

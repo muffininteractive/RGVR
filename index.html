@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projeto A-Frame - RGVR</title>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <!-- A-Frame CDN -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <!-- Interface 2D -->
+    <div id="ui-overlay">
+      <div class="info-panel">
+        <h1>Projeto A-Frame</h1>
+        <p>Use WASD para mover, mouse para olhar ao redor</p>
+        <!--
+        <div class="controls">
+          <button id="enterVR">Entrar em VR</button>
+          <button id="resetPosition">Reset Posição</button>
+        </div>
+        -->
+      </div>
+    </div>
+
+    <!-- Cena A-Frame -->
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
+      style="height: 100vh; width: 100vw"
+      background="color: #87CEEB"
+      fog="type: linear; color: #87CEEB; near: 10; far: 100"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Texturas -->
+        <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg" />
+        <img id="skyTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" />
+
+        <!-- Cores -->
+        <a-mixin id="cube" geometry="primitive: box"></a-mixin>
+        <a-mixin id="sphere" geometry="primitive: sphere"></a-mixin>
+        <a-mixin id="cylinder" geometry="primitive: cylinder"></a-mixin>
+      </a-assets>
+
+      <!-- Iluminação -->
+      <a-light type="ambient" color="#fff" intensity=".5"></a-light>
+
+      <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8" castShadow="true"></a-light>
+
+      <a-entity environment="preset: moon"></a-entity>
+
+      <!-- Céu -->
+
+      <!--<a-sky src="#skyTexture"></a-sky>-->
+
+      <!-- Chão -->
+      <!--<a-plane
+        id="ground"
+        position="0 0 0"
+        rotation="-90 0 0"
+        width="50"
+        height="50"
+        color="#7BC8A4"
+        shadow="receive: true"
+        material="src: #groundTexture; repeat: 10 10"
+        class="teleportable"
+        visible="true"
+      ></a-plane>-->
+
+      <!-- Objetos da cena -->
+
+      <a-box
+        position="0 0.5 -3"
+        rotation="0 45 0"
+        color="#4CC3D9"
+        shadow="cast: true; receive: true"
+        animation="property: rotation; to: 0 405 0; loop: true; dur: 10000"
+        class="interactive grab"
+      >
+      </a-box>
+
+      <a-sphere
+        position="-2 1.25 -5"
+        radius="1.25"
+        color="#EF2D5E"
+        shadow="cast: true; receive: true"
+        animation="property: position; to: -2 2.5 -5; dir: alternate; dur: 2000; loop: true"
+        class="interactive grab"
+      >
+      </a-sphere>
+
+      <a-sphere
+        position="2 1.25 -5"
+        radius="1.25"
+        color="#FFC65D"
+        shadow="cast: true; receive: true"
+        animation="property: position; to: 2 2.5 -5; dir: alternate; dur: 3000; loop: true"
+        class="interactive grab"
+      >
+      </a-sphere>
+
+      <a-cylinder
+        position="-4 0.75 0"
+        radius="0.5"
+        height="1.5"
+        color="#7BC8A4"
+        shadow="cast: true; receive: true"
+        class="interactive grab"
+      >
+      </a-cylinder>
+
+      <a-cylinder
+        position="4 0.75 0"
+        radius="0.5"
+        height="1.5"
+        color="#FF6B6B"
+        shadow="cast: true; receive: true"
+        class="interactive grab"
+      >
+      </a-cylinder>
+
+      <a-text
+        value="Bem-vindo ao A-Frame!"
+        position="0 3 -5"
+        align="center"
+        color="#000000"
+        font="roboto"
+        width="6"
+        wrap-count="40"
+      >
+      </a-text>
+
+      <a-entity id="particles" position="0 5 -10">
+        <a-box
+          position="1 0 0"
+          width="0.1"
+          height="0.1"
+          depth="0.1"
+          color="white"
+          animation="property: position; to: 1 -2 0; dur: 4000; loop: true"
+        >
+        </a-box>
+        <a-box
+          position="-1 0 0"
+          width="0.1"
+          height="0.1"
+          depth="0.1"
+          color="white"
+          animation="property: position; to: -1 -2 0; dur: 3000; loop: true"
+        >
+        </a-box>
+        <a-box
+          position="0 0 1"
+          width="0.1"
+          height="0.1"
+          depth="0.1"
+          color="white"
+          animation="property: position; to: 0 -2 1; dur: 5000; loop: true"
+        >
+        </a-box>
+      </a-entity>
+      <!-- Rig VR completo -->
+      <a-entity
+        id="cameraRig"
+        position="0 0 0"
+        movement-controls="fly: false; constrainToNavMesh: false"
+        snap-turn-controls="turnAngle: 45"
+      >
+        <!-- Câmera -->
+        <a-camera
+          id="mainCamera"
+          position="0 1.6 5"
+          look-controls="enabled: true; pointerLockEnabled: true"
+          wasd-controls="enabled: true; acceleration: 20"
+          cursor="rayOrigin: mouse"
+        >
+        </a-camera>
+
+        <!-- Controles Meta Touch -->
+        <a-entity
+          meta-touch-controls="hand: left; model: true"
+          laser-controls="hand: left"
+          raycaster="objects: .teleportable, .grab; showLine: true; far: 50"
+          move-events
+          grab-handler
+        ></a-entity>
+        <a-entity
+          meta-touch-controls="hand: right; model: true"
+          laser-controls="hand: right"
+          raycaster="objects: .teleportable, .grab; showLine: true; far: 50"
+          move-events
+          grab-handler
+        ></a-entity>
+
+        <!-- Feedback visual de teletransporte -->
+        <a-text id="teleport-feedback" value="oi" position="0 2 -2" color="#FF0000" align="center" width="4"></a-text>
+
+        <a-sphere
+          id="cameraMarker"
+          position="0 1.6 5"
+          radius="0.05"
+          color="yellow"
+          visible="false"
+          class="debug-marker"
+        >
+        </a-sphere>
+      </a-entity>
+    </a-scene>
+
+    <!-- JavaScript personalizado -->
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
