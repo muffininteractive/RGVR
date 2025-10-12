@@ -1,0 +1,208 @@
+{
+  "objects": [
+    {
+      "name": "Cubo Vermelho",
+      "id": "cube-red",
+      "file": "cube-component",
+      "in": ["cylinder-green", "sphere-yellow"],
+      "out": ["cube-blue", "sphere-pink"],
+      "anim": "pulse",
+      "start": true,
+      "end": false,
+      "properties": {
+        "color": "#FF6B6B",
+        "position": { "x": 0, "y": 1, "z": -3 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      }
+    },
+    {
+      "name": "Cubo Azul",
+      "id": "cube-blue",
+      "file": "cube-component",
+      "in": ["cube-red", "cylinder-green"],
+      "out": ["sphere-yellow", "cylinder-metal"],
+      "anim": "rotate",
+      "start": false,
+      "end": true,
+      "properties": {
+        "color": "#4CC3D9",
+        "position": { "x": 2, "y": 1, "z": -3 },
+        "scale": { "x": 1, "y": 1, "z": 1 }
+      }
+    },
+    {
+      "name": "Esfera Rosa",
+      "id": "sphere-pink",
+      "file": "sphere-component",
+      "in": ["cube-red", "sphere-yellow"],
+      "out": ["cube-blue", "cylinder-metal"],
+      "anim": "bounce",
+      "start": true,
+      "end": false,
+      "properties": {
+        "color": "#EF2D5E",
+        "position": { "x": -2, "y": 1.25, "z": -5 },
+        "radius": 1.25
+      }
+    },
+    {
+      "name": "Esfera Amarela",
+      "id": "sphere-yellow",
+      "file": "sphere-component",
+      "in": ["sphere-pink", "cylinder-green"],
+      "out": ["cube-blue", "cylinder-metal"],
+      "anim": "float",
+      "start": false,
+      "end": true,
+      "properties": {
+        "color": "#FFC65D",
+        "position": { "x": 2, "y": 1.25, "z": -5 },
+        "radius": 1.25
+      }
+    },
+    {
+      "name": "Cilindro Verde",
+      "id": "cylinder-green",
+      "file": "cylinder-component",
+      "in": ["cube-red", "sphere-pink"],
+      "out": ["cube-blue", "sphere-yellow"],
+      "anim": "spin",
+      "start": true,
+      "end": false,
+      "properties": {
+        "color": "#7BC8A4",
+        "position": { "x": -4, "y": 0.75, "z": 0 },
+        "radius": 0.5,
+        "height": 1.5
+      }
+    },
+    {
+      "name": "Cilindro Metal",
+      "id": "cylinder-metal",
+      "file": "cylinder-component",
+      "in": ["sphere-pink", "sphere-yellow", "cube-blue"],
+      "out": [],
+      "anim": "glow",
+      "start": false,
+      "end": true,
+      "properties": {
+        "color": "#888888",
+        "position": { "x": 4, "y": 0.75, "z": 0 },
+        "radius": 0.5,
+        "height": 1.5,
+        "metalness": 0.8,
+        "roughness": 0.2
+      }
+    },
+    {
+      "name": "Cone Laranja",
+      "id": "cone-orange",
+      "file": "cone-component",
+      "in": ["cube-red", "cylinder-green"],
+      "out": ["sphere-yellow", "cylinder-metal"],
+      "anim": "wobble",
+      "start": true,
+      "end": false,
+      "properties": {
+        "color": "#FF8C42",
+        "position": { "x": 0, "y": 1, "z": 2 },
+        "radiusBottom": 0.8,
+        "radiusTop": 0.1,
+        "height": 2
+      }
+    },
+    {
+      "name": "Torus Roxo",
+      "id": "torus-purple",
+      "file": "torus-component",
+      "in": ["cone-orange", "sphere-pink"],
+      "out": ["cube-blue", "cylinder-metal"],
+      "anim": "rotate-around",
+      "start": false,
+      "end": true,
+      "properties": {
+        "color": "#9932CC",
+        "position": { "x": -3, "y": 1.5, "z": 2 },
+        "radius": 1,
+        "radiusTubular": 0.2
+      }
+    }
+  ],
+  "levels": {
+    "easy": {
+      "name": "Fácil",
+      "objectCount": 3,
+      "description": "Conecte 3 objetos para completar o nível"
+    },
+    "medium": {
+      "name": "Médio", 
+      "objectCount": 5,
+      "description": "Conecte 5 objetos para completar o nível"
+    },
+    "hard": {
+      "name": "Difícil",
+      "objectCount": 7,
+      "description": "Conecte 7 objetos para completar o nível"
+    },
+    "expert": {
+      "name": "Expert",
+      "objectCount": 8,
+      "description": "Conecte todos os 8 objetos para completar o nível"
+    }
+  },
+  "animations": {
+    "pulse": {
+      "property": "scale",
+      "to": "1.2 1.2 1.2",
+      "dur": 1000,
+      "dir": "alternate",
+      "loop": true
+    },
+    "rotate": {
+      "property": "rotation",
+      "to": "0 360 0",
+      "dur": 5000,
+      "loop": true
+    },
+    "bounce": {
+      "property": "position",
+      "dur": 2000,
+      "dir": "alternate",
+      "loop": true,
+      "offset": "0 1 0"
+    },
+    "float": {
+      "property": "position",
+      "dur": 3000,
+      "dir": "alternate", 
+      "loop": true,
+      "offset": "0 0.5 0"
+    },
+    "spin": {
+      "property": "rotation",
+      "to": "0 0 360",
+      "dur": 4000,
+      "loop": true
+    },
+    "glow": {
+      "property": "material.emissive",
+      "to": "#333333",
+      "dur": 1500,
+      "dir": "alternate",
+      "loop": true
+    },
+    "wobble": {
+      "property": "rotation",
+      "to": "10 0 10",
+      "dur": 1000,
+      "dir": "alternate",
+      "loop": true
+    },
+    "rotate-around": {
+      "property": "rotation",
+      "to": "360 360 0",
+      "dur": 8000,
+      "loop": true
+    }
+  }
+}

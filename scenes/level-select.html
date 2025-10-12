@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Seleção de Fase - RGVR</title>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <!-- A-Frame CDN -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <!-- Interface 2D -->
+    <div id="ui-overlay">
+      <div class="info-panel">
+        <h1>Seleção de Fase</h1>
+        <p>Escolha o nível de dificuldade</p>
+        <div class="level-info">
+          <div id="level-description">
+            <h3>Selecione um nível</h3>
+            <p>Aponte para um dos cristais para ver detalhes</p>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="backToTutorial">Voltar ao Tutorial</button>
+          <button id="startSelectedLevel" disabled>Iniciar Fase</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cena A-Frame -->
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
+      style="height: 100vh; width: 100vw"
+      background="color: #1a1a2e"
+      fog="type: linear; color: #1a1a2e; near: 5; far: 50"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Texturas -->
+        <img id="starTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg" />
+        
+        <!-- Sons (placeholder) -->
+        <audio id="hoverSound" preload="auto">
+          <!-- <source src="../audio/hover.mp3" type="audio/mpeg"> -->
+        </audio>
+        <audio id="selectSound" preload="auto">
+          <!-- <source src="../audio/select.mp3" type="audio/mpeg"> -->
+        </audio>
+      </a-assets>
+
+      <!-- Iluminação especial para seleção -->
+      <a-light type="ambient" color="#16213e" intensity="0.4"></a-light>
+      <a-light type="point" position="0 5 0" color="#ffffff" intensity="0.8" distance="30"></a-light>
+      
+      <!-- Luzes coloridas para cada cristal -->
+      <a-light type="point" position="-6 2 -8" color="#00ff00" intensity="0.6" distance="8"></a-light>
+      <a-light type="point" position="-2 2 -8" color="#ffff00" intensity="0.6" distance="8"></a-light>
+      <a-light type="point" position="2 2 -8" color="#ff8800" intensity="0.6" distance="8"></a-light>
+      <a-light type="point" position="6 2 -8" color="#ff0000" intensity="0.6" distance="8"></a-light>
+
+      <!-- Plataforma central -->
+      <a-cylinder
+        position="0 0 -8"
+        radius="8"
+        height="0.2"
+        color="#2a2a4a"
+        shadow="receive: true"
+        material="metalness: 0.8; roughness: 0.3"
+      ></a-cylinder>
+
+      <!-- Cristais/Totens representando os níveis -->
+      
+      <!-- Nível Fácil -->
+      <a-entity id="level-easy" position="-6 1 -8" level-selector="difficulty: easy">
+        <a-octahedron
+          position="0 1 0"
+          radius="1"
+          color="#00ff88"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8"
+          animation="property: rotation; to: 0 360 0; dur: 8000; loop: true"
+          class="level-crystal"
+        ></a-octahedron>
+        
+        <!-- Partículas flutuantes -->
+        <a-entity id="particles-easy" particle-system="color: #00ff88; particleCount: 20; maxAge: 3"></a-entity>
+        
+        <!-- Texto do nível -->
+        <a-text
+          value="FÁCIL"
+          position="0 2.5 0"
+          align="center"
+          color="#00ff88"
+          font="roboto"
+          width="8"
+          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
+        ></a-text>
+        
+        <a-text
+          value="3 objetos"
+          position="0 -0.5 0"
+          align="center"
+          color="#ffffff"
+          font="roboto"
+          width="6"
+        ></a-text>
+      </a-entity>
+
+      <!-- Nível Médio -->
+      <a-entity id="level-medium" position="-2 1 -8" level-selector="difficulty: medium">
+        <a-octahedron
+          position="0 1 0"
+          radius="1.2"
+          color="#ffdd00"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8"
+          animation="property: rotation; to: 360 0 360; dur: 6000; loop: true"
+          class="level-crystal"
+        ></a-octahedron>
+        
+        <a-entity id="particles-medium" particle-system="color: #ffdd00; particleCount: 30; maxAge: 3"></a-entity>
+        
+        <a-text
+          value="MÉDIO"
+          position="0 2.5 0"
+          align="center"
+          color="#ffdd00"
+          font="roboto"
+          width="8"
+          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
+        ></a-text>
+        
+        <a-text
+          value="5 objetos"
+          position="0 -0.5 0"
+          align="center"
+          color="#ffffff"
+          font="roboto"
+          width="6"
+        ></a-text>
+      </a-entity>
+
+      <!-- Nível Difícil -->
+      <a-entity id="level-hard" position="2 1 -8" level-selector="difficulty: hard">
+        <a-octahedron
+          position="0 1 0"
+          radius="1.4"
+          color="#ff8800"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8"
+          animation="property: rotation; to: 0 360 720; dur: 4000; loop: true"
+          class="level-crystal"
+        ></a-octahedron>
+        
+        <a-entity id="particles-hard" particle-system="color: #ff8800; particleCount: 40; maxAge: 3"></a-entity>
+        
+        <a-text
+          value="DIFÍCIL"
+          position="0 2.5 0"
+          align="center"
+          color="#ff8800"
+          font="roboto"
+          width="8"
+          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
+        ></a-text>
+        
+        <a-text
+          value="7 objetos"
+          position="0 -0.5 0"
+          align="center"
+          color="#ffffff"
+          font="roboto"
+          width="6"
+        ></a-text>
+      </a-entity>
+
+      <!-- Nível Expert -->
+      <a-entity id="level-expert" position="6 1 -8" level-selector="difficulty: expert">
+        <a-octahedron
+          position="0 1 0"
+          radius="1.6"
+          color="#ff0044"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8"
+          animation="property: rotation; to: 720 360 0; dur: 3000; loop: true"
+          class="level-crystal"
+        ></a-octahedron>
+        
+        <a-entity id="particles-expert" particle-system="color: #ff0044; particleCount: 50; maxAge: 3"></a-entity>
+        
+        <a-text
+          value="EXPERT"
+          position="0 2.5 0"
+          align="center"
+          color="#ff0044"
+          font="roboto"
+          width="8"
+          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
+        ></a-text>
+        
+        <a-text
+          value="8 objetos"
+          position="0 -0.5 0"
+          align="center"
+          color="#ffffff"
+          font="roboto"
+          width="6"
+        ></a-text>
+      </a-entity>
+
+      <!-- Instruções gerais -->
+      <a-text
+        value="Aponte para um cristal e clique para selecionar o nível"
+        position="0 4 -8"
+        align="center"
+        color="#ffffff"
+        font="roboto"
+        width="10"
+        wrap-count="50"
+        animation="property: material.opacity; to: 0.5; dur: 2000; dir: alternate; loop: true"
+      ></a-text>
+
+      <!-- Decorações do ambiente -->
+      
+      <!-- Pilares nos cantos -->
+      <a-cylinder position="-10 2 -15" radius="0.5" height="4" color="#2a2a4a" material="metalness: 0.8; roughness: 0.3"></a-cylinder>
+      <a-cylinder position="10 2 -15" radius="0.5" height="4" color="#2a2a4a" material="metalness: 0.8; roughness: 0.3"></a-cylinder>
+      <a-cylinder position="-10 2 -1" radius="0.5" height="4" color="#2a2a4a" material="metalness: 0.8; roughness: 0.3"></a-cylinder>
+      <a-cylinder position="10 2 -1" radius="0.5" height="4" color="#2a2a4a" material="metalness: 0.8; roughness: 0.3"></a-cylinder>
+
+      <!-- Estrelas de fundo -->
+      <a-entity id="stars">
+        <a-sphere position="-20 15 -30" radius="0.1" color="#ffffff" animation="property: material.opacity; to: 0.3; dur: 3000; dir: alternate; loop: true"></a-sphere>
+        <a-sphere position="25 18 -25" radius="0.1" color="#ffffff" animation="property: material.opacity; to: 0.3; dur: 4000; dir: alternate; loop: true"></a-sphere>
+        <a-sphere position="-15 20 -20" radius="0.1" color="#ffffff" animation="property: material.opacity; to: 0.3; dur: 2500; dir: alternate; loop: true"></a-sphere>
+        <a-sphere position="18 12 -35" radius="0.1" color="#ffffff" animation="property: material.opacity; to: 0.3; dur: 3500; dir: alternate; loop: true"></a-sphere>
+      </a-entity>
+
+      <!-- Rig VR/Câmera -->
+      <a-entity
+        id="cameraRig"
+        position="0 0 0"
+        movement-controls="fly: false; constrainToNavMesh: false"
+        snap-turn-controls="turnAngle: 45"
+      >
+        <!-- Câmera -->
+        <a-camera
+          id="mainCamera"
+          position="0 1.6 5"
+          look-controls="enabled: true; pointerLockEnabled: true"
+          wasd-controls="enabled: true; acceleration: 20"
+          cursor="rayOrigin: mouse"
+        >
+          <!-- Cursor visual -->
+          <a-ring
+            position="0 0 -2"
+            radius-inner="0.01"
+            radius-outer="0.02"
+            color="#ffffff"
+            opacity="0.6"
+          ></a-ring>
+        </a-camera>
+
+        <!-- Controles VR -->
+        <a-entity
+          meta-touch-controls="hand: left; model: true"
+          laser-controls="hand: left"
+          raycaster="objects: .level-crystal; showLine: true; far: 50; lineColor: cyan; lineOpacity: 0.8"
+          level-interaction
+        ></a-entity>
+        <a-entity
+          meta-touch-controls="hand: right; model: true"
+          laser-controls="hand: right"
+          raycaster="objects: .level-crystal; showLine: true; far: 50; lineColor: cyan; lineOpacity: 0.8"
+          level-interaction
+        ></a-entity>
+
+        <!-- Feedback visual -->
+        <a-text 
+          id="level-feedback" 
+          value="" 
+          position="0 2.5 -3" 
+          color="#00ffff" 
+          align="center" 
+          width="6"
+        ></a-text>
+      </a-entity>
+    </a-scene>
+
+    <!-- Scripts -->
+    <script type="module" src="../utils/scene-manager.js"></script>
+    <script type="module" src="../js/level-select.js"></script>
+  </body>
+</html>

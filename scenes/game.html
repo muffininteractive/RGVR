@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jogo - RGVR</title>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <!-- A-Frame CDN -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <!-- Interface 2D -->
+    <div id="ui-overlay">
+      <div class="info-panel">
+        <h1 id="level-title">Nível Fácil</h1>
+        <div class="game-stats">
+          <div class="stat">
+            <span class="label">Objetivo:</span>
+            <span id="objective">Conecte os objetos do início ao fim</span>
+          </div>
+          <div class="stat">
+            <span class="label">Progresso:</span>
+            <span id="progress">0 / 3 conexões</span>
+          </div>
+          <div class="stat">
+            <span class="label">Tempo:</span>
+            <span id="timer">00:00</span>
+          </div>
+        </div>
+        <div class="hints">
+          <h4>Dicas:</h4>
+          <ul id="hints-list">
+            <li>Carregando...</li>
+          </ul>
+        </div>
+        <div class="controls">
+          <button id="showHint">Mostrar Dica</button>
+          <button id="resetLevel">Reiniciar Nível</button>
+          <button id="backToLevelSelect">Voltar à Seleção</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay de Vitória -->
+    <div id="victory-overlay" style="display: none;">
+      <div class="victory-panel">
+        <h1>🎉 Parabéns! 🎉</h1>
+        <p>Você completou o nível com sucesso!</p>
+        <div class="victory-stats">
+          <div class="stat">Tempo: <span id="final-time">00:00</span></div>
+          <div class="stat">Conexões: <span id="final-connections">0</span></div>
+        </div>
+        <div class="victory-controls">
+          <button id="nextLevel">Próximo Nível</button>
+          <button id="playAgain">Jogar Novamente</button>
+          <button id="backToMenu">Menu Principal</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cena A-Frame -->
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
+      style="height: 100vh; width: 100vw"
+      background="color: #1a1a2e"
+      fog="type: linear; color: #1a1a2e; near: 10; far: 100"
+      game-manager
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Texturas -->
+        <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg" />
+        
+        <!-- Mixins para objetos -->
+        <a-mixin id="interactive-object" shadow="cast: true; receive: true" class="interactive grab"></a-mixin>
+      </a-assets>
+
+      <!-- Iluminação dinâmica -->
+      <a-light type="ambient" color="#2a2a4a" intensity=".4"></a-light>
+      <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8" castShadow="true"></a-light>
+      
+      <!-- Luzes coloridas para destacar início e fim -->
+      <a-light id="start-light" type="point" color="#00ff00" intensity="0.8" distance="10" visible="false"></a-light>
+      <a-light id="end-light" type="point" color="#ff0000" intensity="0.8" distance="10" visible="false"></a-light>
+
+      <!-- Ambiente -->
+      <a-entity environment="preset: starry; groundColor: #1a1a2e; horizonColor: #000000"></a-entity>
+
+      <!-- Plataforma central -->
+      <a-cylinder
+        id="game-platform"
+        position="0 0 -6"
+        radius="12"
+        height="0.3"
+        color="#2a2a4a"
+        shadow="receive: true"
+        material="metalness: 0.6; roughness: 0.4"
+      ></a-cylinder>
+
+      <!-- Container para objetos gerados dinamicamente -->
+      <a-entity id="game-objects"></a-entity>
+
+      <!-- Container para conexões -->
+      <a-entity id="connections"></a-entity>
+
+      <!-- Indicadores visuais -->
+      <a-text
+        id="start-indicator"
+        value="INÍCIO"
+        position="0 5 -6"
+        align="center"
+        color="#00ff00"
+        font="roboto"
+        width="8"
+        visible="false"
+        animation="property: position; to: 0 5.5 -6; dur: 2000; dir: alternate; loop: true"
+      ></a-text>
+
+      <a-text
+        id="end-indicator"
+        value="FIM"
+        position="0 5 -6"
+        align="center"
+        color="#ff0000"
+        font="roboto"
+        width="8"
+        visible="false"
+        animation="property: position; to: 0 5.5 -6; dur: 2000; dir: alternate; loop: true"
+      ></a-text>
+
+      <!-- Partículas de ambiente -->
+      <a-entity id="ambient-particles">
+        <!-- Partículas serão adicionadas dinamicamente -->
+      </a-entity>
+
+      <!-- Rig VR/Câmera -->
+      <a-entity
+        id="cameraRig"
+        position="0 0 0"
+        movement-controls="fly: false; constrainToNavMesh: false"
+        snap-turn-controls="turnAngle: 45"
+      >
+        <!-- Câmera -->
+        <a-camera
+          id="mainCamera"
+          position="0 1.6 8"
+          look-controls="enabled: true; pointerLockEnabled: true"
+          wasd-controls="enabled: true; acceleration: 20"
+          cursor="rayOrigin: mouse"
+        >
+          <!-- Crosshair -->
+          <a-ring
+            position="0 0 -3"
+            radius-inner="0.02"
+            radius-outer="0.03"
+            color="#ffffff"
+            opacity="0.6"
+          ></a-ring>
+        </a-camera>
+
+        <!-- Controles VR com grab handler melhorado -->
+        <a-entity
+          meta-touch-controls="hand: left; model: true"
+          laser-controls="hand: left"
+          raycaster="objects: .grab; showLine: true; far: 50; lineColor: cyan; lineOpacity: 0.8"
+          game-grab-handler
+          move-events
+        ></a-entity>
+        <a-entity
+          meta-touch-controls="hand: right; model: true"
+          laser-controls="hand: right"
+          raycaster="objects: .grab; showLine: true; far: 50; lineColor: cyan; lineOpacity: 0.8"
+          game-grab-handler
+          move-events
+        ></a-entity>
+
+        <!-- Feedback visual para o jogador -->
+        <a-text 
+          id="game-feedback" 
+          value="" 
+          position="0 2.8 -4" 
+          color="#00ffff" 
+          align="center" 
+          width="6"
+          wrap-count="40"
+        ></a-text>
+      </a-entity>
+
+      <!-- Efeitos visuais de fundo -->
+      <a-entity id="background-effects">
+        <!-- Estrelas distantes -->
+        <a-entity id="distant-stars" position="0 0 -50">
+          <!-- Estrelas serão adicionadas dinamicamente -->
+        </a-entity>
+        
+        <!-- Nebulosa de fundo -->
+        <a-sphere
+          position="0 0 -100"
+          radius="80"
+          material="color: #440066; opacity: 0.1; transparent: true; side: back"
+          animation="property: rotation; to: 0 360 0; dur: 120000; loop: true"
+        ></a-sphere>
+      </a-entity>
+    </a-scene>
+
+    <!-- Scripts -->
+    <script type="module" src="../utils/scene-manager.js"></script>
+    <script type="module" src="../utils/level-generator.js"></script>
+    
+    <!-- Componentes -->
+    <script src="../components/base-component.js"></script>
+    <script src="../components/cube-component.js"></script>
+    <script src="../components/sphere-component.js"></script>
+    <script src="../components/cylinder-component.js"></script>
+    <script src="../components/cone-component.js"></script>
+    <script src="../components/torus-component.js"></script>
+    
+    <!-- Game Logic -->
+    <script type="module" src="../js/game.js"></script>
+  </body>
+</html>

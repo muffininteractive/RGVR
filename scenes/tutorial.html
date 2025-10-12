@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tutorial - RGVR</title>
+
+    <!-- CSS personalizado -->
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <!-- A-Frame CDN -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+  </head>
+  <body>
+    <!-- Interface 2D -->
+    <div id="ui-overlay">
+      <div class="info-panel">
+        <h1>Tutorial - Como Jogar</h1>
+        <div class="tutorial-steps">
+          <div class="step">
+            <h3>1. Movimento</h3>
+            <p>Use WASD para mover ou o joystick do controle VR</p>
+          </div>
+          <div class="step">
+            <h3>2. Olhar ao Redor</h3>
+            <p>Mova o mouse ou gire a cabeça no VR</p>
+          </div>
+          <div class="step">
+            <h3>3. Pegar Objetos</h3>
+            <p>Pressione o gatilho do controle VR para pegar objetos</p>
+          </div>
+          <div class="step">
+            <h3>4. Conectar Objetos</h3>
+            <p>Aproxime objetos compatíveis para criar conexões</p>
+          </div>
+        </div>
+        <div class="controls">
+          <button id="startGame">Começar Jogo</button>
+          <button id="skipTutorial">Pular Tutorial</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cena A-Frame -->
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
+      style="height: 100vh; width: 100vw"
+      background="color: #87CEEB"
+      fog="type: linear; color: #87CEEB; near: 10; far: 100"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Texturas -->
+        <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg" />
+        
+        <!-- Mixins para objetos -->
+        <a-mixin id="tutorial-object" shadow="cast: true; receive: true" class="interactive grab"></a-mixin>
+      </a-assets>
+
+      <!-- Iluminação -->
+      <a-light type="ambient" color="#fff" intensity=".6"></a-light>
+      <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8" castShadow="true"></a-light>
+
+      <!-- Ambiente -->
+      <a-entity environment="preset: forest; groundColor: #445; grid: cross"></a-entity>
+
+      <!-- Objetos de demonstração para o tutorial -->
+      
+      <!-- Objeto de início (cubo vermelho) -->
+      <a-box
+        id="start-cube"
+        position="-3 1 -4"
+        color="#FF6B6B"
+        mixin="tutorial-object"
+        tutorial-highlight="type: start"
+        animation="property: scale; to: 1.1 1.1 1.1; dur: 1000; dir: alternate; loop: true"
+        onclick="console.log('Start cube clicked directly!')"
+      >
+        <a-text
+          value="INÍCIO"
+          position="0 1.5 0"
+          align="center"
+          color="#FFFFFF"
+          font="roboto"
+          width="8"
+        ></a-text>
+      </a-box>
+
+      <!-- Objeto intermediário (esfera azul) -->
+      <a-sphere
+        id="middle-sphere"
+        position="0 1.25 -4"
+        radius="0.8"
+        color="#4CC3D9"
+        mixin="tutorial-object"
+        tutorial-highlight="type: middle"
+        onclick="console.log('Middle sphere clicked directly!')"
+      >
+        <a-text
+          value="MEIO"
+          position="0 1.5 0"
+          align="center"
+          color="#FFFFFF"
+          font="roboto"
+          width="8"
+        ></a-text>
+      </a-sphere>
+
+      <!-- Objeto de fim (cilindro verde) -->
+      <a-cylinder
+        id="end-cylinder"
+        position="3 0.75 -4"
+        radius="0.6"
+        height="1.5"
+        color="#7BC8A4"
+        mixin="tutorial-object"
+        tutorial-highlight="type: end"
+        animation="property: rotation; to: 0 360 0; dur: 3000; loop: true"
+        onclick="console.log('End cylinder clicked directly!')"
+      >
+        <a-text
+          value="FIM"
+          position="0 1.5 0"
+          align="center"
+          color="#FFFFFF"
+          font="roboto"
+          width="8"
+        ></a-text>
+      </a-cylinder>
+
+      <!-- Instruções flutuantes -->
+      <a-text
+        value="1. Pegue o cubo vermelho (INÍCIO)"
+        position="-3 3 -4"
+        align="center"
+        color="#FF6B6B"
+        font="roboto"
+        width="6"
+        wrap-count="30"
+        tutorial-step="1"
+      ></a-text>
+
+      <a-text
+        value="2. Conecte à esfera azul (MEIO)"
+        position="0 3 -4"
+        align="center"
+        color="#4CC3D9"
+        font="roboto"
+        width="6"
+        wrap-count="30"
+        tutorial-step="2"
+        visible="false"
+      ></a-text>
+
+      <a-text
+        value="3. Conecte ao cilindro verde (FIM)"
+        position="3 3 -4"
+        align="center"
+        color="#7BC8A4"
+        font="roboto"
+        width="6"
+        wrap-count="30"
+        tutorial-step="3"
+        visible="false"
+      ></a-text>
+
+      <!-- Setas indicativas -->
+      <a-entity id="arrow1" position="-1.5 2 -4" tutorial-step="1">
+        <a-cone
+          position="0 0 0"
+          rotation="0 0 -90"
+          radius-bottom="0.2"
+          radius-top="0"
+          height="0.8"
+          color="#FFFF00"
+          animation="property: position; to: -0.5 0 0; dur: 1000; dir: alternate; loop: true"
+        ></a-cone>
+      </a-entity>
+
+      <a-entity id="arrow2" position="1.5 2 -4" tutorial-step="2" visible="false">
+        <a-cone
+          position="0 0 0"
+          rotation="0 0 -90"
+          radius-bottom="0.2"
+          radius-top="0"
+          height="0.8"
+          color="#FFFF00"
+          animation="property: position; to: 0.5 0 0; dur: 1000; dir: alternate; loop: true"
+        ></a-cone>
+      </a-entity>
+
+      <!-- Rig VR/Câmera -->
+      <a-entity
+        id="cameraRig"
+        position="0 0 0"
+        movement-controls="fly: false; constrainToNavMesh: false"
+        snap-turn-controls="turnAngle: 45"
+      >
+        <!-- Câmera -->
+        <a-camera
+          id="mainCamera"
+          position="0 1.6 2"
+          look-controls="enabled: true; pointerLockEnabled: true"
+          wasd-controls="enabled: true; acceleration: 20"
+          cursor="rayOrigin: mouse"
+          raycaster="objects: .grab; showLine: false"
+          tutorial-mouse-handler
+        >
+        </a-camera>
+
+        <!-- Controles VR -->
+        <a-entity
+          meta-touch-controls="hand: left; model: true"
+          laser-controls="hand: left"
+          raycaster="objects: .grab; showLine: true; far: 50"
+          tutorial-grab-handler
+        ></a-entity>
+        <a-entity
+          meta-touch-controls="hand: right; model: true"
+          laser-controls="hand: right"
+          raycaster="objects: .grab; showLine: true; far: 50"
+          tutorial-grab-handler
+        ></a-entity>
+
+        <!-- Feedback visual -->
+        <a-text 
+          id="tutorial-feedback" 
+          value="" 
+          position="0 2.5 -2" 
+          color="#00FF00" 
+          align="center" 
+          width="6"
+        ></a-text>
+      </a-entity>
+    </a-scene>
+
+    <!-- Scripts -->
+    <script type="module" src="../utils/scene-manager.js"></script>
+    <script type="module" src="../js/tutorial.js"></script>
+    
+    <!-- Debug script -->
+    <script>
+      console.log('Tutorial HTML loaded');
+      
+      // Adiciona event listener global para testar cliques
+      document.addEventListener('click', (event) => {
+        console.log('Click detected on:', event.target);
+      });
+      
+      // Força inicialização após um tempo
+      setTimeout(() => {
+        console.log('Checking tutorial objects after 2s...');
+        const objects = {
+          start: document.querySelector('#start-cube'),
+          middle: document.querySelector('#middle-sphere'),
+          end: document.querySelector('#end-cylinder')
+        };
+        console.log('Objects found:', objects);
+        
+        // Adiciona listeners diretamente
+        if (objects.start) {
+          objects.start.addEventListener('click', () => {
+            console.log('Start clicked via timeout setup');
+            if (window.TutorialManager) {
+              window.TutorialManager.onObjectGrabbed(objects.start);
+            }
+          });
+        }
+        
+        if (objects.middle) {
+          objects.middle.addEventListener('click', () => {
+            console.log('Middle clicked via timeout setup');
+            if (window.TutorialManager) {
+              window.TutorialManager.onObjectGrabbed(objects.middle);
+            }
+          });
+        }
+        
+        if (objects.end) {
+          objects.end.addEventListener('click', () => {
+            console.log('End clicked via timeout setup');
+            if (window.TutorialManager) {
+              window.TutorialManager.onObjectGrabbed(objects.end);
+            }
+          });
+        }
+      }, 2000);
+    </script>
+  </body>
+</html>
