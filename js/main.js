@@ -407,6 +407,130 @@ AFRAME.registerComponent('move-events', {
     }
 });
 
+// Componente para fio flexível conectando dois cubos
+AFRAME.registerComponent('flexible-wire', {
+    schema: {
+        target: { type: 'selector' },
+        segments: { type: 'number', default: 20 },
+        thickness: { type: 'number', default: 0.02 },
+        color: { type: 'color', default: '#333333' },
+        gravity: { type: 'number', default: 0.5 },
+        stiffness: { type: 'number', default: 0.8 }
+    },
+
+    init: function () {
+        this.wireSegments = [];
+        this.createWire();
+        this.time = 0;
+    },
+
+    createWire: function () {
+        const data = this.data;
+
+        // Remove segmentos anteriores se existirem
+        this.wireSegments.forEach(seg => {
+            if (seg && seg.parentNode) {
+                seg.parentNode.removeChild(seg);
+            }
+        });
+        this.wireSegments = [];
+
+        // Cria os segmentos do fio
+        for (let i = 0; i < data.segments; i++) {
+            const segment = document.createElement('a-cylinder');
+            segment.setAttribute('radius', data.thickness);
+            segment.setAttribute('height', 0.1);
+            segment.setAttribute('color', data.color);
+            segment.setAttribute('metalness', 0.8);
+            segment.setAttribute('roughness', 0.2);
+            segment.classList.add('wire-segment');
+
+            this.el.sceneEl.appendChild(segment);
+            this.wireSegments.push(segment);
+        }
+    },
+
+    tick: function (time, timeDelta) {
+        if (!this.data.target) return;
+
+        this.time += timeDelta * 0.001;
+
+        const startPos = new THREE.Vector3();
+        const endPos = new THREE.Vector3();
+
+        // Pega as posições mundiais dos cubos
+        this.el.object3D.getWorldPosition(startPos);
+        this.data.target.object3D.getWorldPosition(endPos);
+
+        const distance = startPos.distanceTo(endPos);
+        const segments = this.data.segments;
+
+        // Array para armazenar todos os pontos da curva
+        const points = [];
+
+        // Calcula todos os pontos da curva catenária primeiro
+        for (let i = 0; i <= segments; i++) {
+            const t = i / segments;
+
+            // Interpolação linear entre os pontos
+            const pos = new THREE.Vector3().lerpVectors(startPos, endPos, t);
+
+            // Adiciona curvatura (simulando gravidade)
+            const sag = Math.sin(t * Math.PI) * this.data.gravity * (distance / 5);
+            pos.y -= sag;
+
+            // Garante que o ponto não fique abaixo do chão (y mínimo = 0.05)
+            const groundLevel = 0.05; // Pequena margem acima do chão
+            if (pos.y < groundLevel) {
+                pos.y = groundLevel;
+            }
+
+            // Adiciona uma leve oscilação para simular flexibilidade
+            const wave = Math.sin(this.time * 2 + t * 10) * 0.05 * (1 - this.data.stiffness);
+            pos.x += wave * Math.cos(t * Math.PI);
+            pos.z += wave * Math.sin(t * Math.PI);
+
+            points.push(pos);
+        }
+
+        // Agora cria os cilindros conectando cada par de pontos consecutivos
+        for (let i = 0; i < segments; i++) {
+            const segment = this.wireSegments[i];
+            if (segment) {
+                const p1 = points[i];
+                const p2 = points[i + 1];
+
+                // Posiciona o cilindro no ponto médio entre p1 e p2
+                const midPoint = new THREE.Vector3().addVectors(p1, p2).multiplyScalar(0.5);
+                segment.object3D.position.copy(midPoint);
+
+                // Calcula o vetor direção e o comprimento
+                const direction = new THREE.Vector3().subVectors(p2, p1);
+                const length = direction.length();
+
+                // Atualiza o comprimento do cilindro
+                segment.setAttribute('height', length);
+
+                // Alinha o cilindro com a direção (do p1 para p2)
+                direction.normalize();
+                const axis = new THREE.Vector3(0, 1, 0);
+                const quaternion = new THREE.Quaternion().setFromUnitVectors(axis, direction);
+                segment.object3D.quaternion.copy(quaternion);
+            }
+        }
+    },
+
+    remove: function () {
+        // Remove todos os segmentos quando o componente é removido
+        this.wireSegments.forEach(seg => {
+            if (seg && seg.parentNode) {
+                seg.parentNode.removeChild(seg);
+            }
+        });
+        this.wireSegments = [];
+    }
+});
+
 // Inicialização
 let app;
 

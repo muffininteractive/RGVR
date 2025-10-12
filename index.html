@@ -52,7 +52,7 @@
 
       <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8" castShadow="true"></a-light>
 
-      <a-entity environment="preset: moon"></a-entity>
+      <a-entity environment></a-entity>
 
       <!-- Céu -->
 
@@ -73,6 +73,20 @@
       ></a-plane>-->
 
       <!-- Objetos da cena -->
+
+      <!-- Dois cubos conectados por um fio flexível -->
+      <a-box
+        id="cube1"
+        position="-2 2 -4"
+        color="#FF6B6B"
+        shadow="cast: true; receive: true"
+        class="interactive grab"
+        flexible-wire="target: #cube2; segments: 25; thickness: 0.03; color: #222222; gravity: 0.6; stiffness: 0.7"
+      >
+      </a-box>
+
+      <a-box id="cube2" position="2 2 -4" color="#4ECDC4" shadow="cast: true; receive: true" class="interactive grab">
+      </a-box>
 
       <a-box
         position="0 0.5 -3"
