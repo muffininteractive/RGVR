@@ -29,7 +29,7 @@ class LevelGenerator {
      */
     static async generateLevel(difficulty = 'easy') {
         await this.loadObjectsData();
-        
+
         if (!this.objectsData) {
             console.error('Dados dos objetos não carregados');
             return null;
@@ -45,13 +45,23 @@ class LevelGenerator {
 
         // Seleciona objetos para o nível
         const selectedObjects = this.selectObjectsForLevel(levelConfig.objectCount);
-        
+
+        if (!selectedObjects || selectedObjects.length === 0) {
+            console.error('Falha ao selecionar objetos para o nível');
+            return null;
+        }
+
         // Escolhe objeto inicial e final
         const { startObject, endObject } = this.selectStartAndEndObjects(selectedObjects);
-        
+
+        if (!startObject || !endObject) {
+            console.error('Falha ao selecionar objetos de início/fim');
+            return null;
+        }
+
         // Gera posições para os objetos
         const objectPlacements = this.generateObjectPlacements(selectedObjects);
-        
+
         // Cria as conexões válidas entre objetos
         const validConnections = this.generateValidConnections(selectedObjects);
 
@@ -68,7 +78,7 @@ class LevelGenerator {
 
         this.currentLevel = level;
         console.log('Nível gerado:', level);
-        
+
         return level;
     }
 
@@ -97,7 +107,7 @@ class LevelGenerator {
                 hasStart = true;
                 continue;
             }
-            
+
             if (!hasEnd && obj.end) {
                 selected.push(obj);
                 hasEnd = true;
@@ -138,6 +148,16 @@ class LevelGenerator {
     static selectStartAndEndObjects(objects) {
         const startCandidates = objects.filter(obj => obj.start);
         const endCandidates = objects.filter(obj => obj.end);
+
+        if (startCandidates.length === 0) {
+            console.error('Nenhum objeto com start:true encontrado!');
+            return { startObject: objects[0], endObject: objects[objects.length - 1] };
+        }
+
+        if (endCandidates.length === 0) {
+            console.error('Nenhum objeto com end:true encontrado!');
+            return { startObject: objects[0], endObject: objects[objects.length - 1] };
+        }
 
         const startObject = startCandidates[Math.floor(Math.random() * startCandidates.length)];
         const endObject = endCandidates[Math.floor(Math.random() * endCandidates.length)];

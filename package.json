@@ -1,7 +1,7 @@
 {
-    "name": "rgvr-aframe-project",
+    "name": "wacky-works-vr",
     "version": "1.0.0",
-    "description": "Projeto A-Frame com Vite para desenvolvimento VR/AR",
+    "description": "Wacky Works VR - An interactive virtual reality puzzle game built with A-Frame",
     "type": "module",
     "scripts": {
         "dev": "vite",
@@ -25,14 +25,15 @@
     "author": "Hugo Euzébio",
     "license": "MIT",
     "devDependencies": {
-        "vite": "^5.4.0",
         "@vitejs/plugin-legacy": "^5.4.0",
-        "terser": "^5.24.0",
         "eslint": "^8.54.0",
-        "prettier": "^3.1.0"
+        "prettier": "^3.1.0",
+        "terser": "^5.24.0",
+        "vite": "^5.4.0"
     },
     "dependencies": {
-        "aframe": "^1.7.0"
+        "aframe": "^1.7.0",
+        "aframe-physics-system": "^4.0.2"
     },
     "browserslist": [
         "> 1%",

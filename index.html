@@ -1,14 +1,26 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>RGVR - Realidade Virtual Interativa</title>
+    <title>Wacky Works VR - Interactive Virtual Reality Game</title>
+
+    <!-- A-Frame CDN -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+
+    <!-- Physics System (Cannon.js) -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.0.1/dist/aframe-physics-system.min.js"></script>
 
     <!-- CSS personalizado -->
     <link rel="stylesheet" href="./css/style.css" />
     <style>
-      .main-menu {
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      #enter-vr-overlay {
         position: fixed;
         top: 0;
         left: 0;
@@ -20,87 +32,67 @@
         justify-content: center;
         z-index: 1000;
         font-family: Arial, sans-serif;
+        transition: opacity 0.5s;
       }
-      
-      .menu-container {
+
+      #enter-vr-overlay.hidden {
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .vr-prompt {
         text-align: center;
         color: white;
-        max-width: 600px;
-        padding: 2rem;
       }
-      
-      .menu-container h1 {
+
+      .vr-prompt h1 {
         font-size: 3rem;
         margin-bottom: 1rem;
         text-shadow: 0 0 20px #00ffff;
         animation: glow 2s ease-in-out infinite alternate;
       }
-      
-      .menu-container p {
+
+      .vr-prompt p {
         font-size: 1.2rem;
         margin-bottom: 2rem;
         opacity: 0.8;
       }
-      
-      .menu-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-        align-items: center;
-      }
-      
-      .menu-button {
+
+      .enter-vr-button {
         background: linear-gradient(45deg, #00ffff, #0080ff);
         border: none;
         border-radius: 50px;
-        padding: 1rem 2rem;
-        font-size: 1.1rem;
+        padding: 1.5rem 3rem;
+        font-size: 1.5rem;
         font-weight: bold;
         color: white;
         cursor: pointer;
         transition: all 0.3s ease;
-        min-width: 200px;
         text-transform: uppercase;
-        letter-spacing: 1px;
+        letter-spacing: 2px;
       }
-      
-      .menu-button:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0, 255, 255, 0.3);
+
+      .enter-vr-button:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
         background: linear-gradient(45deg, #00ffff, #0066cc);
       }
-      
-      .menu-button:active {
-        transform: translateY(-1px);
+
+      .enter-vr-button:active {
+        transform: translateY(-2px);
       }
-      
-      .menu-info {
-        margin-top: 2rem;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-        backdrop-filter: blur(10px);
-      }
-      
-      .features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 1rem;
-        margin-top: 1rem;
-      }
-      
-      .feature {
-        padding: 0.5rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 5px;
-        font-size: 0.9rem;
-      }
-      
+
       @keyframes glow {
-        from { text-shadow: 0 0 20px #00ffff; }
-        to { text-shadow: 0 0 30px #00ffff, 0 0 40px #0080ff; }
+        from {
+          text-shadow: 0 0 20px #00ffff;
+        }
+        to {
+          text-shadow:
+            0 0 30px #00ffff,
+            0 0 40px #0080ff;
+        }
       }
-      
+
       .version {
         position: absolute;
         bottom: 1rem;
@@ -111,65 +103,243 @@
     </style>
   </head>
   <body>
-    <!-- Menu Principal -->
-    <div id="main-menu" class="main-menu">
-      <div class="menu-container">
-        <h1>🚀 RGVR 🚀</h1>
-        <p>Realidade Virtual Interativa - Conecte objetos em mundos virtuais</p>
-        
-        <div class="menu-buttons">
-          <button id="startTutorial" class="menu-button">🎓 Iniciar Tutorial</button>
-          <button id="playGame" class="menu-button">🎮 Jogar Agora</button>
-          <button id="aboutGame" class="menu-button">ℹ️ Sobre o Jogo</button>
-        </div>
-        
-        <div class="menu-info">
-          <h3>🌟 Características</h3>
-          <div class="features">
-            <div class="feature">🥽 Suporte VR/AR</div>
-            <div class="feature">🎯 Múltiples Níveis</div>
-            <div class="feature">🔗 Sistema de Conexões</div>
-            <div class="feature">⚡ Física Realística</div>
-            <div class="feature">🎨 Gráficos 3D</div>
-            <div class="feature">🎵 Efeitos Sonoros</div>
-          </div>
-          
-          <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">
-            <p><strong>Controles:</strong></p>
-            <p>🖱️ Mouse: Olhar ao redor | ⌨️ WASD: Movimento</p>
-            <p>🥽 VR: Controles de movimento + gatilhos para interação</p>
-          </div>
-        </div>
-        
-        <div class="version">v1.0.0</div>
+    <!-- Overlay para entrar em VR -->
+    <div id="enter-vr-overlay">
+      <div class="vr-prompt">
+        <h1>🎮 WACKY WORKS VR 🎮</h1>
+        <p>Interactive Virtual Reality Game</p>
+        <button class="enter-vr-button" onclick="enterVR()">🥽 ENTER VR</button>
       </div>
+      <div class="version">v1.0.0</div>
     </div>
 
+    <!-- Cena A-Frame -->
+    <a-scene
+      vr-mode-ui="enabled: true"
+      embedded
+      style="height: 100vh; width: 100vw"
+      background="color: #1a1a2e"
+      fog="type: linear; color: #1a1a2e; near: 10; far: 100"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <img id="starTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg" />
+      </a-assets>
+
+      <!-- Iluminação -->
+      <a-light type="ambient" color="#2a2a4a" intensity="0.6"></a-light>
+      <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8"></a-light>
+      <a-light type="point" position="0 3 -5" color="#00ffff" intensity="1" distance="20"></a-light>
+
+      <!-- Ambiente -->
+      <a-entity environment="preset: starry; groundColor: #1a1a2e; horizonColor: #000000"></a-entity>
+
+      <!-- Plataforma central -->
+      <a-cylinder
+        position="0 0 -5"
+        radius="8"
+        height="0.2"
+        color="#2a2a4a"
+        material="metalness: 0.8; roughness: 0.2"
+      ></a-cylinder>
+
+      <!-- Container do Menu VR -->
+      <a-entity id="vr-main-menu" position="0 1.6 -5" visible="false">
+        <!-- Título 3D -->
+        <a-text
+          value="WACKY WORKS VR"
+          align="center"
+          color="#00FFFF"
+          width="8"
+          position="0 2 0"
+          font="roboto"
+          wrap-count="30"
+          animation="property: scale; to: 1.05 1.05 1.05; dur: 2000; dir: alternate; loop: true"
+        ></a-text>
+
+        <!-- Botão Tutorial -->
+        <a-entity
+          id="btn-tutorial"
+          vr-button="label: 🎓 Tutorial; width: 3; height: 0.7; color: #4CC3D9; action: tutorial"
+          position="0 0.5 0"
+        ></a-entity>
+
+        <!-- Botão Jogar -->
+        <a-entity
+          id="btn-play"
+          vr-button="label: 🎮 Play; width: 3; height: 0.7; color: #7BC8A4; action: play"
+          position="0 -0.3 0"
+        ></a-entity>
+
+        <!-- Botão Sobre -->
+        <a-entity
+          id="btn-about"
+          vr-button="label: ℹ️ About; width: 3; height: 0.7; color: #FFC65D; action: about"
+          position="0 -1.1 0"
+        ></a-entity>
+
+        <!-- Instruções -->
+        <a-text
+          value="Aponte e clique nos botões com o controle VR"
+          align="center"
+          color="#FFFFFF"
+          width="6"
+          position="0 -2 0"
+          font="roboto"
+          wrap-count="40"
+          opacity="0.7"
+        ></a-text>
+      </a-entity>
+
+      <!-- Painel Sobre (inicialmente invisível) -->
+      <a-entity id="about-panel" position="0 1.6 -5" visible="false">
+        <a-plane width="4" height="3" color="#1a1a2e" material="opacity: 0.95; transparent: true"></a-plane>
+
+        <a-text
+          value="ABOUT WACKY WORKS VR"
+          align="center"
+          color="#00FFFF"
+          width="7"
+          position="0 1.2 0.01"
+          font="roboto"
+        ></a-text>
+
+        <a-text
+          value="A virtual reality game where you\nconnect 3D objects to complete\ndifferent difficulty levels.\n\nTechnologies:\nA-Frame, WebXR, THREE.js\n\nDeveloped by: Hugo Euzebio"
+          align="center"
+          color="#FFFFFF"
+          width="7"
+          position="0 0 0.01"
+          font="roboto"
+          wrap-count="35"
+          line-height="50"
+        ></a-text>
+
+        <a-entity
+          vr-button="label: Voltar; width: 2; height: 0.5; color: #FF6B6B; action: back-to-menu"
+          position="0 -1.2 0.01"
+        ></a-entity>
+      </a-entity>
+
+      <!-- Rig VR/Câmera -->
+      <a-entity id="cameraRig" position="0 0 0" movement-controls="fly: false; constrainToNavMesh: false">
+        <!-- Câmera -->
+        <a-camera id="mainCamera" look-controls wasd-controls="acceleration: 20">
+          <!-- Cursor para interação -->
+          <a-cursor
+            vr-cursor-visual
+            raycaster="objects: .interactive"
+            animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+            fuse="false"
+          ></a-cursor>
+        </a-camera>
+
+        <!-- Controle VR Direito -->
+        <a-entity
+          id="rightController"
+          laser-controls="hand: right"
+          raycaster="objects: .interactive; lineColor: #00FFFF; lineOpacity: 0.5"
+        ></a-entity>
+
+        <!-- Controle VR Esquerdo -->
+        <a-entity
+          id="leftController"
+          laser-controls="hand: left"
+          raycaster="objects: .interactive; lineColor: #00FF00; lineOpacity: 0.5"
+        ></a-entity>
+      </a-entity>
+    </a-scene>
+
     <!-- Scripts -->
+    <script src="./components/vr-ui-components.js"></script>
     <script type="module" src="./utils/scene-manager.js"></script>
     <script type="module">
       import { SceneManager } from './utils/scene-manager.js';
-      
-      // Event listeners para o menu
+
+      let vrMenuVisible = false;
+
+      // Função para entrar em VR
+      window.enterVR = function () {
+        const overlay = document.getElementById('enter-vr-overlay');
+        const vrMenu = document.getElementById('vr-main-menu');
+        const scene = document.querySelector('a-scene');
+
+        // Remove overlay 2D
+        overlay.classList.add('hidden');
+        setTimeout(() => {
+          overlay.style.display = 'none';
+        }, 500);
+
+        // Mostra menu VR
+        if (vrMenu) {
+          setTimeout(() => {
+            vrMenu.setAttribute('visible', true);
+            vrMenuVisible = true;
+          }, 500);
+        }
+
+        // Tenta entrar em modo VR automaticamente se disponível
+        if (scene && scene.is('vr-mode')) {
+          scene.enterVR();
+        }
+      };
+
+      // Event listeners para os botões VR
       document.addEventListener('DOMContentLoaded', () => {
-        // Botão Tutorial
-        document.getElementById('startTutorial').addEventListener('click', () => {
-          SceneManager.loadScene('tutorial');
-        });
-        
-        // Botão Jogar
-        document.getElementById('playGame').addEventListener('click', () => {
-          SceneManager.loadScene('level-select');
-        });
-        
-        // Botão Sobre
-        document.getElementById('aboutGame').addEventListener('click', () => {
-          showAboutModal();
-        });
-        
+        const scene = document.querySelector('a-scene');
+
+        if (scene.hasLoaded) {
+          setupVRMenu();
+        } else {
+          scene.addEventListener('loaded', setupVRMenu);
+        }
+      });
+
+      function setupVRMenu() {
+        const btnTutorial = document.getElementById('btn-tutorial');
+        const btnPlay = document.getElementById('btn-play');
+        const btnAbout = document.getElementById('btn-about');
+        const aboutPanel = document.getElementById('about-panel');
+        const vrMenu = document.getElementById('vr-main-menu');
+
+        // Tutorial
+        if (btnTutorial) {
+          btnTutorial.addEventListener('vr-button-clicked', () => {
+            console.log('Tutorial clicked');
+            SceneManager.loadScene('tutorial');
+          });
+        }
+
+        // Jogar
+        if (btnPlay) {
+          btnPlay.addEventListener('vr-button-clicked', () => {
+            console.log('Play clicked');
+            SceneManager.loadScene('level-select');
+          });
+        }
+
+        // Sobre
+        if (btnAbout) {
+          btnAbout.addEventListener('vr-button-clicked', () => {
+            console.log('About clicked');
+            if (vrMenu) vrMenu.setAttribute('visible', false);
+            if (aboutPanel) aboutPanel.setAttribute('visible', true);
+          });
+        }
+
+        // Voltar do Sobre
+        const backButton = aboutPanel?.querySelector('[vr-button]');
+        if (backButton) {
+          backButton.addEventListener('vr-button-clicked', () => {
+            console.log('Back to menu clicked');
+            if (aboutPanel) aboutPanel.setAttribute('visible', false);
+            if (vrMenu) vrMenu.setAttribute('visible', true);
+          });
+        }
+
         // Atalhos de teclado para desenvolvimento
-        document.addEventListener('keydown', (event) => {
-          switch(event.key) {
+        document.addEventListener('keydown', event => {
+          switch (event.key) {
             case '1':
               SceneManager.loadScene('tutorial');
               break;
@@ -179,66 +349,11 @@
             case '3':
               SceneManager.loadScene('game', { difficulty: 'easy' });
               break;
-          }
-        });
-      });
-      
-      function showAboutModal() {
-        const modal = document.createElement('div');
-        modal.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100vw;
-          height: 100vh;
-          background: rgba(0, 0, 0, 0.8);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 10000;
-        `;
-        
-        modal.innerHTML = `
-          <div style="
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            padding: 2rem;
-            border-radius: 20px;
-            max-width: 500px;
-            color: white;
-            text-align: center;
-            border: 2px solid #00ffff;
-          ">
-            <h2 style="color: #00ffff; margin-bottom: 1rem;">Sobre o RGVR</h2>
-            <p style="margin-bottom: 1rem;">
-              RGVR é um jogo de realidade virtual onde você precisa conectar objetos 3D 
-              para completar diferentes níveis de dificuldade.
-            </p>
-            <p style="margin-bottom: 1rem;">
-              <strong>Tecnologias:</strong><br>
-              A-Frame, WebXR, THREE.js, JavaScript ES6+
-            </p>
-            <p style="margin-bottom: 2rem;">
-              <strong>Desenvolvido por:</strong> Hugo Euzébio<br>
-              <strong>Versão:</strong> 1.0.0
-            </p>
-            <button onclick="this.parentElement.parentElement.remove()" style="
-              background: #00ffff;
-              border: none;
-              padding: 10px 20px;
-              border-radius: 5px;
-              color: #1a1a2e;
-              font-weight: bold;
-              cursor: pointer;
-            ">Fechar</button>
-          </div>
-        `;
-        
-        document.body.appendChild(modal);
-        
-        // Fechar clicando fora
-        modal.addEventListener('click', (e) => {
-          if (e.target === modal) {
-            modal.remove();
+            case 'Enter':
+              if (!vrMenuVisible) {
+                enterVR();
+              }
+              break;
           }
         });
       }

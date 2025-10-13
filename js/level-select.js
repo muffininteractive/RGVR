@@ -14,69 +14,72 @@ AFRAME.registerComponent('level-selector', {
         difficulty: { type: 'string', default: 'easy' }
     },
 
-    init: function() {
+    init: function () {
         this.difficulty = this.data.difficulty;
         this.crystal = this.el.querySelector('a-octahedron');
         this.isSelected = false;
         this.isHovered = false;
-        
+
         this.originalScale = this.crystal.getAttribute('scale') || { x: 1, y: 1, z: 1 };
         this.originalColor = this.crystal.getAttribute('color');
-        
+
         // Event listeners
         this.el.addEventListener('mouseenter', this.onHover.bind(this));
         this.el.addEventListener('mouseleave', this.onUnhover.bind(this));
         this.el.addEventListener('click', this.onSelect.bind(this));
+
+        // Para controles VR
+        this.crystal.addEventListener('click', this.onSelect.bind(this));
     },
 
-    onHover: function() {
+    onHover: function () {
         if (this.isSelected) return;
-        
+
         this.isHovered = true;
         levelSelectState.hoveredLevel = this.difficulty;
-        
+
         // Efeito visual de hover
         this.crystal.setAttribute('animation__hover', {
             property: 'scale',
             to: '1.2 1.2 1.2',
             dur: 300
         });
-        
+
         this.crystal.setAttribute('animation__glow', {
             property: 'material.emissiveIntensity',
             to: 0.5,
             dur: 300
         });
-        
-        // Atualiza interface
-        LevelSelectManager.updateLevelInfo(this.difficulty);
-        LevelSelectManager.updateFeedback(`Nível: ${this.difficulty.toUpperCase()}`);
-        
+
+        // Atualiza interface VR
+        LevelSelectManager.updateLevelInfoVR(this.difficulty);
+        LevelSelectManager.updateFeedbackVR(`Nível: ${this.difficulty.toUpperCase()}`);
+
         console.log(`Hovering over level: ${this.difficulty}`);
     },
 
-    onUnhover: function() {
+    onUnhover: function () {
         if (this.isSelected) return;
-        
+
         this.isHovered = false;
         levelSelectState.hoveredLevel = null;
-        
+
         // Remove efeito visual
         this.crystal.removeAttribute('animation__hover');
         this.crystal.removeAttribute('animation__glow');
         this.crystal.setAttribute('scale', this.originalScale);
         this.crystal.setAttribute('material.emissiveIntensity', 0);
-        
+
         // Limpa interface se não há nível selecionado
         if (!levelSelectState.selectedLevel) {
-            LevelSelectManager.clearLevelInfo();
-            LevelSelectManager.updateFeedback('');
+            LevelSelectManager.clearLevelInfoVR();
+            LevelSelectManager.updateFeedbackVR('');
         }
     },
 
-    onSelect: function() {
+    onSelect: function () {
         console.log(`Selected level: ${this.difficulty}`);
-        
+
         // Deseleciona outros níveis
         document.querySelectorAll('[level-selector]').forEach(el => {
             const component = el.components['level-selector'];
@@ -84,25 +87,25 @@ AFRAME.registerComponent('level-selector', {
                 component.deselect();
             }
         });
-        
+
         // Seleciona este nível
         this.select();
-        
+
         // Atualiza estado global
         levelSelectState.selectedLevel = this.difficulty;
         LevelSelectManager.onLevelSelected(this.difficulty);
     },
 
-    select: function() {
+    select: function () {
         this.isSelected = true;
-        
+
         // Efeito visual de seleção
         this.crystal.setAttribute('animation__select', {
             property: 'scale',
             to: '1.3 1.3 1.3',
             dur: 500
         });
-        
+
         this.crystal.setAttribute('animation__pulse', {
             property: 'material.emissiveIntensity',
             to: 0.8,
@@ -110,27 +113,27 @@ AFRAME.registerComponent('level-selector', {
             dir: 'alternate',
             loop: true
         });
-        
+
         // Adiciona anel de seleção
         this.addSelectionRing();
     },
 
-    deselect: function() {
+    deselect: function () {
         this.isSelected = false;
-        
+
         // Remove animações
         this.crystal.removeAttribute('animation__select');
         this.crystal.removeAttribute('animation__pulse');
         this.crystal.setAttribute('scale', this.originalScale);
         this.crystal.setAttribute('material.emissiveIntensity', 0);
-        
+
         // Remove anel de seleção
         this.removeSelectionRing();
     },
 
-    addSelectionRing: function() {
+    addSelectionRing: function () {
         if (this.selectionRing) return;
-        
+
         this.selectionRing = document.createElement('a-torus');
         this.selectionRing.setAttribute('position', '0 1 0');
         this.selectionRing.setAttribute('radius', 2);
@@ -143,11 +146,11 @@ AFRAME.registerComponent('level-selector', {
             dur: 3000,
             loop: true
         });
-        
+
         this.el.appendChild(this.selectionRing);
     },
 
-    removeSelectionRing: function() {
+    removeSelectionRing: function () {
         if (this.selectionRing) {
             this.el.removeChild(this.selectionRing);
             this.selectionRing = null;
@@ -157,11 +160,11 @@ AFRAME.registerComponent('level-selector', {
 
 // Componente para interação com controles VR
 AFRAME.registerComponent('level-interaction', {
-    init: function() {
+    init: function () {
         this.el.addEventListener('triggerdown', this.onTriggerDown.bind(this));
     },
 
-    onTriggerDown: function() {
+    onTriggerDown: function () {
         const raycasterComponent = this.el.components.raycaster;
         if (!raycasterComponent) return;
 
@@ -169,7 +172,7 @@ AFRAME.registerComponent('level-interaction', {
         if (intersections && intersections.length > 0) {
             const intersection = intersections[0];
             const levelEntity = intersection.object.el.closest('[level-selector]');
-            
+
             if (levelEntity) {
                 // Simula click
                 levelEntity.emit('click');
@@ -182,119 +185,141 @@ AFRAME.registerComponent('level-interaction', {
 class LevelSelectManager {
     static async init() {
         console.log('Inicializando Level Select...');
-        
+
+        await this.loadLevelData();
+        this.setupEventListeners();
+
+        console.log('Level Select initialized');
+    }
+
+    static async loadLevelData() {
         try {
-            // Carrega dados dos níveis
             const response = await fetch('../data/objects.json');
             const data = await response.json();
-            levelSelectState.levelData = data.levels;
-            
-            console.log('Level data loaded:', levelSelectState.levelData);
+            levelSelectState.levelData = {
+                easy: { name: 'Nível Fácil', description: 'Perfeito para iniciantes', objectCount: 3 },
+                medium: { name: 'Nível Médio', description: 'Desafio moderado', objectCount: 5 },
+                hard: { name: 'Nível Difícil', description: 'Prepare-se para um desafio', objectCount: 7 },
+                expert: { name: 'Nível Expert', description: 'Apenas para mestres', objectCount: 8 }
+            };
         } catch (error) {
-            console.error('Erro ao carregar dados dos níveis:', error);
+            console.error('Error loading level data:', error);
+            levelSelectState.levelData = {
+                easy: { name: 'Nível Fácil', description: 'Perfeito para iniciantes', objectCount: 3 },
+                medium: { name: 'Nível Médio', description: 'Desafio moderado', objectCount: 5 },
+                hard: { name: 'Nível Difícil', description: 'Prepare-se para um desafio', objectCount: 7 },
+                expert: { name: 'Nível Expert', description: 'Apenas para mestres', objectCount: 8 }
+            };
         }
+    }
 
-        // Event listeners para botões
-        document.getElementById('backToTutorial')?.addEventListener('click', () => {
-            SceneManager.loadScene('tutorial');
+    static setupEventListeners() {
+        // Botão Voltar
+        const btnBack = document.getElementById('btn-back');
+        btnBack?.addEventListener('vr-button-clicked', () => {
+            console.log('Back button clicked');
+            window.location.href = '../index.html';
         });
 
-        document.getElementById('startSelectedLevel')?.addEventListener('click', () => {
+        // Botão Iniciar
+        const btnStart = document.getElementById('btn-start');
+        btnStart?.addEventListener('vr-button-clicked', () => {
             if (levelSelectState.selectedLevel) {
                 this.startGame(levelSelectState.selectedLevel);
             }
         });
-        
-        // Inicializa interface
-        this.clearLevelInfo();
-        this.updateFeedback('Escolha um nível de dificuldade');
     }
 
-    static updateLevelInfo(difficulty) {
-        const levelInfo = document.getElementById('level-description');
-        if (!levelInfo || !levelSelectState.levelData) return;
+    static updateLevelInfoVR(difficulty) {
+        const levelInfoPanel = document.getElementById('level-info-panel');
+        const levelTitle = document.getElementById('level-title');
+        const levelDesc = document.getElementById('level-desc');
+        const levelStats = document.getElementById('level-stats');
+
+        if (!levelSelectState.levelData) return;
 
         const level = levelSelectState.levelData[difficulty];
-        if (level) {
-            levelInfo.innerHTML = `
-                <h3>${level.name}</h3>
-                <p>${level.description}</p>
-                <div class="level-stats">
-                    <span class="stat">Objetos: ${level.objectCount}</span>
-                    <span class="stat">Dificuldade: ${difficulty.toUpperCase()}</span>
-                </div>
-            `;
+        if (level && levelInfoPanel) {
+            levelInfoPanel.setAttribute('visible', true);
+
+            if (levelTitle) {
+                levelTitle.setAttribute('value', level.name);
+            }
+            if (levelDesc) {
+                levelDesc.setAttribute('value', level.description);
+            }
+            if (levelStats) {
+                levelStats.setAttribute('value', `Objetos: ${level.objectCount} | Dificuldade: ${difficulty.toUpperCase()}`);
+            }
         }
     }
 
-    static clearLevelInfo() {
-        const levelInfo = document.getElementById('level-description');
-        if (levelInfo) {
-            levelInfo.innerHTML = `
-                <h3>Selecione um nível</h3>
-                <p>Aponte para um dos cristais para ver detalhes</p>
-            `;
+    static clearLevelInfoVR() {
+        const levelInfoPanel = document.getElementById('level-info-panel');
+        if (levelInfoPanel) {
+            levelInfoPanel.setAttribute('visible', false);
         }
     }
 
     static onLevelSelected(difficulty) {
         console.log(`Level selected: ${difficulty}`);
-        
-        // Habilita botão de iniciar
-        const startButton = document.getElementById('startSelectedLevel');
-        if (startButton) {
-            startButton.disabled = false;
-            startButton.textContent = `Iniciar Nível ${difficulty.toUpperCase()}`;
+
+        // Mostra botão de iniciar
+        const btnStart = document.getElementById('btn-start');
+        if (btnStart) {
+            btnStart.setAttribute('visible', true);
+            btnStart.setAttribute('vr-button', 'disabled', false);
+            const label = `Iniciar ${difficulty.toUpperCase()}`;
+            btnStart.setAttribute('vr-button', 'label', label);
         }
-        
+
         // Atualiza feedback
-        this.updateFeedback(`Nível ${difficulty.toUpperCase()} selecionado!`);
-        
+        this.updateFeedbackVR(`Nível ${difficulty.toUpperCase()} selecionado!`);
+
         // Efeito sonoro (se disponível)
         const selectSound = document.getElementById('selectSound');
         if (selectSound) {
             selectSound.play().catch(e => console.log('Audio não disponível'));
         }
 
-        // Auto-start após delay (opcional)
-        setTimeout(() => {
-            this.startGame(difficulty);
-        }, 2000);
+        // Atualiza info do nível
+        this.updateLevelInfoVR(difficulty);
     }
 
     static startGame(difficulty) {
         console.log(`Starting game with difficulty: ${difficulty}`);
-        
+
         // Salva dificuldade selecionada para a próxima cena
         SceneManager.setGameData({
             difficulty: difficulty,
             levelData: levelSelectState.levelData[difficulty]
         });
-        
-        this.updateFeedback('Carregando jogo...');
-        
+
+        this.updateFeedbackVR('Carregando jogo...');
+
         // Transição para o jogo
         setTimeout(() => {
             SceneManager.loadScene('game');
         }, 1500);
     }
 
-    static updateFeedback(message) {
-        const feedback = document.querySelector('#level-feedback');
+    static updateFeedbackVR(message) {
+        const feedback = document.getElementById('vr-feedback');
         if (feedback) {
-            feedback.setAttribute('value', message);
+            feedback.setAttribute('vr-feedback', 'message', message);
         }
     }
 
     // Efeito de partículas para celebração
     static playSelectionEffect(position) {
         const colors = ['#00ff88', '#ffdd00', '#ff8800', '#ff0044'];
-        
+
         for (let i = 0; i < 15; i++) {
             setTimeout(() => {
                 const particle = document.createElement('a-sphere');
                 particle.setAttribute('radius', 0.05);
                 particle.setAttribute('color', colors[Math.floor(Math.random() * colors.length)]);
+                particle.setAttribute('material', 'transparent: true');
                 particle.setAttribute('position', position);
                 particle.setAttribute('animation', {
                     property: 'position',
@@ -306,9 +331,9 @@ class LevelSelectManager {
                     to: 0,
                     dur: 1500
                 });
-                
+
                 document.querySelector('a-scene').appendChild(particle);
-                
+
                 setTimeout(() => {
                     if (particle.parentNode) {
                         particle.parentNode.removeChild(particle);

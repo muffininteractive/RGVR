@@ -13,7 +13,7 @@
         "sphere-pink"
       ],
       "anim": "pulse",
-      "start": false,
+      "start": true,
       "end": false,
       "properties": {
         "color": "#FF6B6B",
@@ -71,7 +71,7 @@
         "cylinder-metal"
       ],
       "anim": "bounce",
-      "start": false,
+      "start": true,
       "end": false,
       "properties": {
         "color": "#EF2D5E",
@@ -121,7 +121,7 @@
         "sphere-yellow"
       ],
       "anim": "spin",
-      "start": false,
+      "start": true,
       "end": false,
       "properties": {
         "color": "#7BC8A4",
@@ -173,7 +173,7 @@
         "cylinder-metal"
       ],
       "anim": "wobble",
-      "start": false,
+      "start": true,
       "end": false,
       "properties": {
         "color": "#FF8C42",
@@ -216,7 +216,7 @@
     {
       "name": "Alavanca",
       "id": "lever-1",
-      "file": "lever",
+      "file": "lever-component",
       "in": [
         "cube-red",
         "sphere-pink"
@@ -226,13 +226,13 @@
         "cube-blue"
       ],
       "anim": null,
-      "start": true,
+      "start": false,
       "end": false,
       "properties": {
         "position": {
           "x": 3,
           "y": 0,
-          "z": -2
+          "z": 2
         },
         "scale": {
           "x": 1,
