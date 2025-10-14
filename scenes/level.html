@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Level - Wacky Works VR</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="../css/style.css" />
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+    <!-- Physics System (Cannon.js) -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+
+    <!-- Particle System -->
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>
+
+    <!-- Environment Component -->
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+
+    <!-- Components -->
+    <script src="../components/vr-ui-components.js"></script>
+    <script src="../components/level-ui-components.js"></script>
+    <script type="module" src="../utils/level-manager.js"></script>
+  </head>
+  <body>
+    <!-- A-Frame Scene with Physics -->
+    <a-scene id="main-scene" background="color: #1a1a2e" fog="type: linear; color: #1a1a2e; near: 10; far: 50">
+      <!-- Assets -->
+      <a-assets>
+        <!-- Textures and sounds can be added here -->
+      </a-assets>
+
+      <!-- 3D Environment (will be configured dynamically) -->
+      <a-entity id="environment"></a-entity>
+
+      <!-- Lighting -->
+      <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
+      <a-light type="directional" position="5 10 5" intensity="0.8" castShadow="true"></a-light>
+      <a-light type="point" position="0 5 0" color="#00ffff" intensity="0.5"></a-light>
+
+      <!-- Physical Ground --><!--
+      <a-plane
+        id="ground"
+        position="0 0 0"
+        rotation="-90 0 0"
+        width="30"
+        height="30"
+        color="#2a2a4a"
+        static-body
+        shadow="receive: true"
+        material="roughness: 0.8; metalness: 0.2"
+      ></a-plane>
+-->
+      <!-- Visual Grid -->
+      <a-plane
+        position="0 0.01 0"
+        rotation="-90 0 0"
+        width="30"
+        height="30"
+        color="#3a3a5a"
+        material="shader: flat; transparent: true; opacity: 0"
+        static-body
+      ></a-plane>
+
+      <!-- Level Title (will be updated dynamically) -->
+      <a-text
+        id="level-title"
+        value="NÍVEL..."
+        position="0 4 -10"
+        align="center"
+        color="#00ffff"
+        width="12"
+        animation="property: scale; from: 1 1 1; to: 1.05 1.05 1.05; dur: 1000; dir: alternate; loop: true; easing: easeInOutSine"
+      ></a-text>
+
+      <!-- Objective Panel (will be updated dynamically) -->
+      <a-entity id="objective-panel" position="0 2.5 -5"></a-entity>
+
+      <!-- Level elements will be created dynamically by level-manager -->
+
+      <!-- UI: Control Buttons -->
+      <a-entity id="btn-play" position="5 2.4 2" level-play-button></a-entity>
+
+      <a-entity id="btn-restart" position="5 1.6 2" level-restart-button></a-entity>
+
+      <!-- Back Button -->
+      <a-entity
+        id="btn-back"
+        position="5 0.8 2"
+        vr-button="
+          label: ← Menu;
+          width: 1.5;
+          height: 0.5;
+          color: #666666;
+          action: back
+        "
+      ></a-entity>
+
+      <!-- Victory Panel (initially invisible; not interactive until shown) -->
+      <a-entity id="victory-panel" position="0 2 -2" victory-panel></a-entity>
+
+      <!-- Celebration Effect -->
+      <a-entity celebration-effect></a-entity>
+
+      <!-- VR Rig/Camera with full controls -->
+      <a-entity
+        id="cameraRig"
+        position="0 0 8"
+        movement-controls="fly: false; constrainToNavMesh: false"
+        snap-turn-controls="turnAngle: 45"
+      >
+        <!-- Camera -->
+        <a-camera
+          id="mainCamera"
+          position="0 1.6 0"
+          look-controls="enabled: true; pointerLockEnabled: true"
+          wasd-controls="enabled: true; acceleration: 20"
+        >
+          <!-- Visual Cursor -->
+          <a-cursor
+            color="#00ffff"
+            raycaster="objects: .interactive"
+            animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
+            fuse="false"
+          ></a-cursor>
+        </a-camera>
+
+        <!-- VR Controls -->
+        <a-entity
+          id="leftHand"
+          laser-controls="hand: left"
+          raycaster="objects: .interactive; lineColor: #00ffff; lineOpacity: 0.5"
+        ></a-entity>
+
+        <a-entity
+          id="rightHand"
+          laser-controls="hand: right"
+          raycaster="objects: .interactive; lineColor: #00ffff; lineOpacity: 0.5"
+        ></a-entity>
+      </a-entity>
+
+      <!-- Invisible Walls (boundaries) -->
+      <a-box position="15 2 0" width="1" height="4" depth="30" static-body visible="false"></a-box>
+      <a-box position="-15 2 0" width="1" height="4" depth="30" static-body visible="false"></a-box>
+      <a-box position="0 2 -15" width="30" height="4" depth="1" static-body visible="false"></a-box>
+      <a-box position="0 2 15" width="30" height="4" depth="1" static-body visible="false"></a-box>
+    </a-scene>
+
+    <!-- Dynamic initialization script -->
+    <script>
+      // Environment settings for each level
+      const levelEnvironments = {
+        1: { preset: 'forest', groundColor: '#2a4a2a', dressingColor: '#4a8a4a', dressingAmount: 30 },
+        2: { preset: 'egypt', groundColor: '#d4a574', dressingColor: '#aa7744', dressingAmount: 20 },
+        3: { preset: 'checkerboard', groundColor: '#333366', gridColor: '#6666aa', dressingAmount: 50 },
+        4: { preset: 'japan', groundColor: '#4a2a2a', dressingColor: '#ff6b9d', dressingAmount: 40 },
+        5: { preset: 'dream', groundColor: '#6a4a8a', dressingColor: '#aa66ff', dressingAmount: 35 },
+        6: { preset: 'volcano', groundColor: '#4a2a1a', dressingColor: '#ff4400', dressingAmount: 25 },
+        7: { preset: 'arches', groundColor: '#8a6a4a', dressingColor: '#cc9966', dressingAmount: 15 },
+        8: { preset: 'threetowers', groundColor: '#2a2a4a', dressingColor: '#4466aa', dressingAmount: 20 },
+        9: { preset: 'poison', groundColor: '#2a4a2a', dressingColor: '#66ff33', dressingAmount: 45 },
+        10: { preset: 'tron', groundColor: '#0a0a1a', dressingColor: '#00ffff', dressingAmount: 30 },
+        11: { preset: 'starry', groundColor: '#1a1a2a', dressingColor: '#ffffff', dressingAmount: 60 },
+        12: { preset: 'osiris', groundColor: '#3a3a5a', dressingColor: '#ffaa00', dressingAmount: 25 },
+      };
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        // Get the level ID from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelId = parseInt(urlParams.get('id') || '1');
+
+        console.log(`🎮 Loading level ${levelId}...`);
+
+        // Load level data
+        try {
+          const response = await fetch('../data/levels-data.json');
+          const data = await response.json();
+          const levelData = data.levels.find(l => l.id === levelId);
+
+          if (!levelData) {
+            console.error(`❌ Level ${levelId} not found!`);
+            alert(`Level ${levelId} does not exist!`);
+            window.location.href = 'level-select.html';
+            return;
+          }
+
+          // Update page title
+          document.title = `${levelData.title} - Wacky Works VR`;
+
+          // Update title in scene
+          const titleEl = document.querySelector('#level-title');
+          if (titleEl) {
+            const titleValue = levelData.title ? levelData.title.toUpperCase() : 'NÍVEL';
+            titleEl.setAttribute('value', titleValue);
+          }
+
+          // Update objective panel
+          const objectivePanel = document.querySelector('#objective-panel');
+          if (objectivePanel) {
+            objectivePanel.setAttribute('objective-panel', {
+              objective: levelData.objective,
+              description: levelData.description || '',
+            });
+          }
+
+          // Set specific environment for the level
+          const envConfig = levelEnvironments[levelId] || levelEnvironments[1];
+          const envEl = document.querySelector('#environment');
+          if (envEl) {
+            const envSettings = `preset: ${envConfig.preset}; groundColor: ${envConfig.groundColor}; ${envConfig.gridColor ? 'gridColor: ' + envConfig.gridColor + ';' : ''} dressingAmount: ${envConfig.dressingAmount}; dressingColor: ${envConfig.dressingColor}`;
+            envEl.setAttribute('environment', envSettings);
+          }
+
+          // Add level-manager with levelId
+          const scene = document.querySelector('a-scene');
+          scene.setAttribute('level-manager', `levelId: ${levelId}`);
+
+          console.log(`✅ Level ${levelId} successfully configured!`);
+        } catch (error) {
+          console.error('❌ Error loading level data:', error);
+          alert('Error loading level!');
+          window.location.href = 'level-select.html';
+        }
+
+        // Listener for back button
+        const btnBack = document.querySelector('#btn-back');
+        if (btnBack) {
+          btnBack.addEventListener('vr-button-clicked', evt => {
+            if (evt.detail.action === 'back') {
+              window.location.href = 'level-select.html';
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1772 @@
+{
+    "levels": [
+        {
+            "id": 1,
+            "name": "First Ramp",
+            "difficulty": "easy",
+            "objective": "Make the ball roll down the ramp and hit the target",
+            "description": "Learn the basics: position the ramp correctly to guide the ball to the target",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -5,
+                        "y": 3,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 1,
+                        "restitution": 0.8
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -1,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -20
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.3,
+                        "depth": 3
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "static-body",
+                    "physics": {
+                        "static": true,
+                        "friction": 0.1
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 3,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true,
+                    "physics": {
+                        "static": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "name": "Double Ramp",
+            "difficulty": "easy",
+            "objective": "Use two ramps to create a path to the target",
+            "description": "Connect two ramps to guide the ball on a longer course",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -6,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 1,
+                        "restitution": 0.6
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -4,
+                        "y": 2.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -25
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "ramp-2",
+                    "type": "ramp",
+                    "position": {
+                        "x": 0,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -20
+                    },
+                    "dimensions": {
+                        "width": 3.5,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#666666",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 5,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true,
+                    "physics": {
+                        "static": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "name": "Three Dominoes",
+            "difficulty": "easy",
+            "objective": "Knock down the dominoes in sequence to reach the target",
+            "description": "Position the dominoes correctly to create a chain reaction",
+            "elements": [
+                {
+                    "id": "push-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -6,
+                        "y": 3.5,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -4,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": -3,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": -1,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": 2,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -25
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "fixed": false,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "target-button",
+                    "type": "button",
+                    "position": {
+                        "x": 4,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 1,
+                        "height": 0.5,
+                        "depth": 1
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true,
+                    "physics": {
+                        "static": true
+                    }
+                }
+            ]
+        },
+        {
+            "id": 4,
+            "name": "Ramp and Dominoes",
+            "difficulty": "medium",
+            "objective": "Combine ramp and dominoes to activate the target",
+            "description": "Use a ramp to give speed to the ball and knock down the dominoes",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -6,
+                        "y": 3.5,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 1.5
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -4,
+                        "y": 2,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -30
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -1,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": 1,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": 3,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 5,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 5,
+            "name": "Simple Seesaw",
+            "difficulty": "medium",
+            "objective": "Use a lever to launch the ball at the target",
+            "description": "Position a weight to make the seesaw catapult the ball",
+            "elements": [
+                {
+                    "id": "lever-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 0,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 0,
+                        "y": 1.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 5,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff6600",
+                    "movable": false,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2,
+                        "angularDamping": 0.6
+                    }
+                },
+                {
+                    "id": "projectile-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -2.3,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "color": "#ffff00",
+                    "radius": 0.4,
+                    "fixed": false,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "weight-cube",
+                    "type": "cube",
+                    "position": {
+                        "x": 2,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.8,
+                        "height": 0.8,
+                        "depth": 0.8
+                    },
+                    "color": "#0000ff",
+                    "movable": true,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 5
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": -5,
+                        "y": 2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 6,
+            "name": "Curved Dominoes",
+            "difficulty": "medium",
+            "objective": "Arrange dominoes in a curve to reach the target",
+            "description": "Position 5 dominoes forming a curve to create the chain reaction",
+            "elements": [
+                {
+                    "id": "push-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -5,
+                        "y": 1.5,
+                        "z": -6
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -3,
+                        "y": 1,
+                        "z": -6
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": -1.5,
+                        "y": 1,
+                        "z": -5.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 20,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": 0,
+                        "y": 1,
+                        "z": -4.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 40,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-4",
+                    "type": "domino",
+                    "position": {
+                        "x": 1.5,
+                        "y": 1,
+                        "z": -3.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 60,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-5",
+                    "type": "domino",
+                    "position": {
+                        "x": 3,
+                        "y": 1,
+                        "z": -3
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 80,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "target-button",
+                    "type": "button",
+                    "position": {
+                        "x": 4.5,
+                        "y": 0.5,
+                        "z": -2.5
+                    },
+                    "dimensions": {
+                        "width": 1,
+                        "height": 0.5,
+                        "depth": 1
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 7,
+            "name": "Double Ramp with Jump",
+            "difficulty": "hard",
+            "objective": "Create a jump between two ramps to reach the target",
+            "description": "Position the ramps with the correct spacing for the ball to jump between them",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -7,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 1.2,
+                        "restitution": 0.5
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -5,
+                        "y": 2.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -35
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "ramp-2",
+                    "type": "ramp",
+                    "position": {
+                        "x": 1,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -25
+                    },
+                    "dimensions": {
+                        "width": 3.5,
+                        "height": 0.3,
+                        "depth": 2.5
+                    },
+                    "color": "#666666",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "landing-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 5,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2.5,
+                        "height": 0.2,
+                        "depth": 2.5
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 8,
+            "name": "Double Seesaw",
+            "difficulty": "hard",
+            "objective": "Use two seesaws in sequence to reach the elevated target",
+            "description": "Coordinate two lever systems to reach the high platform",
+            "elements": [
+                {
+                    "id": "weight-1",
+                    "type": "cube",
+                    "position": {
+                        "x": -5,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.8,
+                        "height": 0.8,
+                        "depth": 0.8
+                    },
+                    "color": "#0000ff",
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 6
+                    }
+                },
+                {
+                    "id": "lever-1-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": -3,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-1-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": -3,
+                        "y": 1.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 4.5,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff6600",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "transfer-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -1,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "color": "#ffff00",
+                    "radius": 0.4,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 1
+                    }
+                },
+                {
+                    "id": "lever-2-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 2,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-2-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 2,
+                        "y": 1.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff8800",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "projectile-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": 0.3,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "color": "#ff00ff",
+                    "radius": 0.4,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 5,
+                        "y": 3.5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 9,
+            "name": "Domino Maze",
+            "difficulty": "hard",
+            "objective": "Create a complex path with 7 dominoes",
+            "description": "Dominoes must form a zigzag pattern to the target",
+            "elements": [
+                {
+                    "id": "push-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -6,
+                        "y": 1.5,
+                        "z": -7
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 2.5
+                    }
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -4,
+                        "y": 1,
+                        "z": -7
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": -2.5,
+                        "y": 1,
+                        "z": -6
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 30,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": -1,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 60,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-4",
+                    "type": "domino",
+                    "position": {
+                        "x": 0.5,
+                        "y": 1,
+                        "z": -4
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 90,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-5",
+                    "type": "domino",
+                    "position": {
+                        "x": 2,
+                        "y": 1,
+                        "z": -3.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 120,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-6",
+                    "type": "domino",
+                    "position": {
+                        "x": 3.5,
+                        "y": 1,
+                        "z": -3
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 150,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-7",
+                    "type": "domino",
+                    "position": {
+                        "x": 5,
+                        "y": 1,
+                        "z": -2.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 180,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "target-button",
+                    "type": "button",
+                    "position": {
+                        "x": 6.5,
+                        "y": 0.5,
+                        "z": -2
+                    },
+                    "dimensions": {
+                        "width": 1,
+                        "height": 0.5,
+                        "depth": 1
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 10,
+            "name": "Complex Machine",
+            "difficulty": "expert",
+            "objective": "Combine ramp, dominoes and seesaw",
+            "description": "Complete Rube Goldberg system with multiple stages",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -8,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 1.5
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -6,
+                        "y": 2.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -30
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -3,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": -1.5,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": 0,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "lever-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 3,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 3,
+                        "y": 1.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff6600",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "projectile-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": 1.3,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "color": "#ffff00",
+                    "radius": 0.4,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.5
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 7,
+                        "y": 2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 11,
+            "name": "Lever Cascade",
+            "difficulty": "expert",
+            "objective": "Three levers in sequence to reach the top",
+            "description": "Chained catapult system launching balls progressively higher",
+            "elements": [
+                {
+                    "id": "weight-1",
+                    "type": "cube",
+                    "position": {
+                        "x": -6,
+                        "y": 4,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.8,
+                        "height": 0.8,
+                        "depth": 0.8
+                    },
+                    "color": "#0000ff",
+                    "fixed": true,
+                    "isStart": true,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 7
+                    }
+                },
+                {
+                    "id": "lever-1-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": -4,
+                        "y": 0.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-1-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": -4,
+                        "y": 1.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff6600",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "ball-1",
+                    "type": "sphere",
+                    "position": {
+                        "x": -2.3,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "color": "#ffff00",
+                    "radius": 0.3,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.4
+                    }
+                },
+                {
+                    "id": "lever-2-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 0,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-2-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 0,
+                        "y": 2.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 3.5,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff8800",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 1.8
+                    }
+                },
+                {
+                    "id": "ball-2",
+                    "type": "sphere",
+                    "position": {
+                        "x": 1.5,
+                        "y": 2.5,
+                        "z": -5
+                    },
+                    "color": "#ff00ff",
+                    "radius": 0.3,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.3
+                    }
+                },
+                {
+                    "id": "lever-3-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 4,
+                        "y": 2.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-3-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 4,
+                        "y": 3.2,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ffaa00",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 1.5
+                    }
+                },
+                {
+                    "id": "ball-3",
+                    "type": "sphere",
+                    "position": {
+                        "x": 5.2,
+                        "y": 3.5,
+                        "z": -5
+                    },
+                    "color": "#00ffff",
+                    "radius": 0.3,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.2
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 7,
+                        "y": 5,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        },
+        {
+            "id": 12,
+            "name": "Final Masterpiece",
+            "difficulty": "expert",
+            "objective": "Complete the ultimate Rube Goldberg machine!",
+            "description": "All elements: ramps, dominoes, levers and jumps. The culmination of everything you've learned!",
+            "elements": [
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -9,
+                        "y": 5,
+                        "z": -7
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "phyType": "dynamic-body",
+                    "isStart": true,
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -7,
+                        "y": 3.5,
+                        "z": -7
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -35
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "ramp-2",
+                    "type": "ramp",
+                    "position": {
+                        "x": -4,
+                        "y": 2,
+                        "z": -6
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 20,
+                        "z": -25
+                    },
+                    "dimensions": {
+                        "width": 2.5,
+                        "height": 0.3,
+                        "depth": 2
+                    },
+                    "color": "#666666",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "domino-1",
+                    "type": "domino",
+                    "position": {
+                        "x": -2,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-2",
+                    "type": "domino",
+                    "position": {
+                        "x": -0.5,
+                        "y": 1,
+                        "z": -4.5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 30,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "domino-3",
+                    "type": "domino",
+                    "position": {
+                        "x": 1,
+                        "y": 1,
+                        "z": -4
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 60,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 1
+                    },
+                    "color": "#8B4513",
+                    "movable": true,
+                    "phyType": "dynamic-body"
+                },
+                {
+                    "id": "lever-1-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 3,
+                        "y": 0.5,
+                        "z": -3
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-1-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 3,
+                        "y": 1.2,
+                        "z": -3
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff6600",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 2
+                    }
+                },
+                {
+                    "id": "transfer-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": 1.3,
+                        "y": 1.5,
+                        "z": -3
+                    },
+                    "color": "#ffff00",
+                    "radius": 0.4,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.6
+                    }
+                },
+                {
+                    "id": "ramp-3",
+                    "type": "ramp",
+                    "position": {
+                        "x": 6,
+                        "y": 2,
+                        "z": -2
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": -30,
+                        "z": -20
+                    },
+                    "dimensions": {
+                        "width": 3,
+                        "height": 0.3,
+                        "depth": 2
+                    },
+                    "color": "#777777",
+                    "movable": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-2-fulcrum",
+                    "type": "cylinder",
+                    "position": {
+                        "x": 8,
+                        "y": 1,
+                        "z": -1
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.5,
+                    "height": 1,
+                    "color": "#666666",
+                    "fixed": true,
+                    "phyType": "static-body"
+                },
+                {
+                    "id": "lever-2-arm",
+                    "type": "lever",
+                    "position": {
+                        "x": 8,
+                        "y": 1.7,
+                        "z": -1
+                    },
+                    "dimensions": {
+                        "width": 3.5,
+                        "height": 0.15,
+                        "depth": 0.5
+                    },
+                    "color": "#ff8800",
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 1.8
+                    }
+                },
+                {
+                    "id": "final-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": 6.5,
+                        "y": 2,
+                        "z": -1
+                    },
+                    "color": "#ff00ff",
+                    "radius": 0.4,
+                    "phyType": "dynamic-body",
+                    "physics": {
+                        "mass": 0.4
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 10,
+                        "y": 3.5,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 2.5,
+                        "height": 0.2,
+                        "depth": 2.5
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "phyType": "static-body",
+                    "isTarget": true
+                }
+            ]
+        }
+    ]
+}

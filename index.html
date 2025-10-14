@@ -225,8 +225,9 @@
       <a-entity id="cameraRig" position="0 0 0" movement-controls="fly: false; constrainToNavMesh: false">
         <!-- Câmera -->
         <a-camera id="mainCamera" look-controls wasd-controls="acceleration: 20">
-          <!-- Cursor para interação -->
+          <!-- Cursor para interação (desativado em VR via script) -->
           <a-cursor
+            id="uiCursor"
             vr-cursor-visual
             raycaster="objects: .interactive"
             animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
@@ -301,6 +302,25 @@
         const btnAbout = document.getElementById('btn-about');
         const aboutPanel = document.getElementById('about-panel');
         const vrMenu = document.getElementById('vr-main-menu');
+        const scene = document.querySelector('a-scene');
+        const uiCursor = document.getElementById('uiCursor');
+
+        // Esconder cursor quando entrar em VR e mostrar ao sair
+        if (scene) {
+          scene.addEventListener('enter-vr', () => {
+            if (uiCursor) {
+              uiCursor.setAttribute('visible', false);
+              // desativa raycaster do cursor em VR
+              uiCursor.removeAttribute('raycaster');
+            }
+          });
+          scene.addEventListener('exit-vr', () => {
+            if (uiCursor) {
+              uiCursor.setAttribute('visible', true);
+              uiCursor.setAttribute('raycaster', 'objects: .interactive');
+            }
+          });
+        }
 
         // Tutorial
         if (btnTutorial) {

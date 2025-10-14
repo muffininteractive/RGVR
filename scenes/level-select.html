@@ -11,6 +11,7 @@
     <!-- A-Frame CDN -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>
   </head>
   <body>
     <!-- Cena A-Frame -->
@@ -79,17 +80,17 @@
         opacity="0.7"
       ></a-text>
 
-      <!-- Painel de informações do nível (HUD VR) -->
-      <a-entity id="level-info-panel" position="0 3.5 -10" visible="false">
-        <a-plane width="5" height="2.5" color="#1a1a2e" material="opacity: 0.95; transparent: true"></a-plane>
+      <!-- Painel de informações do nível (HUD VR) - Reposicionado para trás e para cima -->
+      <a-entity id="level-info-panel" position="0 5 -15" visible="false">
+        <a-plane width="6" height="3" color="#1a1a2e" material="opacity: 0.95; transparent: true"></a-plane>
 
         <a-text
           id="level-title"
           value="Selected Level"
           align="center"
           color="#00FFFF"
-          width="8"
-          position="0 0.9 0.01"
+          width="10"
+          position="0 1.1 0.01"
         ></a-text>
 
         <a-text
@@ -97,145 +98,203 @@
           value="Level description"
           align="center"
           color="#FFFFFF"
-          width="8"
-          position="0 0.3 0.01"
-          wrap-count="40"
+          width="10"
+          position="0 0.4 0.01"
+          wrap-count="50"
         ></a-text>
 
         <a-text
           id="level-stats"
-          value="Objects: - | Difficulty: -"
+          value="Difficulty: -"
           align="center"
           color="#AAAAAA"
-          width="7"
-          position="0 -0.4 0.01"
+          width="9"
+          position="0 -0.5 0.01"
         ></a-text>
       </a-entity>
 
-      <!-- Botão Voltar -->
+      <!-- Botões seguem a câmera usando camera-follow -->
       <a-entity
         id="btn-back"
-        vr-button="label: Back; width: 2; height: 0.5; color: #FF6B6B; action: back"
-        position="-4 0.5 -8"
+        camera-follow="offset: -1 -1 -2.5; smooth: true"
+        vr-button="label: ← Back; width: 1.8; height: 0.5; color: #FF6B6B; action: back"
       ></a-entity>
 
-      <!-- Botão Iniciar (inicialmente invisível) -->
       <a-entity
-        id="btn-start"
-        vr-button="label: Start Level; width: 2.5; height: 0.6; color: #7BC8A4; action: start; disabled: true"
-        position="4 0.5 -8"
-        visible="false"
+        id="btn-select"
+        camera-follow="offset: 1 -1 -2.5; smooth: true"
+        vr-button="label: Select →; width: 1.8; height: 0.5; color: #00ff88; action: select; disabled: true"
       ></a-entity>
 
-      <!-- Feedback VR -->
-      <a-entity id="vr-feedback" position="0 0.2 -8" vr-feedback="message: ; duration: 2000; color: #00FFFF"></a-entity>
+      <!-- 12 Cristais dispostos em círculo ao redor do jogador -->
+      <!-- A posição Y foi aumentada para 2.5 para não sobrepor os botões -->
 
-      <!-- Cristais/Totens representando os níveis -->
-
-      <!-- Nível Fácil -->
-      <a-entity id="level-easy" position="-6 1.5 -10" level-selector="difficulty: easy">
+      <!-- Nível 1 - 0° -->
+      <a-entity id="level-1" position="0 2.5 -8" level-selector="levelId: 1; difficulty: easy">
         <a-octahedron
-          position="0 1 0"
-          radius="1"
+          position="0 0 0"
+          radius="0.7"
           color="#00ff88"
           shadow="cast: true"
           material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #00ff88; emissiveIntensity: 0"
           animation="property: rotation; to: 0 360 0; dur: 8000; loop: true"
           class="level-crystal interactive"
         ></a-octahedron>
-
-        <!-- Partículas flutuantes -->
-        <a-entity id="particles-easy" particle-system="color: #00ff88; particleCount: 20; maxAge: 3"></a-entity>
-
-        <!-- Texto do nível -->
-        <a-text
-          value="EASY"
-          position="0 2.5 0"
-          align="center"
-          color="#00ff88"
-          width="8"
-          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
-        ></a-text>
-
-        <a-text value="3 objects" position="0 -0.5 0" align="center" color="#ffffff" width="6"></a-text>
+        <a-text value="1" position="0 1 0" align="center" color="#00ff88" width="4"></a-text>
       </a-entity>
 
-      <!-- Nível Médio -->
-      <a-entity id="level-medium" position="-2 1.5 -10" level-selector="difficulty: medium">
+      <!-- Nível 2 - 30° -->
+      <a-entity id="level-2" position="4 2.5 -6.9" level-selector="levelId: 2; difficulty: easy">
         <a-octahedron
-          position="0 1 0"
-          radius="1.2"
+          position="0 0 0"
+          radius="0.7"
+          color="#00ff88"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #00ff88; emissiveIntensity: 0"
+          animation="property: rotation; to: 0 360 0; dur: 8000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="2" position="0 1 0" align="center" color="#00ff88" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 3 - 60° -->
+      <a-entity id="level-3" position="6.9 2.5 -4" level-selector="levelId: 3; difficulty: easy">
+        <a-octahedron
+          position="0 0 0"
+          radius="0.7"
+          color="#00ff88"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #00ff88; emissiveIntensity: 0"
+          animation="property: rotation; to: 0 360 0; dur: 8000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="3" position="0 1 0" align="center" color="#00ff88" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 4 - 90° -->
+      <a-entity id="level-4" position="8 2.5 0" level-selector="levelId: 4; difficulty: medium">
+        <a-octahedron
+          position="0 0 0"
+          radius="0.8"
           color="#ffdd00"
           shadow="cast: true"
           material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ffdd00; emissiveIntensity: 0"
           animation="property: rotation; to: 360 0 360; dur: 6000; loop: true"
           class="level-crystal interactive"
         ></a-octahedron>
-
-        <a-entity id="particles-medium" particle-system="color: #ffdd00; particleCount: 30; maxAge: 3"></a-entity>
-
-        <a-text
-          value="MEDIUM"
-          position="0 2.5 0"
-          align="center"
-          color="#ffdd00"
-          width="8"
-          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
-        ></a-text>
-
-        <a-text value="5 objects" position="0 -0.5 0" align="center" color="#ffffff" width="6"></a-text>
+        <a-text value="4" position="0 1 0" align="center" color="#ffdd00" width="4"></a-text>
       </a-entity>
 
-      <!-- Nível Difícil -->
-      <a-entity id="level-hard" position="2 1.5 -10" level-selector="difficulty: hard">
+      <!-- Nível 5 - 120° -->
+      <a-entity id="level-5" position="6.9 2.5 4" level-selector="levelId: 5; difficulty: medium">
         <a-octahedron
-          position="0 1 0"
-          radius="1.4"
+          position="0 0 0"
+          radius="0.8"
+          color="#ffdd00"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ffdd00; emissiveIntensity: 0"
+          animation="property: rotation; to: 360 0 360; dur: 6000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="5" position="0 1 0" align="center" color="#ffdd00" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 6 - 150° -->
+      <a-entity id="level-6" position="4 2.5 6.9" level-selector="levelId: 6; difficulty: medium">
+        <a-octahedron
+          position="0 0 0"
+          radius="0.8"
+          color="#ffdd00"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ffdd00; emissiveIntensity: 0"
+          animation="property: rotation; to: 360 0 360; dur: 6000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="6" position="0 1 0" align="center" color="#ffdd00" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 7 - 180° -->
+      <a-entity id="level-7" position="0 2.5 8" level-selector="levelId: 7; difficulty: hard">
+        <a-octahedron
+          position="0 0 0"
+          radius="0.9"
           color="#ff8800"
           shadow="cast: true"
           material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff8800; emissiveIntensity: 0"
           animation="property: rotation; to: 0 360 720; dur: 4000; loop: true"
           class="level-crystal interactive"
         ></a-octahedron>
-
-        <a-entity id="particles-hard" particle-system="color: #ff8800; particleCount: 40; maxAge: 3"></a-entity>
-
-        <a-text
-          value="HARD"
-          position="0 2.5 0"
-          align="center"
-          color="#ff8800"
-          width="8"
-          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
-        ></a-text>
-
-        <a-text value="7 objects" position="0 -0.5 0" align="center" color="#ffffff" width="6"></a-text>
+        <a-text value="7" position="0 1 0" align="center" color="#ff8800" width="4"></a-text>
       </a-entity>
 
-      <!-- Nível Expert -->
-      <a-entity id="level-expert" position="6 1.5 -10" level-selector="difficulty: expert">
+      <!-- Nível 8 - 210° -->
+      <a-entity id="level-8" position="-4 2.5 6.9" level-selector="levelId: 8; difficulty: hard">
         <a-octahedron
-          position="0 1 0"
-          radius="1.6"
+          position="0 0 0"
+          radius="0.9"
+          color="#ff8800"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff8800; emissiveIntensity: 0"
+          animation="property: rotation; to: 0 360 720; dur: 4000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="8" position="0 1 0" align="center" color="#ff8800" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 9 - 240° -->
+      <a-entity id="level-9" position="-6.9 2.5 4" level-selector="levelId: 9; difficulty: hard">
+        <a-octahedron
+          position="0 0 0"
+          radius="0.9"
+          color="#ff8800"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff8800; emissiveIntensity: 0"
+          animation="property: rotation; to: 0 360 720; dur: 4000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="9" position="0 1 0" align="center" color="#ff8800" width="4"></a-text>
+      </a-entity>
+
+      <!-- Nível 10 - 270° -->
+      <a-entity id="level-10" position="-8 2.5 0" level-selector="levelId: 10; difficulty: expert">
+        <a-octahedron
+          position="0 0 0"
+          radius="1"
           color="#ff0044"
           shadow="cast: true"
           material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff0044; emissiveIntensity: 0"
           animation="property: rotation; to: 720 360 0; dur: 3000; loop: true"
           class="level-crystal interactive"
         ></a-octahedron>
+        <a-text value="10" position="0 1 0" align="center" color="#ff0044" width="4"></a-text>
+      </a-entity>
 
-        <a-entity id="particles-expert" particle-system="color: #ff0044; particleCount: 50; maxAge: 3"></a-entity>
-
-        <a-text
-          value="EXPERT"
-          position="0 2.5 0"
-          align="center"
+      <!-- Nível 11 - 300° -->
+      <a-entity id="level-11" position="-6.9 2.5 -4" level-selector="levelId: 11; difficulty: expert">
+        <a-octahedron
+          position="0 0 0"
+          radius="1"
           color="#ff0044"
-          width="8"
-          animation="property: position; to: 0 2.8 0; dur: 2000; dir: alternate; loop: true"
-        ></a-text>
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff0044; emissiveIntensity: 0"
+          animation="property: rotation; to: 720 360 0; dur: 3000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="11" position="0 1 0" align="center" color="#ff0044" width="4"></a-text>
+      </a-entity>
 
-        <a-text value="8 objects" position="0 -0.5 0" align="center" color="#ffffff" width="6"></a-text>
+      <!-- Nível 12 - 330° -->
+      <a-entity id="level-12" position="-4 2.5 -6.9" level-selector="levelId: 12; difficulty: expert">
+        <a-octahedron
+          position="0 0 0"
+          radius="1"
+          color="#ff0044"
+          shadow="cast: true"
+          material="metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: #ff0044; emissiveIntensity: 0"
+          animation="property: rotation; to: 720 360 0; dur: 3000; loop: true"
+          class="level-crystal interactive"
+        ></a-octahedron>
+        <a-text value="12" position="0 1 0" align="center" color="#ff0044" width="4"></a-text>
       </a-entity>
 
       <!-- Rig VR/Câmera -->
@@ -278,6 +337,7 @@
 
     <!-- Scripts -->
     <script src="../components/vr-ui-components.js"></script>
+    <script src="../components/level-ui-components.js"></script>
     <script type="module" src="../utils/scene-manager.js"></script>
     <script type="module" src="../js/level-select.js"></script>
   </body>
