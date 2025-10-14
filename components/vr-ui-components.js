@@ -2,9 +2,20 @@
 // Componentes reutilizáveis para criar interfaces em realidade virtual
 
 // Componente: Botão 3D interativo
+// Agora suporta múltiplas primitivas configuráveis via schema:
+// primitive: box (default), plane, circle, cylinder, custom
+// Exemplo de uso:
+// <a-entity vr-button="label: Jogar; action: play; primitive: plane; width: 2.5; height: 0.7; color: #00ff88"></a-entity>
+// <a-entity vr-button="label: Orb; action: orb; primitive: circle; radius: 0.6; color: #ffaa00"></a-entity>
+// <a-entity vr-button="label: Disco; action: disco; primitive: cylinder; radius: 0.5; depth: 0.15; color: #3366ff"></a-entity>
+// Custom: criar seu próprio elemento interno e referenciar panelId
+// <a-entity id="botaoPersonalizado">
+//   <a-sphere id="spherePanel" radius="0.6" color="#222"></a-sphere>
+//   <a-entity vr-button="label: SphereBtn; action: sphere; primitive: custom; panelId: spherePanel"></a-entity>
+// </a-entity>
 AFRAME.registerComponent('vr-button', {
     schema: {
-        label: { type: 'string', default: 'Button' },
+        label: { type: 'string', default: '' },
         width: { type: 'number', default: 2 },
         height: { type: 'number', default: 0.6 },
         color: { type: 'color', default: '#4CC3D9' },
@@ -12,21 +23,23 @@ AFRAME.registerComponent('vr-button', {
         textColor: { type: 'color', default: '#FFFFFF' },
         fontSize: { type: 'number', default: 0.3 },
         action: { type: 'string', default: '' },
-        disabled: { type: 'boolean', default: false }
+        disabled: { type: 'boolean', default: false },
+        // Novo: tipo da primitiva usada como base do botão.
+        // box (padrão), plane, circle, cylinder, custom (usar elemento existente interno)
+        primitive: { type: 'string', default: 'box' },
+        // Para primitives alternativas:
+        depth: { type: 'number', default: 0.1 }, // box / cylinder
+        radius: { type: 'number', default: 0.5 }, // circle / cylinder
+        // Quando primitive === 'custom', pode apontar um id de elemento filho já presente
+        panelId: { type: 'string', default: '' }
     },
 
     init: function () {
         this.isHovered = false;
         this.originalColor = this.data.color;
 
-        // Cria o painel do botão
-        this.panel = document.createElement('a-box');
-        this.panel.setAttribute('width', this.data.width);
-        this.panel.setAttribute('height', this.data.height);
-        this.panel.setAttribute('depth', 0.1);
-        this.panel.setAttribute('color', this.data.color);
-        this.panel.setAttribute('material', 'shader: flat');
-        this.panel.classList.add('interactive');
+        // Cria ou reutiliza o painel do botão conforme a primitiva
+        this.panel = this._createPanel();
 
         // Cria o texto do botão
         this.text = document.createElement('a-text');
@@ -34,7 +47,9 @@ AFRAME.registerComponent('vr-button', {
         this.text.setAttribute('align', 'center');
         this.text.setAttribute('color', this.data.textColor);
         this.text.setAttribute('width', this.data.width * 2);
-        this.text.setAttribute('position', `0 0 0.06`);
+        // Usa deslocamento Z baseado na primitiva para evitar clipping
+        const textZ = (typeof this._textZ !== 'undefined') ? this._textZ : 0.06;
+        this.text.setAttribute('position', `0 0 ${textZ}`);
         this.text.setAttribute('font', 'roboto');
 
         this.el.appendChild(this.panel);
@@ -60,6 +75,62 @@ AFRAME.registerComponent('vr-button', {
             this.panel.setAttribute('color', this.data.color);
             this.el.classList.add('interactive');
         }
+    },
+
+    /**
+     * Cria painel com base em schema. Se primitive === 'custom' tenta usar elemento com id panelId dentro do entity.
+     * Retorna o elemento que servirá como área clicável.
+     */
+    _createPanel: function () {
+        let panel;
+        const { primitive, panelId, width, height, depth, radius, color } = this.data;
+
+        if (primitive === 'custom' && panelId) {
+            panel = this.el.querySelector(`#${panelId}`);
+            if (!panel) {
+                console.warn(`[vr-button] Painel custom id="${panelId}" não encontrado. Recaindo para box.`);
+            }
+        }
+
+        if (!panel) {
+            switch (primitive) {
+                case 'plane':
+                    panel = document.createElement('a-plane');
+                    panel.setAttribute('width', width);
+                    panel.setAttribute('height', height);
+                    break;
+                case 'circle':
+                    panel = document.createElement('a-circle');
+                    panel.setAttribute('radius', radius);
+                    break;
+                case 'cylinder':
+                    panel = document.createElement('a-cylinder');
+                    panel.setAttribute('radius', radius);
+                    panel.setAttribute('height', depth);
+                    panel.setAttribute('rotation', '90 0 0'); // Lay flat
+                    break;
+                case 'box':
+                default:
+                    panel = document.createElement('a-box');
+                    panel.setAttribute('width', width);
+                    panel.setAttribute('height', height);
+                    panel.setAttribute('depth', depth);
+                    break;
+            }
+        }
+
+        // Atributos comuns
+        panel.setAttribute('color', color);
+        panel.setAttribute('material', 'shader: flat');
+        panel.classList.add('interactive');
+
+        // Se for circle ou plane, manter texto um pouco acima
+        if (primitive === 'circle' || primitive === 'plane') {
+            this._textZ = 0.01;
+        } else {
+            this._textZ = depth / 2 + 0.01;
+        }
+        return panel;
     },
 
     onHover: function () {
@@ -95,19 +166,21 @@ AFRAME.registerComponent('vr-button', {
         console.log('VR Button clicked:', this.data.label, 'Action:', this.data.action);
 
         // Animação de clique
-        this.panel.setAttribute('animation', {
+        this.panel.removeAttribute('animation__clickDown');
+        this.panel.removeAttribute('animation__clickUp');
+        this.panel.setAttribute('animation__clickDown', {
             property: 'scale',
             to: '0.95 0.95 0.95',
-            dur: 100
+            dur: 100,
+            easing: 'easeOutQuad'
         });
-
-        setTimeout(() => {
-            this.panel.setAttribute('animation', {
-                property: 'scale',
-                to: '1 1 1',
-                dur: 100
-            });
-        }, 100);
+        this.panel.setAttribute('animation__clickUp', {
+            property: 'scale',
+            to: '1 1 1',
+            dur: 100,
+            delay: 110,
+            easing: 'easeOutQuad'
+        });
 
         // Emite evento customizado com a ação
         this.el.emit('vr-button-clicked', { action: this.data.action, label: this.data.label });

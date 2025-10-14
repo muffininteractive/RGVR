@@ -122,26 +122,9 @@
       fog="type: linear; color: #1a1a2e; near: 10; far: 100"
     >
       <!-- Assets -->
-      <a-assets>
-        <img id="starTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg" />
-      </a-assets>
-
-      <!-- Iluminação -->
-      <a-light type="ambient" color="#2a2a4a" intensity="0.6"></a-light>
-      <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8"></a-light>
-      <a-light type="point" position="0 3 -5" color="#00ffff" intensity="1" distance="20"></a-light>
 
       <!-- Ambiente -->
-      <a-entity environment="preset: starry; groundColor: #1a1a2e; horizonColor: #000000"></a-entity>
-
-      <!-- Plataforma central -->
-      <a-cylinder
-        position="0 0 -5"
-        radius="8"
-        height="0.2"
-        color="#2a2a4a"
-        material="metalness: 0.8; roughness: 0.2"
-      ></a-cylinder>
+      <a-entity environment="preset: starry;"></a-entity>
 
       <!-- Container do Menu VR -->
       <a-entity id="vr-main-menu" position="0 1.6 -5" visible="false">
