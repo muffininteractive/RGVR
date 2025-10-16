@@ -5,48 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Level Select - Wacky Works VR</title>
 
-    <!-- CSS personalizado -->
+    <!-- CSS -->
     <link rel="stylesheet" href="../css/style.css" />
-
-    <!-- A-Frame CDN -->
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+    <!-- Environment Component -->
     <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
-    <script src="https://unpkg.com/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>
   </head>
   <body>
     <!-- Cena A-Frame -->
-    <a-scene
-      vr-mode-ui="enabled: true"
-      style="height: 100vh; width: 100vw"
-      background="color: #1a1a2e"
-      fog="type: linear; color: #1a1a2e; near: 5; far: 50"
-    >
+    <a-scene id="level-select-scene" loading-screen="enabled: false">
       <!-- Assets -->
       <a-assets>
-        <!-- Texturas -->
-        <img id="starTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/thumb-cubes.jpg" />
-
         <!-- Sons (placeholder) -->
         <audio id="hoverSound" preload="auto"></audio>
         <audio id="selectSound" preload="auto"></audio>
         <audio id="navSound" preload="auto"></audio>
       </a-assets>
 
+      <!-- Ambiente -->
+      <a-entity environment="preset: starry; groundColor: #1a1a2e; horizonColor: #000000"></a-entity>
+
       <!-- Iluminação -->
       <a-light type="ambient" color="#2a2a4a" intensity="0.5"></a-light>
       <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.6" castShadow="true"></a-light>
       <a-light type="point" position="0 5 0" color="#00ffff" intensity="0.8" distance="25"></a-light>
 
-      <!-- Ambiente -->
-      <a-entity environment="preset: starry; groundColor: #1a1a2e; horizonColor: #000000"></a-entity>
-
-      <!-- Plataforma central -->
-
-      <!-- 12 Cristais dispostos em círculo ao redor do jogador -->
-      <!-- A posição Y foi aumentada para 2.5 para não sobrepor os botões -->
-      <a-entity id="level-crystals" rotation="0 0 0">
-        <!-- Cristais de nível serão gerados dinamicamente via LevelSelectManager.buildCrystals() -->
-      </a-entity>
+      <a-entity id="level-crystals" rotation="0 0 0"></a-entity>
       <!-- Título em VR -->
       <a-entity position="0 9 -13">
         <a-text
@@ -178,11 +164,9 @@
         ></a-entity>
       </a-entity>
     </a-scene>
-
-    <!-- Scripts -->
-    <script src="../components/vr-ui-components.js"></script>
-    <script src="../components/level-ui-components.js"></script>
-    <script type="module" src="../utils/scene-manager.js"></script>
-    <script type="module" src="../js/level-select.js"></script>
   </body>
+  <!-- Components -->
+  <script src="../components/vr-ui-components.js"></script>
+  <script src="../components/level-ui-components.js"></script>
+  <script type="module" src="../js/level-select.js"></script>
 </html>

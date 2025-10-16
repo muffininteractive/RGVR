@@ -162,6 +162,7 @@ AFRAME.registerComponent('level-restart-button', {
 // Componente: Painel de Objetivo
 AFRAME.registerComponent('objective-panel', {
     schema: {
+        name: { type: 'string', default: 'GOAL' },
         objective: { type: 'string', default: '' },
         description: { type: 'string', default: '' }
     },
@@ -173,19 +174,19 @@ AFRAME.registerComponent('objective-panel', {
     createPanel: function () {
         // Background
         const bg = document.createElement('a-plane');
-        bg.setAttribute('width', 5);
-        bg.setAttribute('height', 1.5);
+        bg.setAttribute('width', 10);
+        bg.setAttribute('height', 2);
         bg.setAttribute('color', '#1a1a2e');
         bg.setAttribute('material', 'opacity: 0.9; transparent: true');
 
         // Title
         const title = document.createElement('a-text');
-        title.setAttribute('value', 'GOAL 🎯');
+        title.setAttribute('value', this.data.name.toUpperCase() || "GOAL");
         title.setAttribute('align', 'center');
         title.setAttribute('color', '#00ffff');
         title.setAttribute('width', 8);
-        title.setAttribute('position', '0 0.5 0.01');
-        title.setAttribute('font', 'roboto');
+        title.setAttribute('position', '0 0.5 0.02');
+
 
         // Goal text
         const objectiveText = document.createElement('a-text');
@@ -194,25 +195,26 @@ AFRAME.registerComponent('objective-panel', {
         objectiveText.setAttribute('align', 'center');
         objectiveText.setAttribute('color', '#ffffff');
         objectiveText.setAttribute('width', 9);
-        objectiveText.setAttribute('position', '0 0.1 0.01');
+        objectiveText.setAttribute('position', '0 -.2 0.02');
         objectiveText.setAttribute('wrap-count', 50);
-
+        this.el.appendChild(bg);
+        this.el.appendChild(title);
+        this.el.appendChild(objectiveText);
         // Description
+        /*
         if (this.data.description) {
             const desc = document.createElement('a-text');
             desc.setAttribute('value', this.data.description);
             desc.setAttribute('align', 'center');
-            desc.setAttribute('color', '#aaaaaa');
+            desc.setAttribute('color', '#ffffff');
             desc.setAttribute('width', 9);
-            desc.setAttribute('position', '0 -0.4 0.01');
+            desc.setAttribute('position', '0 -0.8 0.02');
             desc.setAttribute('wrap-count', 60);
-            desc.setAttribute('scale', '0.8 0.8 0.8');
+
             this.el.appendChild(desc);
         }
+*/
 
-        this.el.appendChild(bg);
-        this.el.appendChild(title);
-        this.el.appendChild(objectiveText);
     }
 });
 

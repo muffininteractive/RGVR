@@ -8,6 +8,32 @@
             "description": "Learn the basics: position the ramp correctly to guide the ball to the target",
             "elements": [
                 {
+                    "id": "decor-lever-model",
+                    "type": "model",
+                    "modelUrl": "../assets/models/lever.glb",
+                    "position": {
+                        "x": -7,
+                        "y": 3,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 30,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 0.8,
+                        "y": 0.8,
+                        "z": 0.8
+                    },
+                    "movable": true,
+                    "fixed": false,
+                    "body": {
+                        "type": "dynamic",
+                        "material": "metal"
+                    }
+                },
+                {
                     "id": "start-ball",
                     "type": "sphere",
                     "position": {
@@ -18,11 +44,9 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 1,
-                        "restitution": 0.8
+                    "body": {
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -46,10 +70,8 @@
                     "color": "#555555",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "static-body",
-                    "physics": {
-                        "static": true,
-                        "friction": 0.1
+                    "body": {
+                        "type": "static"
                     }
                 },
                 {
@@ -57,7 +79,7 @@
                     "type": "platform",
                     "position": {
                         "x": 3,
-                        "y": 0.5,
+                        "y": 0.1,
                         "z": -5
                     },
                     "dimensions": {
@@ -67,10 +89,9 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
                     "isTarget": true,
-                    "physics": {
-                        "static": true
+                    "body": {
+                        "type": "static"
                     }
                 }
             ]
@@ -93,11 +114,11 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 1,
-                        "restitution": 0.6
+                    "body": {
+                        "mass": 0.1,
+                        "restitution": 0.1,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -121,7 +142,9 @@
                     "color": "#555555",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "ramp-2",
@@ -144,7 +167,9 @@
                     "color": "#666666",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "target-platform",
@@ -161,10 +186,9 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
                     "isTarget": true,
-                    "physics": {
-                        "static": true
+                    "body": {
+                        "type": "static"
                     }
                 }
             ]
@@ -187,10 +211,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -209,9 +233,9 @@
                     "color": "#8B4513",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -230,9 +254,9 @@
                     "color": "#8B4513",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -251,9 +275,9 @@
                     "color": "#8B4513",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -277,11 +301,13 @@
                     "color": "#555555",
                     "movable": true,
                     "fixed": false,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "target-button",
-                    "type": "button",
+                    "type": "platform",
                     "position": {
                         "x": 4,
                         "y": 0.5,
@@ -294,10 +320,9 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
                     "isTarget": true,
-                    "physics": {
-                        "static": true
+                    "body": {
+                        "type": "static"
                     }
                 }
             ]
@@ -320,10 +345,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 1.5
+                    "body": {
+                        "mass": 1.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -346,7 +371,9 @@
                     },
                     "color": "#555555",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "domino-1",
@@ -363,7 +390,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-2",
@@ -380,7 +409,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-3",
@@ -397,14 +428,16 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "target-platform",
                     "type": "platform",
                     "position": {
                         "x": 5,
-                        "y": 0.5,
+                        "y": 0.1,
                         "z": -5
                     },
                     "dimensions": {
@@ -414,8 +447,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -443,7 +478,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-arm",
@@ -460,10 +497,10 @@
                     },
                     "color": "#ff6600",
                     "movable": false,
-                    "phyType": "dynamic-body",
-                    "physics": {
+                    "body": {
                         "mass": 2,
-                        "angularDamping": 0.6
+                        "angularDamping": 0.6,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -477,9 +514,9 @@
                     "color": "#ffff00",
                     "radius": 0.4,
                     "fixed": false,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -498,10 +535,10 @@
                     "color": "#0000ff",
                     "movable": true,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 5
+                    "body": {
+                        "mass": 5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -519,8 +556,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -542,10 +581,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -568,7 +607,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-2",
@@ -590,7 +631,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-3",
@@ -612,7 +655,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-4",
@@ -634,7 +679,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-5",
@@ -656,11 +703,13 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "target-button",
-                    "type": "button",
+                    "type": "platform",
                     "position": {
                         "x": 4.5,
                         "y": 0.5,
@@ -673,8 +722,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -696,11 +747,11 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
+                    "body": {
                         "mass": 1.2,
-                        "restitution": 0.5
+                        "restitution": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -723,7 +774,9 @@
                     },
                     "color": "#555555",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "ramp-2",
@@ -745,7 +798,9 @@
                     },
                     "color": "#666666",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "landing-platform",
@@ -762,8 +817,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -789,10 +846,10 @@
                     },
                     "color": "#0000ff",
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 6
+                    "body": {
+                        "mass": 6,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -812,7 +869,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-1-arm",
@@ -828,9 +887,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff6600",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -843,9 +902,9 @@
                     },
                     "color": "#ffff00",
                     "radius": 0.4,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 1
+                    "body": {
+                        "mass": 1,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -865,7 +924,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-2-arm",
@@ -881,9 +942,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff8800",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -896,9 +957,9 @@
                     },
                     "color": "#ff00ff",
                     "radius": 0.4,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -916,8 +977,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -939,10 +1002,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 2.5
+                    "body": {
+                        "mass": 2.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -960,7 +1023,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-2",
@@ -982,7 +1047,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-3",
@@ -1004,7 +1071,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-4",
@@ -1026,7 +1095,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-5",
@@ -1048,7 +1119,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-6",
@@ -1070,7 +1143,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-7",
@@ -1092,11 +1167,13 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "target-button",
-                    "type": "button",
+                    "type": "platform",
                     "position": {
                         "x": 6.5,
                         "y": 0.5,
@@ -1109,8 +1186,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -1132,10 +1211,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 1.5
+                    "body": {
+                        "mass": 1.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1158,7 +1237,9 @@
                     },
                     "color": "#555555",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "domino-1",
@@ -1175,7 +1256,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-2",
@@ -1192,7 +1275,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-3",
@@ -1209,7 +1294,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "lever-fulcrum",
@@ -1228,7 +1315,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-arm",
@@ -1244,9 +1333,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff6600",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1259,9 +1348,9 @@
                     },
                     "color": "#ffff00",
                     "radius": 0.4,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.5
+                    "body": {
+                        "mass": 0.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1279,8 +1368,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -1307,9 +1398,9 @@
                     "color": "#0000ff",
                     "fixed": true,
                     "isStart": true,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 7
+                    "body": {
+                        "mass": 7,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1329,7 +1420,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-1-arm",
@@ -1345,9 +1438,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff6600",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1360,9 +1453,9 @@
                     },
                     "color": "#ffff00",
                     "radius": 0.3,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.4
+                    "body": {
+                        "mass": 0.4,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1382,7 +1475,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-2-arm",
@@ -1398,9 +1493,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff8800",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 1.8
+                    "body": {
+                        "mass": 1.8,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1413,9 +1508,9 @@
                     },
                     "color": "#ff00ff",
                     "radius": 0.3,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.3
+                    "body": {
+                        "mass": 0.3,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1435,7 +1530,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-3-arm",
@@ -1451,9 +1548,9 @@
                         "depth": 0.5
                     },
                     "color": "#ffaa00",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 1.5
+                    "body": {
+                        "mass": 1.5,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1466,9 +1563,9 @@
                     },
                     "color": "#00ffff",
                     "radius": 0.3,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.2
+                    "body": {
+                        "mass": 0.2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1486,8 +1583,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         },
@@ -1509,10 +1608,10 @@
                     "color": "#ff0000",
                     "radius": 0.4,
                     "fixed": true,
-                    "phyType": "dynamic-body",
                     "isStart": true,
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1535,7 +1634,9 @@
                     },
                     "color": "#555555",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "ramp-2",
@@ -1557,7 +1658,9 @@
                     },
                     "color": "#666666",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "domino-1",
@@ -1574,7 +1677,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-2",
@@ -1596,7 +1701,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "domino-3",
@@ -1618,7 +1725,9 @@
                     },
                     "color": "#8B4513",
                     "movable": true,
-                    "phyType": "dynamic-body"
+                    "body": {
+                        "type": "dynamic"
+                    }
                 },
                 {
                     "id": "lever-1-fulcrum",
@@ -1637,7 +1746,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-1-arm",
@@ -1653,9 +1764,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff6600",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 2
+                    "body": {
+                        "mass": 2,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1668,9 +1779,9 @@
                     },
                     "color": "#ffff00",
                     "radius": 0.4,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.6
+                    "body": {
+                        "mass": 0.6,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1693,7 +1804,9 @@
                     },
                     "color": "#777777",
                     "movable": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-2-fulcrum",
@@ -1712,7 +1825,9 @@
                     "height": 1,
                     "color": "#666666",
                     "fixed": true,
-                    "phyType": "static-body"
+                    "body": {
+                        "type": "static"
+                    }
                 },
                 {
                     "id": "lever-2-arm",
@@ -1728,9 +1843,9 @@
                         "depth": 0.5
                     },
                     "color": "#ff8800",
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 1.8
+                    "body": {
+                        "mass": 1.8,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1743,9 +1858,9 @@
                     },
                     "color": "#ff00ff",
                     "radius": 0.4,
-                    "phyType": "dynamic-body",
-                    "physics": {
-                        "mass": 0.4
+                    "body": {
+                        "mass": 0.4,
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1763,8 +1878,10 @@
                     },
                     "color": "#00ff00",
                     "fixed": true,
-                    "phyType": "static-body",
-                    "isTarget": true
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
                 }
             ]
         }

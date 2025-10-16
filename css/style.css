@@ -238,3 +238,85 @@ body {
     50% { transform: scale(1.05); }
     100% { transform: scale(1); }
 }
+
+/* VR Entry Overlay */
+#enter-vr-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+    transition: opacity 0.5s;
+}
+
+#enter-vr-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.vr-prompt {
+    text-align: center;
+    color: white;
+}
+
+.vr-prompt h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    text-shadow: 0 0 20px #00ffff;
+    animation: glow 2s ease-in-out infinite alternate;
+}
+
+.vr-prompt p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    opacity: 0.8;
+}
+
+.enter-vr-button {
+    background: linear-gradient(45deg, #00ffff, #0080ff);
+    border: none;
+    border-radius: 50px;
+    padding: 1.5rem 3rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.enter-vr-button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 255, 255, 0.5);
+    background: linear-gradient(45deg, #00ffff, #0066cc);
+}
+
+.enter-vr-button:active {
+    transform: translateY(-2px);
+}
+
+@keyframes glow {
+    from {
+        text-shadow: 0 0 20px #00ffff;
+    }
+    to {
+        text-shadow:
+            0 0 30px #00ffff,
+            0 0 40px #0080ff;
+    }
+}
+
+.version {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+}

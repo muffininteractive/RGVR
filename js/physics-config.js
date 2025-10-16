@@ -19,11 +19,20 @@ export const PhysicsConfig = {
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3
         },
+        amortecido: {
+            // Alto atrito, baixíssima restituição (quase sem quique)
+            friction: 0.8,
+            restitution: 0.05,
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 5
+        },
         metal: {
             friction: 0.3,
             restitution: 0.3,
             contactEquationStiffness: 1e9,
-            contactEquationRelaxation: 3
+            contactEquationRelaxation: 3,
+            linearDamping: 0.01,
+            angularDamping: 0.01
         },
         wood: {
             friction: 0.6,
@@ -49,7 +58,7 @@ export const PhysicsConfig = {
     objects: {
         sphere: {
             mass: 1,
-            restitution: 0.6, // Quique médio
+            restitution: 1, // Quique médio
             friction: 0.3,
             linearDamping: 0.1,
             angularDamping: 0.1,
@@ -64,7 +73,7 @@ export const PhysicsConfig = {
             material: 'wood' // Comportamento de madeira
         },
         cylinder: {
-            mass: 1.5,
+            mass: 10,
             restitution: 0.4,
             friction: 0.5,
             linearDamping: 0.1,
@@ -87,12 +96,31 @@ export const PhysicsConfig = {
             angularDamping: 0.1,
             material: 'rubber'
         },
-        lever: {
+        domino: {
+            mass: 2, // Mais pesado
+            restitution: 0.3, // Menos quique
+            friction: 0.8, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
+            material: 'wood' // Comportamento de madeira
+        },
+        ramp: {
+            mass: 0, // Estático
+            friction: 0.2,
+            restitution: 1,
+        },
+        platform: {
+            mass: 100, // Estático
+            friction: 0.1,
+            restitution: 0.1,
+        },
+        model: {
             mass: 1,
-            friction: 0.5,
-            damping: 0.8, // Alto amortecimento (não oscila)
-            forceMultiplier: 2,
-            material: 'metal'
+            restitution: 0.4,
+            friction: 0.6,
+            linearDamping: 0.1,
+            angularDamping: 0.1,
+            material: 'plastic'
         }
     },
 
@@ -164,107 +192,27 @@ export function applyPhysicsMaterial(body, materialName) {
         return;
     }
 
-    body.material.friction = config.friction;
-    body.material.restitution = config.restitution;
-    body.material.contactEquationStiffness = config.contactEquationStiffness;
-    body.material.contactEquationRelaxation = config.contactEquationRelaxation;
+    const CANNON = (typeof window !== 'undefined' && window.CANNON) ? window.CANNON : null;
+    if (!CANNON) {
+        // Fallback: muta material existente (menos ideal)
+        body.material.friction = config.friction;
+        body.material.restitution = config.restitution;
+        body.material.contactEquationStiffness = config.contactEquationStiffness;
+        body.material.contactEquationRelaxation = config.contactEquationRelaxation;
+        console.log(`Material '${materialName}' aplicado (fallback sem criar novo material):`, config);
+        return;
+    }
+    // Cria um material exclusivo por corpo para não propagar mudanças a outros objetos
+    const newMat = new CANNON.Material(`mat_${materialName}_${Date.now()}_${Math.floor(Math.random() * 1e6)}`);
+    newMat.friction = config.friction;
+    newMat.restitution = config.restitution;
+    newMat.contactEquationStiffness = config.contactEquationStiffness;
+    newMat.contactEquationRelaxation = config.contactEquationRelaxation;
+    newMat.__isUnique = true;
+    body.material = newMat;
 
     console.log(`Material '${materialName}' aplicado:`, config);
 }
 
-// Helper para criar um dominó físico
-export function createDomino(scene, position, rotation = 0) {
-    const config = PhysicsConfig.domino;
-
-    const domino = document.createElement('a-entity');
-    domino.setAttribute('position', position);
-    domino.setAttribute('rotation', `0 ${rotation} 0`);
-    domino.setAttribute('geometry', {
-        primitive: 'box',
-        width: config.width,
-        height: config.height,
-        depth: config.depth
-    });
-    domino.setAttribute('material', {
-        color: '#8B4513',
-        metalness: 0.2,
-        roughness: 0.8
-    });
-    domino.setAttribute('dynamic-body', {
-        mass: config.mass,
-        linearDamping: config.linearDamping,
-        angularDamping: config.angularDamping
-    });
-    domino.setAttribute('shadow', 'cast: true; receive: true');
-    domino.classList.add('domino');
-
-    // Aplica material físico após body carregar
-    domino.addEventListener('body-loaded', () => {
-        if (domino.body) {
-            domino.body.material.friction = config.friction;
-            domino.body.material.restitution = config.restitution;
-        }
-    });
-
-    scene.appendChild(domino);
-    return domino;
-}
-
-// Helper para criar uma fileira de dominós
-export function createDominoChain(scene, startPos, count, direction = 'z', spacing = null) {
-    const config = PhysicsConfig.domino;
-    const actualSpacing = spacing || config.spacing;
-    const dominoes = [];
-
-    for (let i = 0; i < count; i++) {
-        let pos = { ...startPos };
-
-        if (direction === 'z') {
-            pos.z += i * actualSpacing;
-        } else if (direction === 'x') {
-            pos.x += i * actualSpacing;
-        }
-
-        const domino = createDomino(scene, `${pos.x} ${pos.y} ${pos.z}`, direction === 'x' ? 90 : 0);
-        dominoes.push(domino);
-    }
-
-    console.log(`Criada cadeia de ${count} dominós em direção ${direction}`);
-    return dominoes;
-}
-
-// Helper para criar rampa
-export function createRamp(scene, position, length = 5, angle = null) {
-    const config = PhysicsConfig.ramp;
-    const actualAngle = angle || config.angle;
-
-    const ramp = document.createElement('a-entity');
-    ramp.setAttribute('position', position);
-    ramp.setAttribute('rotation', `0 0 ${-actualAngle}`);
-    ramp.setAttribute('geometry', {
-        primitive: 'box',
-        width: 2,
-        height: 0.2,
-        depth: length
-    });
-    ramp.setAttribute('material', {
-        color: '#555555',
-        metalness: 0.8,
-        roughness: 0.2
-    });
-    ramp.setAttribute('static-body', '');
-    ramp.setAttribute('shadow', 'receive: true');
-
-    // Aplica material físico
-    ramp.addEventListener('body-loaded', () => {
-        if (ramp.body) {
-            ramp.body.material.friction = config.friction;
-            ramp.body.material.restitution = config.restitution;
-        }
-    });
-
-    scene.appendChild(ramp);
-    return ramp;
-}
 
 console.log('Physics config loaded');

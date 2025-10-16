@@ -11,7 +11,7 @@
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
-    <!-- Physics System (Cannon.js) - Versão compatível com THREE.js r173 -->
+    <!-- 1Physics System (Cannon.js) - Versão compatível com THREE.js r173 -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
 
     <style>
@@ -207,8 +207,8 @@
         id="bouncy-ball"
         position="9 3 -5"
         radius="0.5"
-        color="#ffff00"
-        dynamic-body="mass: 0.5; linearDamping: 0.05; angularDamping: 0.05"
+        color="#ffffff"
+        dynamic-body="mass: 0.8; linearDamping: 0.05; angularDamping: 0.05; restitution: 0.9"
         shadow="cast: true"
       ></a-sphere>
 

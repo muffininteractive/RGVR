@@ -25,6 +25,12 @@ export default defineConfig({
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
+            },
+            // Trata o Three.js como external para evitar bundling duplicado
+            external: [],
+            output: {
+                // Configura globals se necessário
+                globals: {}
             }
         }
     },
@@ -47,12 +53,17 @@ export default defineConfig({
             '@assets': resolve(__dirname, './assets'),
             '@css': resolve(__dirname, './css'),
             '@js': resolve(__dirname, './js'),
+            // Previne múltiplas instâncias do Three.js
+            'three': 'three'
         }
     },
 
     // Otimizações de dependências
     optimizeDeps: {
-        include: ['aframe']
+        // Exclui o Three.js da otimização já que o A-Frame inclui sua própria versão
+        exclude: ['three'],
+        // Remove aframe-physics-system já que está sendo carregado via CDN
+        include: []
     },
 
     // Configurações específicas para WebXR e A-Frame

@@ -1,6 +1,3 @@
-// Level Select System - RGVR
-import { SceneManager } from '../utils/scene-manager.js';
-
 // Estado da seleção de nível
 let levelSelectState = {
     selectedLevel: null,
@@ -539,7 +536,7 @@ class LevelSelectManager {
             levelInfoPanel.setAttribute('visible', true);
 
             if (levelTitle) {
-                levelTitle.setAttribute('value', `Level ${levelId}: ${level.name.toUpperCase()}`);
+                levelTitle.setAttribute('value', `Level ${levelId} - ${level.name.toUpperCase()}`);
             }
             if (levelDesc) {
                 levelDesc.setAttribute('value', level.objective);
@@ -552,7 +549,7 @@ class LevelSelectManager {
                     'expert': 'Expert'
                 }[level.difficulty] || level.difficulty;
 
-                levelStats.setAttribute('value', `Challenge: ${difficultyLabel}`);
+                levelStats.setAttribute('value', `${difficultyLabel}`);
             }
         }
     }

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,11 +7,10 @@
 
     <!-- CSS -->
     <link rel="stylesheet" href="../css/style.css" />
-
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
 
-    <!-- Physics System (Cannon.js) -->
+    <!-- Physics System (Cannon.js) - importado via npm -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
 
     <!-- Particle System -->
@@ -23,11 +22,11 @@
     <!-- Components -->
     <script src="../components/vr-ui-components.js"></script>
     <script src="../components/level-ui-components.js"></script>
-    <script type="module" src="../utils/level-manager.js"></script>
+    <script type="module" src="../js/level-manager.js"></script>
   </head>
   <body>
     <!-- A-Frame Scene with Physics -->
-    <a-scene id="main-scene" background="color: #1a1a2e" fog="type: linear; color: #1a1a2e; near: 10; far: 50">
+    <a-scene id="main-scene">
       <!-- Assets -->
       <a-assets>
         <!-- Textures and sounds can be added here -->
@@ -65,42 +64,32 @@
         static-body
       ></a-plane>
 
-      <!-- Level Title (will be updated dynamically) -->
-      <a-text
-        id="level-title"
-        value="NÍVEL..."
-        position="0 4 -10"
-        align="center"
-        color="#00ffff"
-        width="12"
-        animation="property: scale; from: 1 1 1; to: 1.05 1.05 1.05; dur: 1000; dir: alternate; loop: true; easing: easeInOutSine"
-      ></a-text>
-
       <!-- Objective Panel (will be updated dynamically) -->
-      <a-entity id="objective-panel" position="0 8 -5"></a-entity>
+      <a-entity id="objective-panel" position="0 6 -9"></a-entity>
 
       <!-- Level elements will be created dynamically by level-manager -->
 
       <!-- UI: Control Buttons -->
-      <a-entity id="btn-play" position="5 2.4 2" level-play-button></a-entity>
+      <a-entity scale="0.5 0.5 0.5" position="0 .5 4">
+        <a-entity id="btn-play" position="-2.5 0 0" rotation="0 0 0" level-play-button></a-entity>
 
-      <a-entity id="btn-restart" position="5 1.6 2" level-restart-button></a-entity>
+        <a-entity id="btn-restart" position="0 0 0" level-restart-button></a-entity>
 
-      <!-- Back Button -->
-      <a-entity
-        id="btn-back"
-        position="5 0.8 2"
-        vr-button="
-          label: ← Menu;
-          width: 1.5;
-          height: 0.5;
-          color: #666666;
-          action: back
-        "
-      ></a-entity>
+        <!-- Back Button -->
+        <a-entity
+          id="btn-back"
+          position="2.5 0 0"
+          vr-button="
+            label: Menu;
+            
+            color: #666666;
+            action: back
+          "
+        ></a-entity>
+      </a-entity>
 
       <!-- Victory Panel (initially invisible; not interactive until shown) -->
-      <a-entity id="victory-panel" position="0 2 -2" victory-panel></a-entity>
+      <a-entity id="victory-panel" position="0 5 -2" victory-panel></a-entity>
 
       <!-- Celebration Effect -->
       <a-entity celebration-effect></a-entity>
@@ -115,17 +104,11 @@
         <!-- Camera -->
         <a-camera
           id="mainCamera"
-          position="0 1.6 0"
-          look-controls="enabled: true; pointerLockEnabled: true"
-          wasd-controls="enabled: true; acceleration: 20"
+          position="0 1.7 0"
+          look-controls="enabled: false; pointerLockEnabled: false"
+          wasd-controls="enabled: false; acceleration: 20"
+          cursor="rayOrigin: mouse"
         >
-          <!-- Visual Cursor -->
-          <a-cursor
-            color="#00ffff"
-            raycaster="objects: .interactive"
-            animation__click="property: scale; startEvents: click; from: 0.1 0.1 0.1; to: 1 1 1; dur: 150"
-            fuse="false"
-          ></a-cursor>
         </a-camera>
 
         <!-- VR Controls -->
@@ -133,12 +116,14 @@
           id="leftHand"
           laser-controls="hand: left"
           raycaster="objects: .interactive; lineColor: #00ffff; lineOpacity: 0.5"
+          grab-handler
         ></a-entity>
 
         <a-entity
           id="rightHand"
           laser-controls="hand: right"
           raycaster="objects: .interactive; lineColor: #00ffff; lineOpacity: 0.5"
+          grab-handler
         ></a-entity>
       </a-entity>
 
@@ -188,19 +173,13 @@
           }
 
           // Update page title
-          document.title = `${levelData.title} - Wacky Works VR`;
-
-          // Update title in scene
-          const titleEl = document.querySelector('#level-title');
-          if (titleEl) {
-            const titleValue = levelData.title ? levelData.title.toUpperCase() : 'NÍVEL';
-            titleEl.setAttribute('value', titleValue);
-          }
+          document.title = `${levelData.name} - Wacky Works VR`;
 
           // Update objective panel
           const objectivePanel = document.querySelector('#objective-panel');
           if (objectivePanel) {
             objectivePanel.setAttribute('objective-panel', {
+              name: 'Level ' + levelData.id + ' - ' + levelData.name || 'Goal',
               objective: levelData.objective,
               description: levelData.description || '',
             });
