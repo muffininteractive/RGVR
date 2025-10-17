@@ -92,6 +92,7 @@ AFRAME.registerComponent('level-manager', {
             'cylinder': PhysicsConfig.objects.cylinder,
             'cone': PhysicsConfig.objects.cone,
             'torus': PhysicsConfig.objects.torus,
+            'candle': PhysicsConfig.objects.candle,
             'lever': PhysicsConfig.objects.lever,
             'ramp': PhysicsConfig.objects.ramp,
             'platform': PhysicsConfig.objects.platform,
@@ -120,6 +121,10 @@ AFRAME.registerComponent('level-manager', {
         // Store physics config for later use when physics starts
         element.dataset.physicsType = data.body.type;
         element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
+        element.dataset.physicsCustomShape = data.customShape || '';
+        element.dataset.physicsCustomBody = data.body || '';
+        element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.5;
+        element.dataset.physicsCylinderAxis = data.body?.cylinderAxis || 'z';
         element.dataset.physicsMass = data.body?.mass || physicsConfig.mass;
         element.dataset.physicsRestitution = data.body?.restitution || physicsConfig.restitution;
         element.dataset.physicsFriction = data.body?.friction || physicsConfig.friction;
@@ -217,21 +222,36 @@ AFRAME.registerComponent('level-manager', {
                 if (data.scale) {
                     element.setAttribute('scale', data.scale);
                 }
+
                 // Add cannon activator to handle collisions with the candle
                 element.setAttribute('cannon-activator', '');
                 break;
 
+            case 'candle':
+                element = document.createElement('a-entity');
+                element.classList.add('candle');
+                const candleStick = document.createElement('a-cylinder');
+                candleStick.setAttribute('color', data.color || '#FFFCCB');
+                candleStick.setAttribute('radius', data.radius || 0.5);
+                candleStick.setAttribute('height', data.height || 1);
+                candleStick.setAttribute('position', `0 ${data.height / 2} 0`);
+                const flame = document.createElement('a-plane');
+
+                flame.setAttribute('width', '0.4');
+                flame.setAttribute('height', '0.5');
+                flame.setAttribute('position', `0 ${data.height + flame.height / 2 || 1.8} 0`);
+                flame.setAttribute('material', { "src": "#flameTex", "transparent": true });
+                flame.setAttribute('flame-anim', '');
+                flame.setAttribute('look-at', '[camera]');
+                element.appendChild(candleStick);
+                element.appendChild(flame);
+                break;
 
             case 'cylinder':
                 element = document.createElement('a-cylinder');
                 element.setAttribute('radius', data.radius || 0.5);
                 element.setAttribute('height', data.height || 1);
-                // mark candle cylinders with a class for easier collision queries
-                if (data.id === 'candle') {
-                    element.classList.add('candle');
-                    // attach candle flame emitter component
-                    element.setAttribute('candle-flame', '');
-                }
+
                 break;
 
             case 'button':
@@ -261,13 +281,6 @@ AFRAME.registerComponent('level-manager', {
         if (data.rotation) {
             element.setAttribute('rotation', data.rotation);
         }
-
-        // Física baseada no novo formato
-        const isGltfModel = data.type === 'model' || (element.hasAttribute && element.hasAttribute('gltf-model'));
-        const physicsType = data.body?.type;
-
-
-
 
         // Movable element component (se não for fixed)
         if (!data.fixed) {
@@ -335,12 +348,19 @@ AFRAME.registerComponent('level-manager', {
                         type: data.body.type || 'dynamic',
 
                         mass: element.dataset.physicsMass || data.body.mass || 1,
+                        sphereRadius: element.dataset.physicsSphereRadius || data.body.sphereRadius || 0.5,
+                        cylinderAxis: element.dataset.physicsCylinderAxis || data.body.cylinderAxis || 'z',
                         restitution: parseFloat(element.dataset.physicsRestitution) || data.body.restitution || 0.3,
                         friction: parseFloat(element.dataset.physicsFriction) || data.body.friction || 0.5,
                     };
 
                     if (element.dataset.physicsShape) {
                         bodyConfig.shape = element.dataset.physicsShape;
+                    }
+
+                    if (element.dataset.physicsCustomShape) {
+                        element.setAttribute('body', 'shape: none;'); // 
+                        element.setAttribute('shape__custom', element.dataset.physicsCustomShape);
                     }
 
                     // Add damping if available
@@ -538,7 +558,7 @@ AFRAME.registerComponent('movable-element', {
             this.isDragging = false;
         }
         this.removeBouncingCone(this.el);
-        this.el.setAttribute('animation', `property: scale; to: ${this.initialScale.x} ${this.initialScale.y} ${this.initialScale.z}; dur: 200; easing: easeOutQuad`);
+        this.el.setAttribute('animation', `property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad`);
     },
     onHover: function () {
         this.createBouncingCone(this.el);
@@ -546,7 +566,7 @@ AFRAME.registerComponent('movable-element', {
     },
     onUnhover: function () {
         this.removeBouncingCone(this.el);
-        this.el.setAttribute('animation', `property: scale; to: ${this.initialScale.x} ${this.initialScale.y} ${this.initialScale.z}; dur: 200; easing: easeOutQuad`);
+        this.el.setAttribute('animation', `property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad`);
     },
 
     onWheel: function (evt) {
@@ -1019,12 +1039,12 @@ AFRAME.registerComponent('cannon-activator', {
         this.el.object3D.getWorldPosition(worldPos);
 
         // offset forward from cannon — assume cannon forward is -Z in model space
-        const forward = new THREE.Vector3(1, 0, 0);
+        const forward = new THREE.Vector3(1, 1, 0);
         forward.applyQuaternion(this.el.object3D.getWorldQuaternion(new THREE.Quaternion()));
-        const spawnPos = worldPos.clone().add(forward.clone().multiplyScalar(0.8)).add(new THREE.Vector3(0, 0.2, 0));
+        const spawnPos = worldPos.clone().add(forward.clone().multiplyScalar(0.8)).add(new THREE.Vector3(0, 0, 0));
 
         ball.setAttribute('radius', 0.3);
-        ball.setAttribute('position', `${spawnPos.x + 0.1} ${spawnPos.y + 1.4} ${spawnPos.z}`);
+        ball.setAttribute('position', `${spawnPos.x + 0.2} ${spawnPos.y + 0.8} ${spawnPos.z}`);
         ball.setAttribute('material', 'color: #666666; metalness: 0.7; roughness: 0.2');
         ball.setAttribute('shadow', 'cast: true; receive: true');
 
@@ -1049,8 +1069,8 @@ AFRAME.registerComponent('cannon-activator', {
                         physicsBody.wakeUp();
                     }
 
-                    const impulse = forward.clone().multiplyScalar(12);
-                    physicsBody.applyImpulse(new CANNON.Vec3(11, 10, 0), new CANNON.Vec3(0, 0, 0));
+                    const impulse = forward.clone().multiplyScalar(25);
+                    physicsBody.applyImpulse(new CANNON.Vec3(impulse.x + 20, impulse.y, 0), new CANNON.Vec3(0, 0, 0));
 
                     // As an extra nudge, set a small velocity if applyImpulse didn't visibly move it
                     /*
@@ -1124,27 +1144,31 @@ AFRAME.registerComponent('cannon-activator', {
     }
 });
 
-// Candle flame emitter component
-AFRAME.registerComponent('candle-flame', {
+AFRAME.registerComponent('flame-anim', {
+    schema: {
+        cols: { type: 'int', default: 3 },
+        rows: { type: 'int', default: 3 },
+        fps: { type: 'int', default: 9 },
+    },
     init: function () {
-        this.flaming();
-    },
-    flaming: function () {
-        const scene = this.el.sceneEl || document.querySelector('a-scene');
-        const candlePos = new THREE.Vector3();
-        this.el.object3D.getWorldPosition(candlePos);
+        this.frame = 0;
+        this.lastTime = 0;
+        this.totalFrames = this.data.cols * this.data.rows;
+        this.material = this.el.getObject3D('mesh').material;
+        this.material.blending = THREE.AdditiveBlending;
 
-        const ps = document.createElement('a-entity');
-        ps.classList.add('candle-emitter');
-        ps.setAttribute('position', `0 0.8 0`);
-        // compact particle-system config: short burst, warm colors
-        const psAttr = `particleCount: 20; color: #ffcc00,#ff8800; size: 0.52; maxAge: 0.01; velocity: 0 0.1 0; spread: 2 2 2; acceleration: 0 0 0; duration: 256;`;
-        ps.setAttribute('particle-system', psAttr);
-        this.el.appendChild(ps);
     },
-    remove: function () {
-        // Cleanup se necessário
-
+    tick: function (time, timeDelta) {
+        if (this.material.map && time - this.lastTime > 1000 / this.data.fps) {
+            this.frame = (this.frame + 1) % this.totalFrames;
+            let col = this.frame % this.data.cols;
+            let row = Math.floor(this.frame / this.data.cols);
+            this.material.map.offset.set(
+                col / this.data.cols,
+                1 - (row + 1) / this.data.rows
+            );
+            this.material.map.repeat.set(1 / this.data.cols, 1 / this.data.rows);
+            this.lastTime = time;
+        }
     }
-
 });

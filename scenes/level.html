@@ -28,16 +28,16 @@
   </head>
   <body>
     <!-- A-Frame Scene with Physics -->
-    <a-scene id="main-scene">
+    <a-scene id="main-scene" physics="debug: true;">
       <!-- Assets -->
       <a-assets>
-        <a-asset-item src="./data/particles-fireworks.json" id="particlesJSON"></a-asset-item>
-        <img src="./assets/imgs/sprite.png" id="particleTex" />
+        
+        <img src="../assets/imgs/flame.png" id="flameTex" />
         <!-- Textures and sounds can be added here -->
       </a-assets>
 
       <!-- 3D Environment (will be configured dynamically) -->
-      <a-entity id="environment"></a-entity>
+      <a-entity position="0 0 0" id="environment"></a-entity>
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
@@ -65,7 +65,7 @@
 -->
       <!-- Visual Grid -->
       <a-plane
-        position="0 0 0"
+        position="0 -0.1 0"
         rotation="-90 0 0"
         width="30"
         height="30"
@@ -109,7 +109,7 @@
       <!-- VR Rig/Camera with full controls -->
       <a-entity
         id="cameraRig"
-        position="0 0 8"
+        position="0 0 6"
         movement-controls="fly: false; constrainToNavMesh: false"
         snap-turn-controls="turnAngle: 45"
       >

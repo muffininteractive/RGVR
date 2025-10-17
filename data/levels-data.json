@@ -1897,7 +1897,7 @@
                     "modelUrl": "../assets/models/cannon.glb",
                     "position": {
                         "x": 0,
-                        "y": 0.1,
+                        "y": 0,
                         "z": -5
                     },
                     "rotation": {
@@ -1914,18 +1914,16 @@
                     "fixed": false,
                     "body": {
                         "type": "dynamic",
-                        "shape": "cilinder",
-                        "radiusTop": "0.5",
-                        "radiusBottom": "0.5",
-                        "height": "1"
-                    }
+                        "shape": "none"
+                    },
+                    "customShape": "shape: box;halfExtents: 0.6 0.5 0.7;offset: -0.2 0.5 0;"
                 },
                 {
                     "id": "candle",
-                    "type": "cylinder",
+                    "type": "candle",
                     "position": {
                         "x": -3,
-                        "y": 0.8,
+                        "y": 0,
                         "z": -5
                     },
                     "rotation": {
@@ -1935,12 +1933,12 @@
                     },
                     "radius": 0.2,
                     "height": 1.5,
-                    "color": "#ffff00",
+                    "color": "#FFFCCB",
                     "fixed": false,
                     "movable": true,
                     "body": {
                         "type": "dynamic",
-                        "mass": 1
+                        "shape": "box"
                     }
                 },
                 {

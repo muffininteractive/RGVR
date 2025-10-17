@@ -131,14 +131,14 @@ export const PhysicsConfig = {
             friction: 1,
             linearDamping: 0.5,
             angularDamping: 0.5,
+
         },
         candle: {
-            mass: 0.1, // Mais pesado
+            mass: 1, // Mais pesado
             restitution: 0.1, // Menos quique
             friction: 0.1, // Mais fricção (estável)
-            linearDamping: 0.05,
-            angularDamping: 0.05,
-
+            linearDamping: 0.01,
+            angularDamping: 0.01,
         }
     },
 
