@@ -9,16 +9,18 @@
     <link rel="stylesheet" href="../css/style.css" />
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <!-- Environment Component -->
+    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
+    <!--
+    <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.3/dist/aframe-physics-system.js"></script>
+    -->
 
-    <!-- Physics System (Cannon.js) - importado via npm -->
+    <!-- Physics System (Cannon.js) -->
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
 
     <!-- Particle System -->
-    <script src="https://unpkg.com/aframe-particle-system-component@1.1.4/dist/aframe-particle-system-component.min.js"></script>
-
-    <!-- Environment Component -->
-    <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
-
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-particle-system-component@1.2.0/dist/aframe-particle-system-component.min.js"></script>
     <!-- Components -->
     <script src="../components/vr-ui-components.js"></script>
     <script src="../components/level-ui-components.js"></script>
@@ -29,6 +31,8 @@
     <a-scene id="main-scene">
       <!-- Assets -->
       <a-assets>
+        <a-asset-item src="./data/particles-fireworks.json" id="particlesJSON"></a-asset-item>
+        <img src="./assets/imgs/sprite.png" id="particleTex" />
         <!-- Textures and sounds can be added here -->
       </a-assets>
 
@@ -37,9 +41,15 @@
 
       <!-- Lighting -->
       <a-light type="ambient" color="#ffffff" intensity="0.6"></a-light>
-      <a-light type="directional" position="5 10 5" intensity="0.8" castShadow="true"></a-light>
+
       <a-light type="point" position="0 5 0" color="#00ffff" intensity="0.5"></a-light>
 
+      <a-light
+        type="directional"
+        position="5 10 5"
+        intensity="0.8"
+        light="castShadow: true; shadowCameraTop: 20"
+      ></a-light>
       <!-- Physical Ground --><!--
       <a-plane
         id="ground"
@@ -55,7 +65,7 @@
 -->
       <!-- Visual Grid -->
       <a-plane
-        position="0 0.01 0"
+        position="0 0 0"
         rotation="-90 0 0"
         width="30"
         height="30"
@@ -93,6 +103,8 @@
 
       <!-- Celebration Effect -->
       <a-entity celebration-effect></a-entity>
+
+</body>
 
       <!-- VR Rig/Camera with full controls -->
       <a-entity
@@ -143,13 +155,14 @@
         3: { preset: 'checkerboard', groundColor: '#333366', gridColor: '#6666aa', dressingAmount: 50 },
         4: { preset: 'japan', groundColor: '#4a2a2a', dressingColor: '#ff6b9d', dressingAmount: 40 },
         5: { preset: 'dream', groundColor: '#6a4a8a', dressingColor: '#aa66ff', dressingAmount: 35 },
-        6: { preset: 'volcano', groundColor: '#4a2a1a', dressingColor: '#ff4400', dressingAmount: 25 },
+        6: { preset: 'volcano', groundColor: '#4a2a1a', dressingColor: '#ff4400', dressingAmount: 22 },
         7: { preset: 'arches', groundColor: '#8a6a4a', dressingColor: '#cc9966', dressingAmount: 15 },
         8: { preset: 'threetowers', groundColor: '#2a2a4a', dressingColor: '#4466aa', dressingAmount: 20 },
         9: { preset: 'poison', groundColor: '#2a4a2a', dressingColor: '#66ff33', dressingAmount: 45 },
         10: { preset: 'tron', groundColor: '#0a0a1a', dressingColor: '#00ffff', dressingAmount: 30 },
         11: { preset: 'starry', groundColor: '#1a1a2a', dressingColor: '#ffffff', dressingAmount: 60 },
         12: { preset: 'osiris', groundColor: '#3a3a5a', dressingColor: '#ffaa00', dressingAmount: 25 },
+        13: { preset: 'arches', groundColor: '#8a6a4a', dressingColor: '#cc9966', dressingAmount: 5 },
       };
 
       document.addEventListener('DOMContentLoaded', async () => {
@@ -189,7 +202,7 @@
           const envConfig = levelEnvironments[levelId] || levelEnvironments[1];
           const envEl = document.querySelector('#environment');
           if (envEl) {
-            const envSettings = `preset: ${envConfig.preset}; groundColor: ${envConfig.groundColor}; ${envConfig.gridColor ? 'gridColor: ' + envConfig.gridColor + ';' : ''} dressingAmount: ${envConfig.dressingAmount}; dressingColor: ${envConfig.dressingColor}`;
+            const envSettings = `preset: ${envConfig.preset}; groundColor: ${envConfig.groundColor}; ${envConfig.gridColor ? 'gridColor: ' + envConfig.gridColor + ';' : ''} dressingAmount: ${envConfig.dressingAmount}; dressingColor: ${envConfig.dressingColor};shadow:true;shadowSize:10;`;
             envEl.setAttribute('environment', envSettings);
           }
 

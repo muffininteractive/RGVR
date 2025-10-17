@@ -289,17 +289,18 @@ AFRAME.registerComponent('victory-panel', {
             action: 'select-level'
         });
 
-        // Celebration particles
+        // Celebration particles (using aframe-particle-system-component)
+        // See: https://github.com/c-frame/aframe-particle-system-component
         const particles = document.createElement('a-entity');
         particles.setAttribute('position', '0 1.5 0');
-        particles.setAttribute('particle-system', {
-            color: '#00ff00,#ffff00,#00ffff',
-            particleCount: 100,
-            maxAge: 3,
-            accelerationValue: '0 -5 0',
-            velocityValue: '0 10 0',
-            velocitySpread: '5 2 5'
-        });
+        // Use `particle-system` attribute following the component API
+        if (AFRAME && AFRAME.components && AFRAME.components['particle-system']) {
+            // use string format like in docs: "key: value; key2: value2"
+            // removed `blending` to prevent invalid blending NaN in THREE
+            particles.setAttribute('particle-system', `preset: dust; particleCount: 150; color: #00ff00,#ffff00,#00ffff; size: 0.2; maxAge: 3; acceleration: 0 -5 0; velocity: 0 5 0; spread: 5 2 5; duration: 1.5`);
+        } else {
+            console.warn('particle-system component not found; skipping victory-panel particles');
+        }
 
         this.el.appendChild(bg);
         this.el.appendChild(title);
@@ -448,7 +449,7 @@ AFRAME.registerComponent('camera-follow', {
 // Component: Celebration Effect
 AFRAME.registerComponent('celebration-effect', {
     schema: {
-        duration: { type: 'number', default: 3000 }
+        duration: { type: 'number', default: 3000 },
     },
 
     init: function () {
@@ -458,11 +459,11 @@ AFRAME.registerComponent('celebration-effect', {
     celebrate: function () {
         console.log('🎆 Efeito de comemoração!');
 
-        // Create fireworks/confetti
-        for (let i = 0; i < 5; i++) {
+        // Create fireworks/confetti using particle-system (built-in or plugin compatible)
+        for (let i = 0; i < 60; i++) {
             setTimeout(() => {
                 this.createFirework();
-            }, i * 300);
+            }, i * 250);
         }
 
         // Celebration sounds (if available)
@@ -470,19 +471,33 @@ AFRAME.registerComponent('celebration-effect', {
     },
 
     createFirework: function () {
+
         const firework = document.createElement('a-entity');
         const randomX = (Math.random() - 0.5) * 10;
-        const randomZ = (Math.random() - 0.5) * 10 - 5;
+        const randomY = (Math.random() + 0.5) * 5 + 4;
 
-        firework.setAttribute('position', `${randomX} 0.5 ${randomZ}`);
-        firework.setAttribute('particle-system', {
-            color: this.getRandomColor(),
-            particleCount: 50,
-            maxAge: 2,
-            accelerationValue: '0 -2 0',
-            velocityValue: '0 8 0',
-            velocitySpread: '3 3 3'
-        });
+        firework.setAttribute('position', `${randomX} ${randomY} -10`);
+
+        // Use aframe-particle-system-component attributes (string form)
+        if (AFRAME && AFRAME.components && AFRAME.components['particle-system']) {
+            const color = this.getRandomColor();
+            // avoid setting blending explicitly (some environments parse it incorrectly)
+            const psAttr = `
+            
+            particleCount: 80;
+            color: ${color};
+            size: 0.3;
+            maxAge: 2.2;
+            velocity: 0 0 0;
+            spread: 50 50 50;
+            acceleration: 0 0 0.03;
+            duration: 0.2;
+            
+            `;
+            firework.setAttribute('particle-system', psAttr);
+        } else {
+            console.warn('particle-system component not found; skipping firework particles');
+        }
 
         this.el.sceneEl.appendChild(firework);
 

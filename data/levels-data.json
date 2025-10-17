@@ -10,27 +10,26 @@
                 {
                     "id": "decor-lever-model",
                     "type": "model",
-                    "modelUrl": "../assets/models/lever.glb",
+                    "modelUrl": "../assets/models/cannon.glb",
                     "position": {
                         "x": -7,
-                        "y": 3,
+                        "y": 0,
                         "z": -5
                     },
                     "rotation": {
                         "x": 0,
-                        "y": 30,
+                        "y": 0,
                         "z": 0
                     },
                     "scale": {
-                        "x": 0.8,
-                        "y": 0.8,
-                        "z": 0.8
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
                     },
                     "movable": true,
                     "fixed": false,
                     "body": {
-                        "type": "dynamic",
-                        "material": "metal"
+                        "type": "dynamic"
                     }
                 },
                 {
@@ -1875,6 +1874,134 @@
                         "width": 2.5,
                         "height": 0.2,
                         "depth": 2.5
+                    },
+                    "color": "#00ff00",
+                    "fixed": true,
+                    "isTarget": true,
+                    "body": {
+                        "type": "static"
+                    }
+                }
+            ]
+        },
+        {
+            "id": 13,
+            "name": "The Thirteen",
+            "difficulty": "easy",
+            "objective": "Make the ball roll",
+            "description": "Learn the basics",
+            "elements": [
+                {
+                    "id": "cannon",
+                    "type": "cannon",
+                    "modelUrl": "../assets/models/cannon.glb",
+                    "position": {
+                        "x": 0,
+                        "y": 0.1,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "scale": {
+                        "x": 1,
+                        "y": 1,
+                        "z": 1
+                    },
+                    "movable": true,
+                    "fixed": false,
+                    "body": {
+                        "type": "dynamic",
+                        "shape": "cilinder",
+                        "radiusTop": "0.5",
+                        "radiusBottom": "0.5",
+                        "height": "1"
+                    }
+                },
+                {
+                    "id": "candle",
+                    "type": "cylinder",
+                    "position": {
+                        "x": -3,
+                        "y": 0.8,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "radius": 0.2,
+                    "height": 1.5,
+                    "color": "#ffff00",
+                    "fixed": false,
+                    "movable": true,
+                    "body": {
+                        "type": "dynamic",
+                        "mass": 1
+                    }
+                },
+                {
+                    "id": "start-ball",
+                    "type": "sphere",
+                    "position": {
+                        "x": -9,
+                        "y": 3,
+                        "z": -5
+                    },
+                    "color": "#ff0000",
+                    "radius": 0.4,
+                    "fixed": true,
+                    "isStart": true,
+                    "body": {
+                        "type": "dynamic",
+                        "mass": 2.5
+                    }
+                },
+                {
+                    "id": "ramp-1",
+                    "type": "ramp",
+                    "position": {
+                        "x": -9,
+                        "y": 1.5,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": -20
+                    },
+                    "dimensions": {
+                        "width": 4,
+                        "height": 0.3,
+                        "depth": 3
+                    },
+                    "color": "#555555",
+                    "movable": true,
+                    "fixed": false,
+                    "body": {
+                        "type": "static"
+                    }
+                },
+                {
+                    "id": "target-platform",
+                    "type": "platform",
+                    "position": {
+                        "x": 8,
+                        "y": 3,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 90
+                    },
+                    "dimensions": {
+                        "width": 2,
+                        "height": 0.2,
+                        "depth": 2
                     },
                     "color": "#00ff00",
                     "fixed": true,

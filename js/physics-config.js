@@ -15,16 +15,18 @@ export const PhysicsConfig = {
     materials: {
         rubber: {
             friction: 0.9,
-            restitution: 0.8,
+            restitution: 0.9,
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3
         },
         amortecido: {
             // Alto atrito, baixíssima restituição (quase sem quique)
-            friction: 0.8,
-            restitution: 0.05,
+            friction: 5,
+            restitution: 0.1,
+            linearDamping: 0.5,
+            angularDamping: 0.5,
             contactEquationStiffness: 1e8,
-            contactEquationRelaxation: 5
+            contactEquationRelaxation: 3
         },
         metal: {
             friction: 0.3,
@@ -57,12 +59,11 @@ export const PhysicsConfig = {
     // Configurações específicas por tipo de objeto
     objects: {
         sphere: {
-            mass: 1,
-            restitution: 1, // Quique médio
+            mass: .5,
+            restitution: 5, // Quique médio
             friction: 0.3,
-            linearDamping: 0.1,
-            angularDamping: 0.1,
-            material: 'rubber' // Bola quica bem
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 8
         },
         cube: {
             mass: 2, // Mais pesado
@@ -110,17 +111,34 @@ export const PhysicsConfig = {
             restitution: 1,
         },
         platform: {
-            mass: 100, // Estático
-            friction: 0.1,
-            restitution: 0.1,
+            mass: 0, // Estático
+            friction: 5,
+            restitution: 0,
+            linearDamping: 1,
+            angularDamping: 1,
         },
         model: {
-            mass: 1,
-            restitution: 0.4,
-            friction: 0.6,
-            linearDamping: 0.1,
-            angularDamping: 0.1,
-            material: 'plastic'
+            mass: 10,
+            restitution: 0,
+            friction: 1,
+            linearDamping: 0.5,
+            angularDamping: 0.5,
+
+        },
+        cannon: {
+            mass: 50,
+            restitution: 0.1,
+            friction: 1,
+            linearDamping: 0.5,
+            angularDamping: 0.5,
+        },
+        candle: {
+            mass: 0.1, // Mais pesado
+            restitution: 0.1, // Menos quique
+            friction: 0.1, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
+
         }
     },
 

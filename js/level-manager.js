@@ -33,81 +33,7 @@ AFRAME.registerComponent('level-manager', {
 
     },
 
-    // Aplica PhysicsConfig.world na cena (gravidade, iterações/solver, broadphase)
-    /*
-    applyWorldPhysicsConfig: function () {
-        const scene = this.el.sceneEl || this.el;
-        const worldCfg = (typeof PhysicsConfig !== 'undefined' && PhysicsConfig && PhysicsConfig.world) ? PhysicsConfig.world : null;
-        if (!scene || !worldCfg) return;
 
-        // 1) Define a gravidade via atributo do sistema de física
-        try {
-            const gravityY = Number(worldCfg.gravity);
-            if (!isNaN(gravityY)) {
-                const current = scene.getAttribute('physics') || {};
-                const next = Object.assign({}, current, { gravity: { x: 0, y: gravityY, z: 0 } });
-                scene.setAttribute('physics', next);
-            }
-        } catch (e) {
-            console.warn('[level-manager] Falha ao setar gravidade na cena:', e);
-        }
-
-        // 2) Ajustes finos no CANNON.World após a cena carregar
-        const tune = () => this._tuneCannonWorld(worldCfg);
-        if (scene.hasLoaded) tune();
-        else scene.addEventListener('loaded', tune, { once: true });
-    },
-
-    // Ajustes diretos no CANNON.World (iterações do solver, broadphase, tipo de solver)
-    _tuneCannonWorld: function (worldCfg) {
-        const scene = this.el.sceneEl || this.el;
-        const physicsSystem = scene && scene.systems && scene.systems.physics;
-        const driver = physicsSystem && physicsSystem.driver;
-        const cannonWorld = driver && driver.world;
-
-        if (!cannonWorld || typeof CANNON === 'undefined') return;
-
-        // Gravidade (garantia extra)
-        if (typeof worldCfg.gravity === 'number') {
-            cannonWorld.gravity.set(0, worldCfg.gravity, 0);
-        }
-
-        // Iterações do solver
-        const iters = (typeof worldCfg.solverIterations === 'number') ? worldCfg.solverIterations : worldCfg.iterations;
-        if (iters && cannonWorld.solver) {
-            cannonWorld.solver.iterations = iters;
-        }
-
-        // Broadphase
-        if (worldCfg.broadphase) {
-            const name = String(worldCfg.broadphase).toLowerCase();
-            if (name.includes('sap') && CANNON.SAPBroadphase) {
-                cannonWorld.broadphase = new CANNON.SAPBroadphase(cannonWorld);
-            } else if (CANNON.NaiveBroadphase) {
-                cannonWorld.broadphase = new CANNON.NaiveBroadphase();
-            }
-        }
-
-        // Tipo de solver
-        if (worldCfg.solver) {
-            const s = String(worldCfg.solver).toLowerCase();
-            if (s.includes('gs') && CANNON.GSSolver) {
-                cannonWorld.solver = new CANNON.GSSolver();
-                if (iters) cannonWorld.solver.iterations = iters;
-            } else if (s.includes('split') && CANNON.SplitSolver && CANNON.GSSolver) {
-                cannonWorld.solver = new CANNON.SplitSolver(new CANNON.GSSolver());
-                if (iters) cannonWorld.solver.iterations = iters;
-            }
-        }
-
-        console.log('🌍 Physics world configurado:', {
-            gravity: cannonWorld.gravity,
-            iterations: cannonWorld.solver && cannonWorld.solver.iterations,
-            broadphase: cannonWorld.broadphase && cannonWorld.broadphase.constructor && cannonWorld.broadphase.constructor.name,
-            solver: cannonWorld.solver && cannonWorld.solver.constructor && cannonWorld.solver.constructor.name
-        });
-    },
-*/
     loadLevelData: async function () {
         try {
             const response = await fetch('../data/levels-data.json');
@@ -170,7 +96,8 @@ AFRAME.registerComponent('level-manager', {
             'ramp': PhysicsConfig.objects.ramp,
             'platform': PhysicsConfig.objects.platform,
             'domino': PhysicsConfig.objects.domino, // Usa configuração de cubo
-            'button': PhysicsConfig.objects.cube, // Usa configuração de cubo
+            'button': PhysicsConfig.objects.cube,// Usa configuração de cubo
+            'cannon': PhysicsConfig.objects.cannon, // Usa configuração de modelo
             'model': PhysicsConfig.objects.model // Default para modelos genéricos
 
         };
@@ -192,6 +119,7 @@ AFRAME.registerComponent('level-manager', {
 
         // Store physics config for later use when physics starts
         element.dataset.physicsType = data.body.type;
+        element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
         element.dataset.physicsMass = data.body?.mass || physicsConfig.mass;
         element.dataset.physicsRestitution = data.body?.restitution || physicsConfig.restitution;
         element.dataset.physicsFriction = data.body?.friction || physicsConfig.friction;
@@ -244,6 +172,13 @@ AFRAME.registerComponent('level-manager', {
                 break;
 
             case 'ramp':
+                element = document.createElement('a-box');
+                if (data.dimensions) {
+                    element.setAttribute('width', data.dimensions.width);
+                    element.setAttribute('height', data.dimensions.height);
+                    element.setAttribute('depth', data.dimensions.depth);
+                }
+                break;
             case 'platform':
                 element = document.createElement('a-box');
                 if (data.dimensions) {
@@ -271,10 +206,32 @@ AFRAME.registerComponent('level-manager', {
                 }
                 break;
 
+            case 'cannon':
+                // Generic GLTF/GLB model loader
+                element = document.createElement('a-entity');
+                if (data.modelUrl) {
+                    const url = String(data.modelUrl).trim();
+                    // Allow both asset id (e.g. #myModel) or direct URL
+                    element.setAttribute('gltf-model', url.startsWith('#') ? url : `url(${url})`);
+                }
+                if (data.scale) {
+                    element.setAttribute('scale', data.scale);
+                }
+                // Add cannon activator to handle collisions with the candle
+                element.setAttribute('cannon-activator', '');
+                break;
+
+
             case 'cylinder':
                 element = document.createElement('a-cylinder');
                 element.setAttribute('radius', data.radius || 0.5);
                 element.setAttribute('height', data.height || 1);
+                // mark candle cylinders with a class for easier collision queries
+                if (data.id === 'candle') {
+                    element.classList.add('candle');
+                    // attach candle flame emitter component
+                    element.setAttribute('candle-flame', '');
+                }
                 break;
 
             case 'button':
@@ -376,11 +333,15 @@ AFRAME.registerComponent('level-manager', {
                     // Get physics config from dataset or use from physics-config.js
                     const bodyConfig = {
                         type: data.body.type || 'dynamic',
-                        mass: parseFloat(element.dataset.physicsMass) || data.body.mass || 50,
+
+                        mass: element.dataset.physicsMass || data.body.mass || 1,
                         restitution: parseFloat(element.dataset.physicsRestitution) || data.body.restitution || 0.3,
                         friction: parseFloat(element.dataset.physicsFriction) || data.body.friction || 0.5,
-
                     };
+
+                    if (element.dataset.physicsShape) {
+                        bodyConfig.shape = element.dataset.physicsShape;
+                    }
 
                     // Add damping if available
                     if (element.dataset.physicsLinearDamping) {
@@ -422,6 +383,7 @@ AFRAME.registerComponent('level-manager', {
                             }
                         }, { once: true });
                     }
+
                 }
             });
         }
@@ -951,7 +913,6 @@ AFRAME.registerComponent('grab-handler', {
     }
 });
 
-
 // Objective detector component
 AFRAME.registerComponent('target-detector', {
     init: function () {
@@ -985,3 +946,205 @@ AFRAME.registerComponent('target-detector', {
 });
 
 export { levelState };
+
+// Cannon activator: when struck by the candle, play particles for 2s then fire a ball
+AFRAME.registerComponent('cannon-activator', {
+    schema: {
+        fired: { type: 'boolean', default: false }
+    },
+
+    init: function () {
+        this._onCollide = this._onCollide.bind(this);
+        this.el.addEventListener('collide', this._onCollide);
+    },
+
+    _onCollide: function (evt) {
+        if (this.data.fired) return; // já disparado
+        if (!levelState.physicsEnabled) return;
+
+        const otherEl = evt.detail.body && evt.detail.body.el;
+        if (!otherEl) return;
+
+        // Aceita colisão com id 'candle' ou tipo cylinder com id candle
+        const hitCandle = otherEl.id === 'candle' || otherEl.classList.contains('candle');
+        if (!hitCandle) return;
+
+        this.data.fired = true;
+        console.log('🔥 Cannon activated by candle collision — starting particles');
+
+        // If the candle has a particle-system emitter (the flame), wait 2s then remove it so it doesn't conflict/overlap
+        try {
+            if (otherEl) {
+                // schedule removal after 2 seconds to allow visual continuity
+                setTimeout(() => {
+                    try {
+                        const candleEmitters = Array.from(otherEl.querySelectorAll('[particle-system], .candle-emitter'));
+                        candleEmitters.forEach(em => {
+                            if (em.parentNode) em.parentNode.removeChild(em);
+                        });
+                    } catch (innerErr) {
+                        console.warn('⚠️ Erro ao remover particle emitters do candle (delayed):', innerErr);
+                    }
+                }, 1000);
+                // also check direct children in case the emitter was appended to the candle's object3D root
+            }
+        } catch (e) {
+            console.warn('⚠️ Erro ao agendar remoção de particle emitters do candle:', e);
+        }
+
+        // Create particle emitter at cannon position using particle-system (same approach as level-ui fireworks)
+        const scene = this.el.sceneEl || document.querySelector('a-scene');
+        const cannonPos = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(cannonPos);
+
+        const ps = document.createElement('a-entity');
+        ps.setAttribute('position', `${cannonPos.x - 0.8} ${cannonPos.y + 1.4} ${cannonPos.z}`);
+        // compact particle-system config: short burst, warm colors
+        const psAttr = `particleCount: 10; color: #ffcc00,#ff8800; size: 0.32; maxAge: 0.01; velocity: 0 1 0; spread: 1 1 1; acceleration: 0 1 0; duration: 1.8;`;
+        ps.setAttribute('particle-system', psAttr);
+        scene.appendChild(ps);
+
+        // Remove particles after ~2s and then fire
+        setTimeout(() => {
+            if (ps.parentNode) ps.parentNode.removeChild(ps);
+            this._spawnAndFireBall();
+        }, 2000);
+    },
+
+    _spawnAndFireBall: function () {
+        const scene = this.el.sceneEl || document.querySelector('a-scene');
+        // create sphere at cannon mouth
+        const ball = document.createElement('a-sphere');
+        const worldPos = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(worldPos);
+
+        // offset forward from cannon — assume cannon forward is -Z in model space
+        const forward = new THREE.Vector3(1, 0, 0);
+        forward.applyQuaternion(this.el.object3D.getWorldQuaternion(new THREE.Quaternion()));
+        const spawnPos = worldPos.clone().add(forward.clone().multiplyScalar(0.8)).add(new THREE.Vector3(0, 0.2, 0));
+
+        ball.setAttribute('radius', 0.3);
+        ball.setAttribute('position', `${spawnPos.x + 0.1} ${spawnPos.y + 1.4} ${spawnPos.z}`);
+        ball.setAttribute('material', 'color: #666666; metalness: 0.7; roughness: 0.2');
+        ball.setAttribute('shadow', 'cast: true; receive: true');
+
+        // add to scene then apply physics dynamic-body
+        scene.appendChild(ball);
+
+        // no debug box: removed in production
+
+        // Try to add a dynamic body and apply impulse in a resilient, non-blocking way.
+        // Some XR runtimes don't play nicely with requestAnimationFrame; prefer event-driven + retry with setTimeout.
+        try {
+            // Add dynamic-body (CANNON) configuration immediately
+            ball.setAttribute('dynamic-body', { mass: 4, shape: 'sphere', sphereRadius: 0.3, linearDamping: 0.01, angularDamping: 0.01 });
+
+            const applyImpulseToBody = (physicsBody) => {
+                try {
+                    if (!physicsBody) return false;
+                    if (typeof CANNON === 'undefined') return false;
+
+                    // Wake up body (important if world/bodies are sleeping in XR)
+                    if (typeof physicsBody.wakeUp === 'function') {
+                        physicsBody.wakeUp();
+                    }
+
+                    const impulse = forward.clone().multiplyScalar(12);
+                    physicsBody.applyImpulse(new CANNON.Vec3(11, 10, 0), new CANNON.Vec3(0, 0, 0));
+
+                    // As an extra nudge, set a small velocity if applyImpulse didn't visibly move it
+                    /*
+                    if (typeof physicsBody.velocity !== 'undefined') {
+                        physicsBody.velocity.x += impulse.x * 0.001;
+                        physicsBody.velocity.y += (impulse.y + 2.5) * 0.9;
+                        physicsBody.velocity.z += impulse.z * 0.02;
+                    }
+*/
+                    console.log('🔫 Impulse applied to spawned ball:', { impulse, hasBody: !!physicsBody });
+                    return true;
+                } catch (err) {
+                    console.warn('⚠️ Error while applying impulse to physics body:', err);
+                    return false;
+                }
+            };
+
+            // If body is already available on the element, try immediately
+            const tryApplyNow = () => {
+                const existingBody = ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body);
+                if (existingBody && applyImpulseToBody(existingBody)) return true;
+                return false;
+            };
+
+            if (tryApplyNow()) {
+                // done
+            } else {
+                // Listen for 'body-loaded' which aframe-physics-system emits when the CANNON body is ready
+                const onBodyLoaded = (evt) => {
+                    const physicsBody = evt.detail && (evt.detail.body || evt.target.body) ? (evt.detail.body || evt.target.body) : (ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body));
+                    if (applyImpulseToBody(physicsBody)) {
+                        // cleanup listener once applied
+                        ball.removeEventListener('body-loaded', onBodyLoaded);
+                        ball.removeAttribute('animation');
+                    }
+                };
+
+                ball.addEventListener('body-loaded', onBodyLoaded, { once: true });
+
+                // Fallback retry using setTimeout (non-blocking) with total timeout
+                let attempts = 0;
+                const maxAttempts = 12; // ~1.2s
+                const retryDelay = 100;
+
+                const retry = () => {
+                    attempts++;
+                    if (tryApplyNow()) {
+                        ball.removeEventListener('body-loaded', onBodyLoaded);
+                        ball.removeAttribute('animation');
+                        return;
+                    }
+                    if (attempts >= maxAttempts) {
+                        console.warn('⚠️ Could not apply impulse to ball within timeout. Body present?', !!(ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body)));
+                        return;
+                    }
+                    setTimeout(retry, retryDelay);
+                };
+
+                setTimeout(retry, retryDelay);
+            }
+        } catch (e) {
+            console.warn('⚠️ Error applying physics impulse to ball', e);
+        }
+
+
+        console.log('💥 Cannon fired ball');
+    },
+
+    remove: function () {
+        this.el.removeEventListener('collide', this._onCollide);
+    }
+});
+
+// Candle flame emitter component
+AFRAME.registerComponent('candle-flame', {
+    init: function () {
+        this.flaming();
+    },
+    flaming: function () {
+        const scene = this.el.sceneEl || document.querySelector('a-scene');
+        const candlePos = new THREE.Vector3();
+        this.el.object3D.getWorldPosition(candlePos);
+
+        const ps = document.createElement('a-entity');
+        ps.classList.add('candle-emitter');
+        ps.setAttribute('position', `0 0.8 0`);
+        // compact particle-system config: short burst, warm colors
+        const psAttr = `particleCount: 20; color: #ffcc00,#ff8800; size: 0.52; maxAge: 0.01; velocity: 0 0.1 0; spread: 2 2 2; acceleration: 0 0 0; duration: 256;`;
+        ps.setAttribute('particle-system', psAttr);
+        this.el.appendChild(ps);
+    },
+    remove: function () {
+        // Cleanup se necessário
+
+    }
+
+});
