@@ -150,11 +150,11 @@ export const PhysicsConfig = {
             //customShape: "shape: cylinder;radiusTop: 0.19;radiusBottom: 0.19;height: 1.75;offset: 0 0.25 0;cylinderAxis:y"
         },
         wall: {
-            mass: 200,
+            mass: 100,
             restitution: 0.9,
             friction: 0.9,
-            linearDamping: 0.1,
-            angularDamping: 0.1,
+            linearDamping: 0.01,
+            angularDamping: 0.01,
             material: 'brick'
         }
     },

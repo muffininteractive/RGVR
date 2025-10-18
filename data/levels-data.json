@@ -1984,11 +1984,11 @@
                     }
                 },
                 {
-                    "id": "rightWall",
+                    "id": "topWall",
                     "type": "wall",
                     "position": {
-                        "x": 8.5,
-                        "y": 2.5,
+                        "x": 4.5,
+                        "y": 4.5,
                         "z": -5
                     },
                     "rotation": {
@@ -1998,8 +1998,83 @@
                     },
                     "dimensions": {
                         "width": 0.3,
-                        "height": 5,
+                        "height": 2,
                         "depth": 3.5
+                    },
+                    "color": "#A07A50",
+                    "movable": false,
+                    "fixed": true,
+                    "body": {
+                        "type": "static"
+                    }
+                },
+                {
+                    "id": "rightWall",
+                    "type": "wall",
+                    "position": {
+                        "x": 4.5,
+                        "y": 2.75,
+                        "z": -3.75
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 1.5,
+                        "depth": 1
+                    },
+                    "color": "#A07A50",
+                    "movable": false,
+                    "fixed": true,
+                    "body": {
+                        "type": "static"
+                    }
+                },
+                {
+                    "id": "bottomWall",
+                    "type": "wall",
+                    "position": {
+                        "x": 4.5,
+                        "y": 1,
+                        "z": -5
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 2,
+                        "depth": 3.5
+                    },
+                    "color": "#A07A50",
+                    "movable": false,
+                    "fixed": true,
+                    "body": {
+                        "type": "static"
+                    }
+                },
+                {
+                    "id": "leftWall",
+                    "type": "wall",
+                    "position": {
+                        "x": 4.5,
+                        "y": 2.75,
+                        "z": -6.25
+                    },
+                    "rotation": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0
+                    },
+                    "dimensions": {
+                        "width": 0.3,
+                        "height": 1.5,
+                        "depth": 1
                     },
                     "color": "#A07A50",
                     "movable": false,
