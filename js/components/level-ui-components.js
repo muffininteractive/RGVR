@@ -159,6 +159,76 @@ AFRAME.registerComponent('level-restart-button', {
     }
 });
 
+// Component: Menu Button
+AFRAME.registerComponent('level-menu-button', {
+    schema: {
+        position: { type: 'vec3', default: { x: 2, y: 1.6, z: -3 } }
+    },
+
+    init: function () {
+        this.createButton();
+
+        this.el.addEventListener('click', this.onMenu.bind(this));
+        this.el.addEventListener('mouseenter', this.onHover.bind(this));
+        this.el.addEventListener('mouseleave', this.onUnhover.bind(this));
+    },
+
+    createButton: function () {
+        const bg = document.createElement('a-box');
+        bg.setAttribute('width', 2);
+        bg.setAttribute('height', 0.6);
+        bg.setAttribute('depth', 0.1);
+        bg.setAttribute('color', '#00A0D9');
+        bg.setAttribute('material', 'shader: flat');
+        bg.classList.add('interactive');
+
+        const text = document.createElement('a-text');
+        text.setAttribute('value', 'MENU ☰');
+        text.setAttribute('align', 'center');
+        text.setAttribute('color', '#ffffff');
+        text.setAttribute('width', 4);
+        text.setAttribute('position', '0 0 0.06');
+        text.setAttribute('font', 'roboto');
+
+        this.el.appendChild(bg);
+        this.el.appendChild(text);
+
+        this.bg = bg;
+    },
+
+    onHover: function () {
+        this.bg.setAttribute('color', '#00C0E8');
+        this.bg.setAttribute('animation', {
+            property: 'scale',
+            to: '1.1 1.1 1.1',
+            dur: 200
+        });
+    },
+
+    onUnhover: function () {
+        this.bg.setAttribute('color', '#00A0D9');
+        this.bg.setAttribute('animation', {
+            property: 'scale',
+            to: '1 1 1',
+            dur: 200
+        });
+    },
+
+    onMenu: function () {
+        console.log('☰ Botão Menu pressionado');
+
+        this.bg.setAttribute('animation', {
+            property: 'scale',
+            to: '0.95 0.95 0.95',
+            dur: 100
+        });
+
+        setTimeout(() => {
+            window.location.href = 'level-select.html';
+        }, 100);
+    }
+});
+
 // Componente: Painel de Objetivo
 AFRAME.registerComponent('objective-panel', {
     schema: {

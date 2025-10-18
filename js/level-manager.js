@@ -1,17 +1,11 @@
 // Import physics configuration
 import { PhysicsConfig, applyPhysicsMaterial } from './physics-config.js';
-
-// Global level state
-let levelState = {
-    currentLevel: null,
-    levelData: null,
-    physicsEnabled: false,
-    objectiveReached: false,
-    movableObjects: [],
-    startElements: [],
-    targetElement: null,
-    attemptCount: 0
-};
+import { ElementFactory } from './components/element-factory.js';
+import { levelState } from './level-state.js'; // Import global level state
+import './components/vr-ui-components.js'; // Componentes VR UI
+import './components/level-ui-components.js'; // Componentes UI do level
+import './components/object-components.js'; // Componentes especializados de objetos
+import './components/movement-components.js'; // Componentes de movimentação (mouse/touch e VR)
 
 // Main level management component
 AFRAME.registerComponent('level-manager', {
@@ -63,7 +57,7 @@ AFRAME.registerComponent('level-manager', {
         const elements = levelState.levelData.elements;
 
         elements.forEach((elementData) => {
-            const element = this.createElement(elementData);
+            const element = ElementFactory.createElement(elementData);
             if (element) {
                 scene.appendChild(element);
 
@@ -84,280 +78,6 @@ AFRAME.registerComponent('level-manager', {
         console.log(`✅ ${elements.length} elements created for the level`);
     },
 
-    // Helper function to get physics config for element type
-    getPhysicsConfigForType: function (type) {
-        const configMap = {
-            'sphere': PhysicsConfig.objects.sphere,
-            'cube': PhysicsConfig.objects.cube,
-            'cylinder': PhysicsConfig.objects.cylinder,
-            'cone': PhysicsConfig.objects.cone,
-            'torus': PhysicsConfig.objects.torus,
-            'candle': PhysicsConfig.objects.candle,
-            'lever': PhysicsConfig.objects.lever,
-            'ramp': PhysicsConfig.objects.ramp,
-            'platform': PhysicsConfig.objects.platform,
-            'domino': PhysicsConfig.objects.domino, // Usa configuração de cubo
-            'button': PhysicsConfig.objects.cube,// Usa configuração de cubo
-            'cannon': PhysicsConfig.objects.cannon, // Usa configuração de modelo
-            'model': PhysicsConfig.objects.model, // Default para modelos genéricos
-            'wall': PhysicsConfig.objects.wall
-        };
-        return configMap[type] || null;
-    },
-
-    getMaterialConfig: function (materialName) {
-        return PhysicsConfig.materials[materialName] || null;
-    },
-
-    // Apply physics configuration from physics-config.js
-    applyPhysicsConfig: function (element, data) {
-        const physicsConfig = this.getMaterialConfig(data.body.material) || this.getPhysicsConfigForType(data.type);
-        console.log('Applying physics config:', data.body.material, physicsConfig);
-        if (!physicsConfig) {
-            console.warn(`No physics config found for type: ${data.type}`);
-            return;
-        }
-
-        // Store physics config for later use when physics starts
-        element.dataset.physicsType = data.body.type;
-        element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
-        element.dataset.physicsCustomShape = data.customShape || physicsConfig.customShape || '';
-        element.dataset.physicsCustomBody = data.body || '';
-        element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.5;
-        element.dataset.physicsCylinderAxis = data.body?.cylinderAxis || 'z';
-        element.dataset.physicsMass = data.body?.mass || physicsConfig.mass;
-        element.dataset.physicsRestitution = data.body?.restitution || physicsConfig.restitution;
-        element.dataset.physicsFriction = data.body?.friction || physicsConfig.friction;
-        element.dataset.physicsMaterial = data.body?.material || physicsConfig.material;
-
-        // Store damping if available
-        if (physicsConfig.linearDamping !== undefined) {
-            element.dataset.physicsLinearDamping = physicsConfig.linearDamping;
-        }
-        if (physicsConfig.angularDamping !== undefined) {
-            element.dataset.physicsAngularDamping = physicsConfig.angularDamping;
-        }
-
-        console.log(`📦 Physics config applied to ${data.id}:`, {
-            type: data.type,
-            mass: element.dataset.physicsMass,
-            material: element.dataset.physicsMaterial
-        });
-    },
-
-    createElement: function (data) {
-
-        let element;
-
-        switch (data.type) {
-            case 'sphere':
-                element = document.createElement('a-sphere');
-                element.setAttribute('radius', data.radius || 0.5);
-                break;
-
-            case 'cube':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-
-            case 'wall':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                // Aplica textura de parede
-                /*
-                element.setAttribute('material', {
-                    src: '../assets/imgs/masonry.jpg',
-                    repeat: data.textureRepeat || '4 4',
-                    roughness: 0.7,
-                    metalness: 0.1
-                });
-                */
-                break;
-
-            case 'model':
-                // Generic GLTF/GLB model loader
-                element = document.createElement('a-entity');
-                if (data.modelUrl) {
-                    const url = String(data.modelUrl).trim();
-                    // Allow both asset id (e.g. #myModel) or direct URL
-                    element.setAttribute('gltf-model', url.startsWith('#') ? url : `url(${url})`);
-                }
-                if (data.scale) {
-                    element.setAttribute('scale', data.scale);
-                }
-                break;
-
-            case 'ramp':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-            case 'platform':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-
-            case 'domino':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-
-            case 'lever':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-
-            case 'cannon':
-                // Generic GLTF/GLB model loader
-                element = document.createElement('a-entity');
-                if (data.modelUrl) {
-                    const url = String(data.modelUrl).trim();
-                    // Allow both asset id (e.g. #myModel) or direct URL
-                    element.setAttribute('gltf-model', url.startsWith('#') ? url : `url(${url})`);
-                }
-                if (data.scale) {
-                    element.setAttribute('scale', data.scale);
-                }
-
-                // Add cannon activator to handle collisions with the candle
-                element.setAttribute('cannon-activator', '');
-                break;
-
-            case 'candle':
-                element = document.createElement('a-cylinder');
-                element.classList.add('candle');
-
-                element.setAttribute('radius', data.radius || 0.5);
-                element.setAttribute('height', data.height || 1);
-
-                const flame = document.createElement('a-plane');
-
-                flame.setAttribute('width', '0.4');
-                flame.setAttribute('height', '0.5');
-
-                flame.setAttribute('position', `0 ${data.height / 2 + 0.25 || 1.8} 0`);
-                flame.setAttribute('material', { "src": "#flameTex", "transparent": true });
-                flame.setAttribute('flame-anim', '');
-                flame.setAttribute('look-at', '[camera]');
-                element.appendChild(flame);
-
-                break;
-
-            case 'cylinder':
-                element = document.createElement('a-cylinder');
-                element.setAttribute('radius', data.radius || 0.5);
-                element.setAttribute('height', data.height || 1);
-
-                break;
-
-            case 'button':
-                element = document.createElement('a-box');
-                if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
-                }
-                break;
-
-            default:
-                console.warn(`Unknown element type: ${data.type}`);
-                return null;
-        }
-
-        // Basic properties
-        element.setAttribute('id', data.id);
-        element.setAttribute('position', data.position);
-        // Avoid forcing color on generic entities (like GLTF roots)
-        if (data.color && element.tagName !== 'A-ENTITY') {
-            element.setAttribute('color', data.color);
-        }
-        element.setAttribute('shadow', 'cast: true; receive: false');
-
-        // Rotation (if exists)
-        if (data.rotation) {
-            element.setAttribute('rotation', data.rotation);
-        }
-
-        // Movable element component (se não for fixed)
-        if (!data.fixed) {
-            element.setAttribute('movable-element', '');
-            element.classList.add('interactive');
-            element.classList.add('grab');
-
-            // Visual feedback para elementos móveis
-            element.setAttribute('material', {
-                emissive: '#ffffff',
-                emissiveIntensity: 0
-            });
-        }
-
-        // Mark special elements
-        if (data.isStart) {
-            element.classList.add('start-element');
-            element.setAttribute('material', {
-                emissive: data.color,
-                emissiveIntensity: 0.3
-            });
-        }
-
-        if (data.isTarget) {
-            element.classList.add('target-element');
-            element.setAttribute('material', {
-                emissive: '#00ff00',
-                emissiveIntensity: 0.5
-            });
-            element.setAttribute('animation', {
-                property: 'material.emissiveIntensity',
-                to: 0.8,
-                dur: 1000,
-                dir: 'alternate',
-                loop: true
-            });
-        }
-
-        // Apply physics configuration from physics-config.js
-        this.applyPhysicsConfig(element, data);
-
-        // Define limites customizados se fornecidos
-        if (typeof data.minY !== 'undefined') {
-            element.dataset.minY = data.minY;
-        }
-        if (typeof data.maxY !== 'undefined') {
-            element.dataset.maxY = data.maxY;
-        }
-        if (typeof data.minX !== 'undefined') {
-            element.dataset.minX = data.minX;
-        }
-        if (typeof data.maxX !== 'undefined') {
-            element.dataset.maxX = data.maxX;
-        }
-
-        return element;
-    },
-
     updateObjectiveUI: function () {
         const objectiveText = document.querySelector('#objective-text');
         if (objectiveText && levelState.levelData) {
@@ -375,73 +95,9 @@ AFRAME.registerComponent('level-manager', {
         if (levelState.levelData && levelState.levelData.elements) {
             levelState.levelData.elements.forEach(data => {
                 const element = document.querySelector(`#${data.id}`);
-                if (element && data.body) {
-                    // Get physics config from dataset or use from physics-config.js
-                    const bodyConfig = {
-                        type: data.body.type || 'dynamic',
-
-                        mass: element.dataset.physicsMass || data.body.mass || 1,
-                        sphereRadius: element.dataset.physicsSphereRadius || data.body.sphereRadius || 0.5,
-                        cylinderAxis: element.dataset.physicsCylinderAxis || data.body.cylinderAxis || 'z',
-                        restitution: parseFloat(element.dataset.physicsRestitution) || data.body.restitution || 0.3,
-                        friction: parseFloat(element.dataset.physicsFriction) || data.body.friction || 0.5,
-                    };
-
-                    if (element.dataset.physicsShape) {
-                        bodyConfig.shape = element.dataset.physicsShape;
-                    }
-
-                    if (element.dataset.physicsCustomShape) {
-                        element.setAttribute('body', 'shape: none;'); // 
-                        element.setAttribute('shape__custom', element.dataset.physicsCustomShape);
-                    }
-
-                    // Add damping if available
-                    if (element.dataset.physicsLinearDamping) {
-                        bodyConfig.linearDamping = parseFloat(element.dataset.physicsLinearDamping);
-                    }
-                    if (element.dataset.physicsAngularDamping) {
-                        bodyConfig.angularDamping = parseFloat(element.dataset.physicsAngularDamping);
-                    }
-                    if (element.dataset.contactEquationStiffness) {
-                        bodyConfig.contactEquationStiffness = parseFloat(element.dataset.contactEquationStiffness);
-                    }
-                    if (element.dataset.contactEquationRelaxation) {
-                        bodyConfig.contactEquationRelaxation = parseFloat(element.dataset.contactEquationRelaxation);
-                    }
-
-                    // Apply body configuration using correct A-Frame Physics attributes
-                    const bodyType = bodyConfig.type;
-                    delete bodyConfig.type; // Remove type from config object
-
-                    if (bodyType === 'static') {
-                        element.setAttribute('static-body', bodyConfig);
-                        console.log(`🎮 Static physics applied to ${data.id}:`, bodyConfig);
-                    } else {
-                        element.setAttribute('dynamic-body', bodyConfig);
-                        console.log(`🎮 Dynamic physics applied to ${data.id}:`, bodyConfig);
-                    }
-
-                    // Apply physics material after body is loaded
-                    const materialName = element.dataset.physicsMaterial;
-                    if (materialName) {
-                        element.addEventListener('body-loaded', (evt) => {
-                            if (evt.target.body) {
-                                try {
-                                    applyPhysicsMaterial(evt.target.body, materialName);
-                                    console.log(`✅ Material '${materialName}' aplicado ao ${data.id}`);
-                                } catch (error) {
-                                    console.warn(`⚠️ Erro ao aplicar material físico:`, error);
-                                }
-                            }
-                        }, { once: true });
-                    }
-
-                }
+                ElementFactory.applyPhysicsToElement(element, data, applyPhysicsMaterial);
             });
         }
-
-
 
         // Remove possibilidade de mover objetos
         levelState.movableObjects.forEach(obj => {
@@ -528,495 +184,6 @@ AFRAME.registerComponent('level-manager', {
     }
 });
 
-AFRAME.registerComponent('movable-element', {
-    init: function () {
-        // Store initial scale for later reset
-        this.initialScale = this.el.getAttribute('scale') || { x: 1, y: 1, z: 1 };
-        // Drag state and config (mouse)
-        this.isDragging = false;
-        this.grabDistance = 1.5;
-        this.initialGrabDistance = 1.5;
-        this.grabOffset = new THREE.Vector3();
-        this.minDistance = 5;
-        this.maxDistance = 20;
-        this.wheelSpeed = 0.01; // distance change per wheel delta unit
-
-        this.el.addEventListener('mousedown', this.onGrab.bind(this));
-        this.el.addEventListener('mouseup', this.onRelease.bind(this));
-        this.el.addEventListener('touchstart', this.onGrab.bind(this), { passive: true });
-        this.el.addEventListener('touchend', this.onRelease.bind(this));
-        this.el.addEventListener('mouseenter', this.onHover.bind(this));
-        this.el.addEventListener('mouseleave', this.onUnhover.bind(this));
-
-        // Bind global handlers for release/wheel while dragging
-        this._onDocMouseUp = this.onRelease.bind(this);
-        this._onWheel = this.onWheel.bind(this);
-        window.addEventListener('mouseup', this._onDocMouseUp);
-        window.addEventListener('wheel', this._onWheel, { passive: false });
-    },
-    onGrab: function (evt) {
-        // Start dragging only with primary mouse button when using mouse
-        // Touch is handled too via touchstart
-        this.__moveOnlyXY = true;
-        if (evt && evt.type === 'mousedown' && evt.detail.mouseEvent.button !== 0) return;
-
-        // Initialize grab based on current mouse ray
-        const ray = this.getCurrentMouseRay();
-        if (!ray) return;
-
-        // World positions
-        const objPos = new THREE.Vector3();
-        this.el.object3D.getWorldPosition(objPos);
-
-        // Distance from ray origin to object
-        this.grabDistance = ray.origin.distanceTo(objPos);
-        this.initialGrabDistance = this.grabDistance;
-
-        // Compute offset from the ray line at that distance
-        const rayPoint = ray.origin.clone().add(ray.direction.clone().multiplyScalar(this.grabDistance));
-        this.grabOffset.copy(objPos).sub(rayPoint);
-
-        // Clamp distance
-        this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-
-        // Visual feedback
-        this.createBouncingCone(this.el);
-        this.el.setAttribute('animation', 'property: scale; to: 1.1 1.1 1.1; dur: 200; easing: easeOutQuad');
-
-        this.isDragging = true;
-
-
-    },
-    onRelease: function () {
-        if (this.isDragging) {
-            this.isDragging = false;
-        }
-        this.removeBouncingCone(this.el);
-        this.el.setAttribute('animation', `property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad`);
-        this.__moveOnlyXY = true;
-    },
-    onHover: function () {
-        this.createBouncingCone(this.el);
-        this.el.setAttribute('animation', 'property: scale; to: 1.1 1.1 1.1; dur: 200; easing: easeOutQuad');
-    },
-    onUnhover: function () {
-        this.removeBouncingCone(this.el);
-        this.el.setAttribute('animation', `property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad`);
-    },
-
-    onWheel: function (evt) {
-        if (!this.isDragging) return;
-        this.__moveOnlyXY = false;
-        // Ajusta distância com a roda do mouse
-        this.grabDistance -= evt.deltaY * this.wheelSpeed;
-        this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-        evt.preventDefault();
-
-        // Timer para voltar ao modo XY após parar de mover a roda
-        if (this._wheelTimeout) clearTimeout(this._wheelTimeout);
-        this._wheelTimeout = setTimeout(() => {
-            this.__moveOnlyXY = true;
-        }, 200);
-    },
-
-    getCurrentMouseRay: function () {
-
-        const sceneEl = this.el.sceneEl;
-        if (!sceneEl) return null;
-        // Prefer the cursor entity's raycaster (rayOrigin: mouse)
-        const cursorEl = sceneEl.querySelector('[cursor]');
-        const raycasterComp = cursorEl && cursorEl.components && cursorEl.components.raycaster;
-        if (raycasterComp && raycasterComp.raycaster && raycasterComp.raycaster.ray) {
-            const ray = raycasterComp.raycaster.ray;
-            return {
-                origin: ray.origin.clone(),
-                direction: ray.direction.clone().normalize()
-            };
-        }
-        // Fallback to camera forward ray
-        const camera = sceneEl.camera;
-        if (!camera) return null;
-        const origin = new THREE.Vector3();
-        const direction = new THREE.Vector3();
-        camera.getWorldPosition(origin);
-        camera.getWorldDirection(direction); // forward direction
-        return { origin, direction: direction.clone().normalize() };
-    },
-
-    createBouncingCone: function (object) {
-        // Remove cone anterior se existir
-        this.removeBouncingCone(object);
-
-        // Cria o cone verde
-        const cone = document.createElement('a-cone');
-        cone.setAttribute('color', '#00FF00');
-        cone.setAttribute('radius-bottom', '0.5');
-        cone.setAttribute('radius-top', '0');
-        cone.setAttribute('height', '0.9');
-        cone.setAttribute('rotation', '180 0 0'); // Rotacionado em X=180
-        cone.classList.add('feedback-cone');
-
-        // Posiciona o cone acima do objeto
-        const objectPos = object.object3D.position;
-        const boundingBox = new THREE.Box3().setFromObject(object.object3D);
-        const height = boundingBox.max.y - boundingBox.min.y;
-
-        cone.setAttribute('position', `0 ${height / 2 + 1.5} 0`);
-
-        // Adiciona animação de bouncing
-        cone.setAttribute('animation', {
-            property: 'position',
-            to: `0 ${height / 2 + 1.2} 0`,
-            dur: 500,
-            dir: 'alternate',
-            loop: true,
-            easing: 'easeInOutQuad'
-        });
-
-        // Adiciona o cone como filho do objeto
-        object.appendChild(cone);
-    },
-
-    removeBouncingCone: function (object) {
-        if (object) {
-            const existingCone = object.querySelector('.feedback-cone');
-            if (existingCone) {
-                object.removeChild(existingCone);
-            }
-        }
-    },
-
-    tick: function () {
-        if (!this.isDragging) return;
-
-        const ray = this.getCurrentMouseRay();
-        if (!ray) return;
-
-        // Target point along the ray at current distance
-        const targetPos = ray.origin.clone().add(ray.direction.clone().multiplyScalar(this.grabDistance));
-
-        // Scale offset proportionally to distance change
-        const distanceRatio = this.initialGrabDistance > 0 ? (this.grabDistance / this.initialGrabDistance) : 1;
-        const scaledOffset = this.grabOffset.clone().multiplyScalar(distanceRatio);
-        targetPos.add(scaledOffset);
-
-        // minY, maxY, minX, maxX customizados por atributo ou altura padrão
-        let minY = 0, maxY = Infinity, minX = -Infinity, maxX = Infinity;
-        if (this.el.dataset.minY !== undefined) {
-            minY = parseFloat(this.el.dataset.minY);
-        } else {
-            const geometry = this.el.object3D.children[0]?.geometry;
-            let objectHeight = 0;
-            if (geometry) {
-                geometry.computeBoundingBox();
-                const bbox = geometry.boundingBox;
-                if (bbox) {
-                    objectHeight = (bbox.max.y - bbox.min.y) * this.el.object3D.scale.y / 2;
-                }
-            }
-            minY = objectHeight;
-        }
-        if (this.el.dataset.maxY !== undefined) {
-            maxY = parseFloat(this.el.dataset.maxY);
-        }
-        if (this.el.dataset.minX !== undefined) {
-            minX = parseFloat(this.el.dataset.minX);
-        }
-        if (this.el.dataset.maxX !== undefined) {
-            maxX = parseFloat(this.el.dataset.maxX);
-        }
-
-        // Aplica limites
-        if (targetPos.y < minY) targetPos.y = minY;
-        if (targetPos.y > maxY) targetPos.y = maxY;
-        if (targetPos.x < minX) targetPos.x = minX;
-        if (targetPos.x > maxX) targetPos.x = maxX;
-
-        if (this.__moveOnlyXY) {
-            this.el.object3D.position.set(targetPos.x, targetPos.y, this.el.object3D.position.z);
-        } else {
-            this.el.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
-        }
-    },
-
-    remove: function () {
-        // Cleanup global listeners
-        if (this._onDocMouseUp) window.removeEventListener('mouseup', this._onDocMouseUp);
-        if (this._onWheel) window.removeEventListener('wheel', this._onWheel);
-    }
-
-
-});
-
-AFRAME.registerComponent('grab-handler', {
-    init: function () {
-        this.grabbedObject = null;
-        this.grabDistance = 1.5; // Distância inicial do objeto ao controle
-        this.initialGrabDistance = 1.5; // Guarda a distância inicial
-        this.grabOffset = new THREE.Vector3(); // Offset do objeto em relação ao controle
-        this.minDistance = 5;
-        this.maxDistance = 20;
-        this.distanceSpeed = 0.1;
-
-        // Eventos de trigger (gatilho)
-        this.el.addEventListener('triggerdown', this.onTriggerDown.bind(this));
-        this.el.addEventListener('triggerup', this.onTriggerUp.bind(this));
-
-        // Evento de thumbstick para controlar distância (no controle específico)
-
-        this.el.addEventListener('thumbstickmoved', this.onThumbstickMoved.bind(this));
-
-        this.el.addEventListener('thumbsticktouchend', this.onThumbstickReleased.bind(this));
-
-        // Eventos do raycaster para hover
-        this.el.addEventListener('raycaster-intersection', this.onRaycasterIntersection.bind(this));
-        this.el.addEventListener('raycaster-intersection-cleared', this.onRaycasterIntersectionCleared.bind(this));
-
-    },
-
-    onRaycasterIntersection: function (evt) {
-        // Quando o raycaster intersecta com um objeto
-        const intersectedEls = evt.detail.els;
-        if (intersectedEls && intersectedEls.length > 0) {
-            const object = intersectedEls[0];
-            if (object.classList.contains('grab')) {
-                // Cria cone verde bouncing sobre o objeto
-                this.createBouncingCone(object);
-            }
-        }
-    },
-
-    onRaycasterIntersectionCleared: function (evt) {
-        // Quando o raycaster para de intersectar com um objeto
-        const clearedEls = evt.detail.clearedEls;
-        if (clearedEls && clearedEls.length > 0) {
-            clearedEls.forEach(object => {
-                if (object.classList.contains('grab') && object !== this.grabbedObject) {
-                    object.setAttribute('material', 'emissiveIntensity', 0);
-                    // Remove cone de feedback se existir
-                    this.removeBouncingCone(object);
-                }
-            });
-        }
-    },
-
-    createBouncingCone: function (object) {
-        // Remove cone anterior se existir
-        this.removeBouncingCone(object);
-
-        // Cria o cone verde
-        const cone = document.createElement('a-cone');
-        cone.setAttribute('color', '#00FF00');
-        cone.setAttribute('radius-bottom', '0.5');
-        cone.setAttribute('radius-top', '0');
-        cone.setAttribute('height', '0.9');
-        cone.setAttribute('rotation', '180 0 0'); // Rotacionado em X=180
-        cone.classList.add('feedback-cone');
-
-        // Posiciona o cone acima do objeto
-        const objectPos = object.object3D.position;
-        const boundingBox = new THREE.Box3().setFromObject(object.object3D);
-        const height = boundingBox.max.y - boundingBox.min.y;
-
-        cone.setAttribute('position', `0 ${height / 2 + 0.3} 0`);
-
-        // Adiciona animação de bouncing
-        cone.setAttribute('animation', {
-            property: 'position',
-            to: `0 ${height / 2 + 0.5} 0`,
-            dur: 500,
-            dir: 'alternate',
-            loop: true,
-            easing: 'easeInOutQuad'
-        });
-
-        // Adiciona o cone como filho do objeto
-        object.appendChild(cone);
-    },
-
-    removeBouncingCone: function (object) {
-        if (object) {
-            const existingCone = object.querySelector('.feedback-cone');
-            if (existingCone) {
-                object.removeChild(existingCone);
-            }
-        }
-    },
-
-    onTriggerDown: function () {
-        // Se já está segurando algo, não faz nada
-        if (this.grabbedObject) return;
-
-        // Obtém o raycaster do controle
-        const raycasterComponent = this.el.components.raycaster;
-        if (!raycasterComponent) return;
-
-        const intersections = raycasterComponent.intersections;
-        if (intersections && intersections.length > 0) {
-            const intersection = intersections[0];
-            const object = intersection.object.el;
-
-            // Verifica se o objeto tem a classe "grab"
-            if (object && object.classList.contains('grab')) {
-                this.grabObject(object, intersection.point);
-                console.log('Objeto capturado:', object);
-            }
-        }
-    },
-
-    onTriggerUp: function () {
-        if (this.grabbedObject) {
-            this.releaseObject();
-            console.log('Objeto liberado');
-        }
-    },
-
-    grabObject: function (object, hitPoint) {
-        this.grabbedObject = object;
-
-        // Obtém posições mundiais
-        const controllerPos = new THREE.Vector3();
-        const controllerDir = new THREE.Vector3();
-        const objPos = new THREE.Vector3();
-
-        this.el.object3D.getWorldPosition(controllerPos);
-        this.el.object3D.getWorldDirection(controllerDir);
-        object.object3D.getWorldPosition(objPos);
-
-        // Inverte direção (para frente)
-        controllerDir.negate();
-
-        // Calcula a distância do controle até o objeto
-        this.grabDistance = controllerPos.distanceTo(objPos);
-        this.initialGrabDistance = this.grabDistance; // Salva distância inicial
-
-        // Calcula o offset do objeto em relação à linha do raycaster
-        // Isso mantém a posição relativa do objeto quando foi pego
-        const rayPoint = controllerPos.clone().add(controllerDir.multiplyScalar(this.grabDistance));
-        this.grabOffset.copy(objPos).sub(rayPoint);
-
-        // Clamp da distância
-        this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-
-        // Para animações se houver
-        object.removeAttribute('animation');
-        object.removeAttribute('animation__position');
-        object.removeAttribute('animation__rotation');
-
-        // Cria cone verde bouncing sobre o objeto capturado
-        this.createBouncingCone(object);
-
-        // Ajusta o tick para mover apenas nos eixos X e Y
-        object.__moveOnlyXY = true;
-
-        console.log('Objeto capturado. Posição:', objPos, 'Distância:', this.grabDistance, 'Offset:', this.grabOffset);
-    },
-
-    releaseObject: function () {
-        if (this.grabbedObject) {
-            // Remove cone de feedback
-            this.removeBouncingCone(this.grabbedObject);
-
-            this.grabbedObject = null;
-        }
-    },
-
-    onThumbstickMoved: function (evt) {
-        // Se está segurando um objeto, usa o eixo Y do thumbstick para ajustar distância
-
-        if (this.grabbedObject) {
-            this.grabbedObject.__moveOnlyXY = false;
-            const { y } = evt.detail;
-
-            if (Math.abs(y) > 0.1) {
-                // Inverte: Y positivo = para trás (mais perto)
-                // Y negativo = para frente (mais longe)
-                this.grabDistance -= y * this.distanceSpeed;
-
-                // Limita a distância
-                this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-            }
-
-            // Para a propagação do evento para que o move-events não o processe
-            evt.stopPropagation();
-        }
-
-    },
-
-    onThumbstickReleased: function (evt) {
-        if (this.grabbedObject) {
-            this.grabbedObject.__moveOnlyXY = true;
-        }
-    },
-
-    tick: function () {
-        // Se está segurando um objeto, atualiza sua posição
-        if (this.grabbedObject) {
-            // Obtém a posição e direção mundiais do controle
-            const controllerPos = new THREE.Vector3();
-            const controllerDir = new THREE.Vector3();
-
-            this.el.object3D.getWorldPosition(controllerPos);
-            this.el.object3D.getWorldDirection(controllerDir);
-
-            // Inverte a direção para que o objeto fique na frente (não atrás)
-            controllerDir.negate();
-
-            // Calcula a posição alvo na direção do controle, à distância especificada
-            const targetPos = controllerPos.clone().add(
-                controllerDir.multiplyScalar(this.grabDistance)
-            );
-
-            // Escala o offset proporcionalmente à mudança de distância
-            // Isso mantém o offset relativo constante quando você aproxima/afasta
-            const distanceRatio = this.grabDistance / this.initialGrabDistance;
-            const scaledOffset = this.grabOffset.clone().multiplyScalar(distanceRatio);
-
-            // Adiciona o offset escalado para manter a posição relativa
-            targetPos.add(scaledOffset);
-
-            // minY, maxY, minX, maxX customizados por atributo ou altura padrão
-            let minY = 0, maxY = Infinity, minX = -Infinity, maxX = Infinity;
-            if (this.grabbedObject.dataset.minY !== undefined) {
-                minY = parseFloat(this.grabbedObject.dataset.minY);
-            } else {
-                const geometry = this.grabbedObject.object3D.children[0]?.geometry;
-                let objectHeight = 0;
-                if (geometry) {
-                    geometry.computeBoundingBox();
-                    const bbox = geometry.boundingBox;
-                    if (bbox) {
-                        objectHeight = (bbox.max.y - bbox.min.y) * this.grabbedObject.object3D.scale.y / 2;
-                    }
-                }
-                minY = objectHeight;
-            }
-            if (this.grabbedObject.dataset.maxY !== undefined) {
-                maxY = parseFloat(this.grabbedObject.dataset.maxY);
-            }
-            if (this.grabbedObject.dataset.minX !== undefined) {
-                minX = parseFloat(this.grabbedObject.dataset.minX);
-            }
-            if (this.grabbedObject.dataset.maxX !== undefined) {
-                maxX = parseFloat(this.grabbedObject.dataset.maxX);
-            }
-
-            // Aplica limites
-            if (targetPos.y < minY) targetPos.y = minY;
-            if (targetPos.y > maxY) targetPos.y = maxY;
-            if (targetPos.x < minX) targetPos.x = minX;
-            if (targetPos.x > maxX) targetPos.x = maxX;
-
-            // Move apenas nos eixos X e Y
-            if (this.grabbedObject.__moveOnlyXY) {
-                this.grabbedObject.object3D.position.set(targetPos.x, targetPos.y, this.grabbedObject.object3D.position.z);
-            } else {
-                this.grabbedObject.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
-            }
-        }
-    }
-});
-
 // Objective detector component
 AFRAME.registerComponent('target-detector', {
     init: function () {
@@ -1049,210 +216,89 @@ AFRAME.registerComponent('target-detector', {
     }
 });
 
+// ============================================================
+// INITIALIZATION
+// ============================================================
+
+// Executa após o módulo estar carregado e pronto
+document.addEventListener('DOMContentLoaded', async () => {
+    // Get the level ID from the URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const levelId = parseInt(urlParams.get('id') || '1');
+
+    console.log(`🎮 Loading level ${levelId}...`);
+
+    try {
+        // Load level data
+        const response = await fetch('../data/levels-data.json');
+        const data = await response.json();
+        const levelData = data.levels.find(l => l.id === levelId);
+
+        if (!levelData) {
+            console.error(`❌ Level ${levelId} not found!`);
+            alert(`Level ${levelId} does not exist!`);
+            window.location.href = 'level-select.html';
+            return;
+        }
+
+        // Update page title
+        document.title = `${levelData.name} - Wacky Works VR`;
+
+        // Update objective panel
+        const objectivePanel = document.querySelector('#objective-panel');
+        if (objectivePanel) {
+            objectivePanel.setAttribute('objective-panel', {
+                name: 'Level ' + levelData.id + ' - ' + levelData.name || 'Goal',
+                objective: levelData.objective,
+                description: levelData.description || '',
+            });
+        }
+
+        // Environment settings for each level
+        const levelEnvironments = {
+            1: { preset: 'forest', groundColor: '#2a4a2a', dressingColor: '#4a8a4a', dressingAmount: 30 },
+            2: { preset: 'egypt', groundColor: '#d4a574', dressingColor: '#aa7744', dressingAmount: 20 },
+            3: { preset: 'checkerboard', groundColor: '#333366', gridColor: '#6666aa', dressingAmount: 50 },
+            4: { preset: 'japan', groundColor: '#4a2a2a', dressingColor: '#ff6b9d', dressingAmount: 40 },
+            5: { preset: 'dream', groundColor: '#6a4a8a', dressingColor: '#aa66ff', dressingAmount: 35 },
+            6: { preset: 'volcano', groundColor: '#4a2a1a', dressingColor: '#ff4400', dressingAmount: 22 },
+            7: { preset: 'arches', groundColor: '#8a6a4a', dressingColor: '#cc9966', dressingAmount: 15 },
+            8: { preset: 'threetowers', groundColor: '#2a2a4a', dressingColor: '#4466aa', dressingAmount: 20 },
+            9: { preset: 'poison', groundColor: '#2a4a2a', dressingColor: '#66ff33', dressingAmount: 45 },
+            10: { preset: 'tron', groundColor: '#0a0a1a', dressingColor: '#00ffff', dressingAmount: 30 },
+            11: { preset: 'starry', groundColor: '#1a1a2a', dressingColor: '#ffffff', dressingAmount: 60 },
+            12: { preset: 'osiris', groundColor: '#3a3a5a', dressingColor: '#ffaa00', dressingAmount: 25 },
+            13: { preset: 'arches', groundColor: '#8a6a4a', dressingColor: '#cc9966', dressingAmount: 5 },
+        };
+
+        // Set specific environment for the level
+        const envConfig = levelEnvironments[levelId] || levelEnvironments[1];
+        const envEl = document.querySelector('#environment');
+        if (envEl) {
+            const envSettings = `preset: ${envConfig.preset}; groundColor: ${envConfig.groundColor}; ${envConfig.gridColor ? 'gridColor: ' + envConfig.gridColor + ';' : ''} dressingAmount: ${envConfig.dressingAmount}; dressingColor: ${envConfig.dressingColor};shadow:true;shadowSize:10;`;
+            envEl.setAttribute('environment', envSettings);
+        }
+
+        // Add level-manager with levelId
+        const scene = document.querySelector('a-scene');
+        scene.setAttribute('level-manager', `levelId: ${levelId}`);
+
+        console.log(`✅ Level ${levelId} successfully configured!`);
+    } catch (error) {
+        console.error('❌ Error loading level data:', error);
+        alert('Error loading level!');
+        window.location.href = 'level-select.html';
+    }
+
+    // Listener for back button
+    const btnBack = document.querySelector('#btn-back');
+    if (btnBack) {
+        btnBack.addEventListener('vr-button-clicked', evt => {
+            if (evt.detail.action === 'back') {
+                window.location.href = 'level-select.html';
+            }
+        });
+    }
+});
+
 export { levelState };
-
-// Cannon activator: when struck by the candle, play particles for 2s then fire a ball
-AFRAME.registerComponent('cannon-activator', {
-    schema: {
-        fired: { type: 'boolean', default: false }
-    },
-
-    init: function () {
-        this._onCollide = this._onCollide.bind(this);
-        this.el.addEventListener('collide', this._onCollide);
-    },
-
-    _onCollide: function (evt) {
-        if (this.data.fired) return; // já disparado
-        if (!levelState.physicsEnabled) return;
-
-        const otherEl = evt.detail.body && evt.detail.body.el;
-        if (!otherEl) return;
-
-        // Aceita colisão com id 'candle' ou tipo cylinder com id candle
-        const hitCandle = otherEl.id === 'candle' || otherEl.classList.contains('candle');
-        if (!hitCandle) return;
-
-        this.data.fired = true;
-        console.log('🔥 Cannon activated by candle collision — starting particles');
-
-        // If the candle has a particle-system emitter (the flame), wait 2s then remove it so it doesn't conflict/overlap
-        try {
-            if (otherEl) {
-                // schedule removal after 2 seconds to allow visual continuity
-                setTimeout(() => {
-                    try {
-                        const candleEmitters = Array.from(otherEl.querySelectorAll('[particle-system], .candle-emitter'));
-                        candleEmitters.forEach(em => {
-                            if (em.parentNode) em.parentNode.removeChild(em);
-                        });
-                    } catch (innerErr) {
-                        console.warn('⚠️ Erro ao remover particle emitters do candle (delayed):', innerErr);
-                    }
-                }, 1000);
-                // also check direct children in case the emitter was appended to the candle's object3D root
-            }
-        } catch (e) {
-            console.warn('⚠️ Erro ao agendar remoção de particle emitters do candle:', e);
-        }
-
-        // Create particle emitter at cannon position using particle-system (same approach as level-ui fireworks)
-        const scene = this.el.sceneEl || document.querySelector('a-scene');
-        const cannonPos = new THREE.Vector3();
-        this.el.object3D.getWorldPosition(cannonPos);
-
-        const ps = document.createElement('a-entity');
-        ps.setAttribute('position', `${cannonPos.x - 0.8} ${cannonPos.y + 1.4} ${cannonPos.z}`);
-        // compact particle-system config: short burst, warm colors
-        const psAttr = `particleCount: 10; color: #ffcc00,#ff8800; size: 0.32; maxAge: 0.01; velocity: 0 1 0; spread: 1 1 1; acceleration: 0 1 0; duration: 1.8;`;
-        ps.setAttribute('particle-system', psAttr);
-        scene.appendChild(ps);
-
-        // Remove particles after ~2s and then fire
-        setTimeout(() => {
-            if (ps.parentNode) ps.parentNode.removeChild(ps);
-            this._spawnAndFireBall();
-        }, 2000);
-    },
-
-    _spawnAndFireBall: function () {
-        const scene = this.el.sceneEl || document.querySelector('a-scene');
-        // create sphere at cannon mouth
-        const ball = document.createElement('a-sphere');
-        const worldPos = new THREE.Vector3();
-        this.el.object3D.getWorldPosition(worldPos);
-
-        // offset forward from cannon — assume cannon forward is -Z in model space
-        const forward = new THREE.Vector3(1, 1, 0);
-        forward.applyQuaternion(this.el.object3D.getWorldQuaternion(new THREE.Quaternion()));
-        const spawnPos = worldPos.clone().add(forward.clone().multiplyScalar(0.8)).add(new THREE.Vector3(0, 0, 0));
-
-        ball.setAttribute('radius', 0.3);
-        ball.setAttribute('position', `${spawnPos.x + 0.2} ${spawnPos.y + 0.8} ${spawnPos.z}`);
-        ball.setAttribute('material', 'color: #666666; metalness: 0.7; roughness: 0.2');
-        ball.setAttribute('shadow', 'cast: true; receive: false');
-
-        // add to scene then apply physics dynamic-body
-        scene.appendChild(ball);
-
-        // no debug box: removed in production
-
-        // Try to add a dynamic body and apply impulse in a resilient, non-blocking way.
-        // Some XR runtimes don't play nicely with requestAnimationFrame; prefer event-driven + retry with setTimeout.
-        try {
-            // Add dynamic-body (CANNON) configuration immediately
-            ball.setAttribute('dynamic-body', { mass: 4, shape: 'sphere', sphereRadius: 0.3, linearDamping: 0.01, angularDamping: 0.01 });
-
-            const applyImpulseToBody = (physicsBody) => {
-                try {
-                    if (!physicsBody) return false;
-                    if (typeof CANNON === 'undefined') return false;
-
-                    // Wake up body (important if world/bodies are sleeping in XR)
-                    if (typeof physicsBody.wakeUp === 'function') {
-                        physicsBody.wakeUp();
-                    }
-
-                    const impulse = forward.clone().multiplyScalar(25);
-                    physicsBody.applyImpulse(new CANNON.Vec3(impulse.x + 20, impulse.y, 0), new CANNON.Vec3(0, 0, 0));
-
-                    // As an extra nudge, set a small velocity if applyImpulse didn't visibly move it
-                    /*
-                    if (typeof physicsBody.velocity !== 'undefined') {
-                        physicsBody.velocity.x += impulse.x * 0.001;
-                        physicsBody.velocity.y += (impulse.y + 2.5) * 0.9;
-                        physicsBody.velocity.z += impulse.z * 0.02;
-                    }
-*/
-                    console.log('🔫 Impulse applied to spawned ball:', { impulse, hasBody: !!physicsBody });
-                    return true;
-                } catch (err) {
-                    console.warn('⚠️ Error while applying impulse to physics body:', err);
-                    return false;
-                }
-            };
-
-            // If body is already available on the element, try immediately
-            const tryApplyNow = () => {
-                const existingBody = ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body);
-                if (existingBody && applyImpulseToBody(existingBody)) return true;
-                return false;
-            };
-
-            if (tryApplyNow()) {
-                // done
-            } else {
-                // Listen for 'body-loaded' which aframe-physics-system emits when the CANNON body is ready
-                const onBodyLoaded = (evt) => {
-                    const physicsBody = evt.detail && (evt.detail.body || evt.target.body) ? (evt.detail.body || evt.target.body) : (ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body));
-                    if (applyImpulseToBody(physicsBody)) {
-                        // cleanup listener once applied
-                        ball.removeEventListener('body-loaded', onBodyLoaded);
-                        ball.removeAttribute('animation');
-                    }
-                };
-
-                ball.addEventListener('body-loaded', onBodyLoaded, { once: true });
-
-                // Fallback retry using setTimeout (non-blocking) with total timeout
-                let attempts = 0;
-                const maxAttempts = 12; // ~1.2s
-                const retryDelay = 100;
-
-                const retry = () => {
-                    attempts++;
-                    if (tryApplyNow()) {
-                        ball.removeEventListener('body-loaded', onBodyLoaded);
-                        ball.removeAttribute('animation');
-                        return;
-                    }
-                    if (attempts >= maxAttempts) {
-                        console.warn('⚠️ Could not apply impulse to ball within timeout. Body present?', !!(ball.body || (ball.components && ball.components['dynamic-body'] && ball.components['dynamic-body'].body)));
-                        return;
-                    }
-                    setTimeout(retry, retryDelay);
-                };
-
-                setTimeout(retry, retryDelay);
-            }
-        } catch (e) {
-            console.warn('⚠️ Error applying physics impulse to ball', e);
-        }
-
-
-        console.log('💥 Cannon fired ball');
-    },
-
-    remove: function () {
-        this.el.removeEventListener('collide', this._onCollide);
-    }
-});
-
-AFRAME.registerComponent('flame-anim', {
-    schema: {
-        cols: { type: 'int', default: 3 },
-        rows: { type: 'int', default: 3 },
-        fps: { type: 'int', default: 9 },
-    },
-    init: function () {
-        this.frame = 0;
-        this.lastTime = 0;
-        this.totalFrames = this.data.cols * this.data.rows;
-        this.material = this.el.getObject3D('mesh').material;
-        this.material.blending = THREE.AdditiveBlending;
-
-    },
-    tick: function (time, timeDelta) {
-        if (this.material.map && time - this.lastTime > 1000 / this.data.fps) {
-            this.frame = (this.frame + 1) % this.totalFrames;
-            let col = this.frame % this.data.cols;
-            let row = Math.floor(this.frame / this.data.cols);
-            this.material.map.offset.set(
-                col / this.data.cols,
-                1 - (row + 1) / this.data.rows
-            );
-            this.material.map.repeat.set(1 / this.data.cols, 1 / this.data.rows);
-            this.lastTime = time;
-        }
-    }
-});
