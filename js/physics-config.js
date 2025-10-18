@@ -53,6 +53,12 @@ export const PhysicsConfig = {
             restitution: 0.1,
             contactEquationStiffness: 1e7,
             contactEquationRelaxation: 3
+        },
+        brick: {
+            restitution: 0.9,
+            friction: 0.9,
+            linearDamping: 0.1,
+            angularDamping: 0.1,
         }
     },
 
@@ -109,6 +115,7 @@ export const PhysicsConfig = {
             mass: 0, // Estático
             friction: 0.2,
             restitution: 1,
+            material: 'wood'
         },
         platform: {
             mass: 0, // Estático
@@ -131,14 +138,24 @@ export const PhysicsConfig = {
             friction: 1,
             linearDamping: 0.5,
             angularDamping: 0.5,
-
+            material: 'metal',
+            customShape: "shape: box;halfExtents: 0.6 0.5 0.7;offset: -0.2 0.5 0;"
         },
         candle: {
-            mass: 1, // Mais pesado
-            restitution: 0.1, // Menos quique
-            friction: 0.1, // Mais fricção (estável)
-            linearDamping: 0.01,
-            angularDamping: 0.01,
+            mass: 2, // Mais pesado
+            restitution: 0.3, // Menos quique
+            friction: 0.8, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
+            //customShape: "shape: cylinder;radiusTop: 0.19;radiusBottom: 0.19;height: 1.75;offset: 0 0.25 0;cylinderAxis:y"
+        },
+        wall: {
+            mass: 200,
+            restitution: 0.9,
+            friction: 0.9,
+            linearDamping: 0.1,
+            angularDamping: 0.1,
+            material: 'brick'
         }
     },
 

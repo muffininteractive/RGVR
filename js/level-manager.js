@@ -99,8 +99,8 @@ AFRAME.registerComponent('level-manager', {
             'domino': PhysicsConfig.objects.domino, // Usa configuração de cubo
             'button': PhysicsConfig.objects.cube,// Usa configuração de cubo
             'cannon': PhysicsConfig.objects.cannon, // Usa configuração de modelo
-            'model': PhysicsConfig.objects.model // Default para modelos genéricos
-
+            'model': PhysicsConfig.objects.model, // Default para modelos genéricos
+            'wall': PhysicsConfig.objects.wall
         };
         return configMap[type] || null;
     },
@@ -121,7 +121,7 @@ AFRAME.registerComponent('level-manager', {
         // Store physics config for later use when physics starts
         element.dataset.physicsType = data.body.type;
         element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
-        element.dataset.physicsCustomShape = data.customShape || '';
+        element.dataset.physicsCustomShape = data.customShape || physicsConfig.customShape || '';
         element.dataset.physicsCustomBody = data.body || '';
         element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.5;
         element.dataset.physicsCylinderAxis = data.body?.cylinderAxis || 'z';
@@ -146,6 +146,7 @@ AFRAME.registerComponent('level-manager', {
     },
 
     createElement: function (data) {
+
         let element;
 
         switch (data.type) {
@@ -161,6 +162,24 @@ AFRAME.registerComponent('level-manager', {
                     element.setAttribute('height', data.dimensions.height);
                     element.setAttribute('depth', data.dimensions.depth);
                 }
+                break;
+
+            case 'wall':
+                element = document.createElement('a-box');
+                if (data.dimensions) {
+                    element.setAttribute('width', data.dimensions.width);
+                    element.setAttribute('height', data.dimensions.height);
+                    element.setAttribute('depth', data.dimensions.depth);
+                }
+                // Aplica textura de parede
+                /*
+                element.setAttribute('material', {
+                    src: '../assets/imgs/masonry.jpg',
+                    repeat: data.textureRepeat || '4 4',
+                    roughness: 0.7,
+                    metalness: 0.1
+                });
+                */
                 break;
 
             case 'model':
@@ -228,23 +247,23 @@ AFRAME.registerComponent('level-manager', {
                 break;
 
             case 'candle':
-                element = document.createElement('a-entity');
+                element = document.createElement('a-cylinder');
                 element.classList.add('candle');
-                const candleStick = document.createElement('a-cylinder');
-                candleStick.setAttribute('color', data.color || '#FFFCCB');
-                candleStick.setAttribute('radius', data.radius || 0.5);
-                candleStick.setAttribute('height', data.height || 1);
-                candleStick.setAttribute('position', `0 ${data.height / 2} 0`);
+
+                element.setAttribute('radius', data.radius || 0.5);
+                element.setAttribute('height', data.height || 1);
+
                 const flame = document.createElement('a-plane');
 
                 flame.setAttribute('width', '0.4');
                 flame.setAttribute('height', '0.5');
-                flame.setAttribute('position', `0 ${data.height + flame.height / 2 || 1.8} 0`);
+
+                flame.setAttribute('position', `0 ${data.height / 2 + 0.25 || 1.8} 0`);
                 flame.setAttribute('material', { "src": "#flameTex", "transparent": true });
                 flame.setAttribute('flame-anim', '');
                 flame.setAttribute('look-at', '[camera]');
-                element.appendChild(candleStick);
                 element.appendChild(flame);
+
                 break;
 
             case 'cylinder':
@@ -275,7 +294,7 @@ AFRAME.registerComponent('level-manager', {
         if (data.color && element.tagName !== 'A-ENTITY') {
             element.setAttribute('color', data.color);
         }
-        element.setAttribute('shadow', 'cast: true; receive: true');
+        element.setAttribute('shadow', 'cast: true; receive: false');
 
         // Rotation (if exists)
         if (data.rotation) {
@@ -321,6 +340,20 @@ AFRAME.registerComponent('level-manager', {
 
         // Apply physics configuration from physics-config.js
         this.applyPhysicsConfig(element, data);
+
+        // Define limites customizados se fornecidos
+        if (typeof data.minY !== 'undefined') {
+            element.dataset.minY = data.minY;
+        }
+        if (typeof data.maxY !== 'undefined') {
+            element.dataset.maxY = data.maxY;
+        }
+        if (typeof data.minX !== 'undefined') {
+            element.dataset.minX = data.minX;
+        }
+        if (typeof data.maxX !== 'undefined') {
+            element.dataset.maxX = data.maxX;
+        }
 
         return element;
     },
@@ -504,8 +537,8 @@ AFRAME.registerComponent('movable-element', {
         this.grabDistance = 1.5;
         this.initialGrabDistance = 1.5;
         this.grabOffset = new THREE.Vector3();
-        this.minDistance = 1;
-        this.maxDistance = 30;
+        this.minDistance = 5;
+        this.maxDistance = 20;
         this.wheelSpeed = 0.01; // distance change per wheel delta unit
 
         this.el.addEventListener('mousedown', this.onGrab.bind(this));
@@ -524,7 +557,7 @@ AFRAME.registerComponent('movable-element', {
     onGrab: function (evt) {
         // Start dragging only with primary mouse button when using mouse
         // Touch is handled too via touchstart
-        console.log(evt);
+        this.__moveOnlyXY = true;
         if (evt && evt.type === 'mousedown' && evt.detail.mouseEvent.button !== 0) return;
 
         // Initialize grab based on current mouse ray
@@ -552,6 +585,7 @@ AFRAME.registerComponent('movable-element', {
 
         this.isDragging = true;
 
+
     },
     onRelease: function () {
         if (this.isDragging) {
@@ -559,6 +593,7 @@ AFRAME.registerComponent('movable-element', {
         }
         this.removeBouncingCone(this.el);
         this.el.setAttribute('animation', `property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad`);
+        this.__moveOnlyXY = true;
     },
     onHover: function () {
         this.createBouncingCone(this.el);
@@ -571,11 +606,17 @@ AFRAME.registerComponent('movable-element', {
 
     onWheel: function (evt) {
         if (!this.isDragging) return;
-        // Adjust distance with wheel; negative deltaY = zoom in (closer)
+        this.__moveOnlyXY = false;
+        // Ajusta distância com a roda do mouse
         this.grabDistance -= evt.deltaY * this.wheelSpeed;
         this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-        // Prevent page scroll while dragging
         evt.preventDefault();
+
+        // Timer para voltar ao modo XY após parar de mover a roda
+        if (this._wheelTimeout) clearTimeout(this._wheelTimeout);
+        this._wheelTimeout = setTimeout(() => {
+            this.__moveOnlyXY = true;
+        }, 200);
     },
 
     getCurrentMouseRay: function () {
@@ -620,12 +661,12 @@ AFRAME.registerComponent('movable-element', {
         const boundingBox = new THREE.Box3().setFromObject(object.object3D);
         const height = boundingBox.max.y - boundingBox.min.y;
 
-        cone.setAttribute('position', `0 ${height / 2 + 0.3} 0`);
+        cone.setAttribute('position', `0 ${height / 2 + 1.5} 0`);
 
         // Adiciona animação de bouncing
         cone.setAttribute('animation', {
             property: 'position',
-            to: `0 ${height / 2 + 0.5} 0`,
+            to: `0 ${height / 2 + 1.2} 0`,
             dur: 500,
             dir: 'alternate',
             loop: true,
@@ -647,6 +688,7 @@ AFRAME.registerComponent('movable-element', {
 
     tick: function () {
         if (!this.isDragging) return;
+
         const ray = this.getCurrentMouseRay();
         if (!ray) return;
 
@@ -658,20 +700,43 @@ AFRAME.registerComponent('movable-element', {
         const scaledOffset = this.grabOffset.clone().multiplyScalar(distanceRatio);
         targetPos.add(scaledOffset);
 
-        // Prevent going below floor: keep bottom of object at >= 0
-        const geometry = this.el.object3D.children[0]?.geometry;
-        let objectHeight = 0;
-        if (geometry) {
-            geometry.computeBoundingBox();
-            const bbox = geometry.boundingBox;
-            if (bbox) {
-                objectHeight = (bbox.max.y - bbox.min.y) * this.el.object3D.scale.y / 2;
+        // minY, maxY, minX, maxX customizados por atributo ou altura padrão
+        let minY = 0, maxY = Infinity, minX = -Infinity, maxX = Infinity;
+        if (this.el.dataset.minY !== undefined) {
+            minY = parseFloat(this.el.dataset.minY);
+        } else {
+            const geometry = this.el.object3D.children[0]?.geometry;
+            let objectHeight = 0;
+            if (geometry) {
+                geometry.computeBoundingBox();
+                const bbox = geometry.boundingBox;
+                if (bbox) {
+                    objectHeight = (bbox.max.y - bbox.min.y) * this.el.object3D.scale.y / 2;
+                }
             }
+            minY = objectHeight;
         }
-        const minY = objectHeight;
-        if (targetPos.y < minY) targetPos.y = minY;
+        if (this.el.dataset.maxY !== undefined) {
+            maxY = parseFloat(this.el.dataset.maxY);
+        }
+        if (this.el.dataset.minX !== undefined) {
+            minX = parseFloat(this.el.dataset.minX);
+        }
+        if (this.el.dataset.maxX !== undefined) {
+            maxX = parseFloat(this.el.dataset.maxX);
+        }
 
-        this.el.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
+        // Aplica limites
+        if (targetPos.y < minY) targetPos.y = minY;
+        if (targetPos.y > maxY) targetPos.y = maxY;
+        if (targetPos.x < minX) targetPos.x = minX;
+        if (targetPos.x > maxX) targetPos.x = maxX;
+
+        if (this.__moveOnlyXY) {
+            this.el.object3D.position.set(targetPos.x, targetPos.y, this.el.object3D.position.z);
+        } else {
+            this.el.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
+        }
     },
 
     remove: function () {
@@ -689,8 +754,8 @@ AFRAME.registerComponent('grab-handler', {
         this.grabDistance = 1.5; // Distância inicial do objeto ao controle
         this.initialGrabDistance = 1.5; // Guarda a distância inicial
         this.grabOffset = new THREE.Vector3(); // Offset do objeto em relação ao controle
-        this.minDistance = 1;
-        this.maxDistance = 30;
+        this.minDistance = 5;
+        this.maxDistance = 20;
         this.distanceSpeed = 0.1;
 
         // Eventos de trigger (gatilho)
@@ -700,6 +765,8 @@ AFRAME.registerComponent('grab-handler', {
         // Evento de thumbstick para controlar distância (no controle específico)
 
         this.el.addEventListener('thumbstickmoved', this.onThumbstickMoved.bind(this));
+
+        this.el.addEventListener('thumbsticktouchend', this.onThumbstickReleased.bind(this));
 
         // Eventos do raycaster para hover
         this.el.addEventListener('raycaster-intersection', this.onRaycasterIntersection.bind(this));
@@ -828,18 +895,6 @@ AFRAME.registerComponent('grab-handler', {
         const rayPoint = controllerPos.clone().add(controllerDir.multiplyScalar(this.grabDistance));
         this.grabOffset.copy(objPos).sub(rayPoint);
 
-        const feedback = this.el.sceneEl.querySelector('#teleport-feedback') || document.querySelector('#teleport-feedback');
-
-        // Feedback visual
-        /*
-        if (feedback) {
-            feedback.setAttribute('value', `Grabbed! Distance: ${this.grabDistance.toFixed(2)}m`);
-            setTimeout(() => {
-                feedback.setAttribute('value', '');
-            }, 1500);
-        }
-        */
-
         // Clamp da distância
         this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
 
@@ -850,6 +905,9 @@ AFRAME.registerComponent('grab-handler', {
 
         // Cria cone verde bouncing sobre o objeto capturado
         this.createBouncingCone(object);
+
+        // Ajusta o tick para mover apenas nos eixos X e Y
+        object.__moveOnlyXY = true;
 
         console.log('Objeto capturado. Posição:', objPos, 'Distância:', this.grabDistance, 'Offset:', this.grabOffset);
     },
@@ -865,7 +923,9 @@ AFRAME.registerComponent('grab-handler', {
 
     onThumbstickMoved: function (evt) {
         // Se está segurando um objeto, usa o eixo Y do thumbstick para ajustar distância
+
         if (this.grabbedObject) {
+            this.grabbedObject.__moveOnlyXY = false;
             const { y } = evt.detail;
 
             if (Math.abs(y) > 0.1) {
@@ -879,6 +939,13 @@ AFRAME.registerComponent('grab-handler', {
 
             // Para a propagação do evento para que o move-events não o processe
             evt.stopPropagation();
+        }
+
+    },
+
+    onThumbstickReleased: function (evt) {
+        if (this.grabbedObject) {
+            this.grabbedObject.__moveOnlyXY = true;
         }
     },
 
@@ -908,27 +975,44 @@ AFRAME.registerComponent('grab-handler', {
             // Adiciona o offset escalado para manter a posição relativa
             targetPos.add(scaledOffset);
 
-            // Impede que o objeto fique abaixo do chão
-            // Calcula a altura do objeto para posicioná-lo corretamente
-            const geometry = this.grabbedObject.object3D.children[0]?.geometry;
-            let objectHeight = 0;
-
-            if (geometry) {
-                geometry.computeBoundingBox();
-                const bbox = geometry.boundingBox;
-                if (bbox) {
-                    objectHeight = (bbox.max.y - bbox.min.y) * this.grabbedObject.object3D.scale.y / 2;
+            // minY, maxY, minX, maxX customizados por atributo ou altura padrão
+            let minY = 0, maxY = Infinity, minX = -Infinity, maxX = Infinity;
+            if (this.grabbedObject.dataset.minY !== undefined) {
+                minY = parseFloat(this.grabbedObject.dataset.minY);
+            } else {
+                const geometry = this.grabbedObject.object3D.children[0]?.geometry;
+                let objectHeight = 0;
+                if (geometry) {
+                    geometry.computeBoundingBox();
+                    const bbox = geometry.boundingBox;
+                    if (bbox) {
+                        objectHeight = (bbox.max.y - bbox.min.y) * this.grabbedObject.object3D.scale.y / 2;
+                    }
                 }
+                minY = objectHeight;
+            }
+            if (this.grabbedObject.dataset.maxY !== undefined) {
+                maxY = parseFloat(this.grabbedObject.dataset.maxY);
+            }
+            if (this.grabbedObject.dataset.minX !== undefined) {
+                minX = parseFloat(this.grabbedObject.dataset.minX);
+            }
+            if (this.grabbedObject.dataset.maxX !== undefined) {
+                maxX = parseFloat(this.grabbedObject.dataset.maxX);
             }
 
-            // Y mínimo = metade da altura do objeto (para ficar apoiado no chão)
-            const minY = objectHeight;
-            if (targetPos.y < minY) {
-                targetPos.y = minY;
-            }
+            // Aplica limites
+            if (targetPos.y < minY) targetPos.y = minY;
+            if (targetPos.y > maxY) targetPos.y = maxY;
+            if (targetPos.x < minX) targetPos.x = minX;
+            if (targetPos.x > maxX) targetPos.x = maxX;
 
-            // Define a posição mundial do objeto diretamente
-            this.grabbedObject.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
+            // Move apenas nos eixos X e Y
+            if (this.grabbedObject.__moveOnlyXY) {
+                this.grabbedObject.object3D.position.set(targetPos.x, targetPos.y, this.grabbedObject.object3D.position.z);
+            } else {
+                this.grabbedObject.object3D.position.set(targetPos.x, targetPos.y, targetPos.z);
+            }
         }
     }
 });
@@ -1046,7 +1130,7 @@ AFRAME.registerComponent('cannon-activator', {
         ball.setAttribute('radius', 0.3);
         ball.setAttribute('position', `${spawnPos.x + 0.2} ${spawnPos.y + 0.8} ${spawnPos.z}`);
         ball.setAttribute('material', 'color: #666666; metalness: 0.7; roughness: 0.2');
-        ball.setAttribute('shadow', 'cast: true; receive: true');
+        ball.setAttribute('shadow', 'cast: true; receive: false');
 
         // add to scene then apply physics dynamic-body
         scene.appendChild(ball);
