@@ -5,12 +5,20 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build",
+        "build": "vite build && npm run generate-sitemap",
+        "build:watch": "vite build --watch",
         "preview": "vite preview",
         "serve": "vite preview --port 3000",
+        "server": "node server.js",
+        "editor": "concurrently \"npm run dev\" \"npm run server\"",
         "clean": "rm -rf dist node_modules/.vite",
         "lint": "eslint . --ext .js,.html",
-        "format": "prettier --write ."
+        "format": "prettier --write .",
+        "generate-sitemap": "node scripts/generate-sitemap.js",
+        "deploy": "npm run build && npm run deploy:vercel",
+        "deploy:vercel": "vercel --prod",
+        "deploy:github": "npm run build && npm run deploy:github:pages",
+        "deploy:github:pages": "gh-pages -d dist"
     },
     "keywords": [
         "aframe",
@@ -26,6 +34,7 @@
     "license": "MIT",
     "devDependencies": {
         "@vitejs/plugin-legacy": "^5.4.0",
+        "concurrently": "^9.2.1",
         "eslint": "^8.54.0",
         "prettier": "^3.1.0",
         "terser": "^5.24.0",
@@ -48,5 +57,10 @@
     "bugs": {
         "url": "https://github.com/seu-usuario/rgvr-aframe-project/issues"
     },
-    "homepage": "https://github.com/seu-usuario/rgvr-aframe-project#readme"
+    "homepage": "https://github.com/seu-usuario/rgvr-aframe-project#readme",
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^7.1.0",
+        "bulma": "^1.0.4",
+        "express": "^5.1.0"
+    }
 }

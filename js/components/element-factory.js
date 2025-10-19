@@ -82,6 +82,7 @@ class ElementFactory {
      * @returns {Element} Elemento A-Frame criado
      */
     static createElement(data) {
+
         let element;
 
         switch (data.type) {
@@ -157,26 +158,29 @@ class ElementFactory {
 
             case 'cannon':
                 element = document.createElement('a-entity');
-                if (data.modelUrl) {
-                    const url = String(data.modelUrl).trim();
-                    element.setAttribute('gltf-model', url.startsWith('#') ? url : `url(${url})`);
-                }
+                element.setAttribute('gltf-model', 'url(../assets/models/cannon.glb)');
                 if (data.scale) {
                     element.setAttribute('scale', data.scale);
                 }
+                if (!data.body) data.body = {};
+                data.body.shape = 'none';
+                element.setAttribute('body', 'shape:none');
                 element.setAttribute('cannon-activator', '');
                 break;
 
             case 'candle':
                 element = document.createElement('a-cylinder');
                 element.classList.add('candle');
-                element.setAttribute('radius', data.radius || 0.5);
-                element.setAttribute('height', data.height || 1);
+                element.setAttribute('radius', data.radius || 0.2);
+                element.setAttribute('height', data.height || 1.5);
+                element.setAttribute('color', data.color || '#FFFCCB');
+                //element.setAttribute('position', data.position || '0 0.75 -5');
+                //element.setAttribute('minY', data.minY || '0.75');
 
                 const flame = document.createElement('a-plane');
                 flame.setAttribute('width', '0.4');
                 flame.setAttribute('height', '0.5');
-                flame.setAttribute('position', `0 ${data.height / 2 + 0.25 || 1.8} 0`);
+                flame.setAttribute('position', `0 ${data.height / 2 + 0.25 || 1} 0`);
                 flame.setAttribute('material', { "src": "#flameTex", "transparent": true });
                 flame.setAttribute('flame-anim', '');
                 flame.setAttribute('look-at', '[camera]');
@@ -252,6 +256,8 @@ class ElementFactory {
                 loop: true
             });
         }
+
+
 
         // Aplica configuração de física
         this.applyPhysicsConfig(element, data);

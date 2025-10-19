@@ -98,6 +98,55 @@
           "body": {
             "type": "static"
           }
+        },
+        {
+          "id": "element-1760849101176",
+          "type": "cannon",
+          "position": {
+            "x": 0,
+            "y": 0,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": null,
+            "height": null,
+            "depth": null
+          },
+          "color": "#ffffff",
+          "movable": true,
+          "body": {
+            "type": "dynamic"
+          }
+        },
+        {
+          "id": "element-1760850847020",
+          "type": "candle",
+          "position": {
+            "x": null,
+            "y": 0.75,
+            "z": -5
+          },
+          "rotation": {
+            "x": null,
+            "y": null,
+            "z": null
+          },
+          "dimensions": {
+            "width": null,
+            "height": null,
+            "depth": null
+          },
+          "color": "",
+          "movable": true,
+          "body": {
+            "type": "dynamic"
+          },
+          "minY": 0.75
         }
       ]
     },

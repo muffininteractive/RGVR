@@ -19,18 +19,21 @@ export default defineConfig({
     build: {
         outDir: 'dist',
         assetsDir: 'assets',
-        sourcemap: true,
+        sourcemap: false,
         minify: 'terser',
         target: ['es2015', 'safari11'],
         rollupOptions: {
             input: {
                 main: resolve(__dirname, 'index.html'),
+                level: resolve(__dirname, 'scenes/level.html'),
+                'level-select': resolve(__dirname, 'scenes/level-select.html'),
+                'level-editor': resolve(__dirname, 'scenes/level-editor.html'),
+                'physics-demo': resolve(__dirname, 'scenes/physics-demo.html'),
             },
-            // Trata o Three.js como external para evitar bundling duplicado
-            external: [],
             output: {
-                // Configura globals se necessário
-                globals: {}
+                entryFileNames: '[name].js',
+                chunkFileNames: 'chunks/[name]-[hash].js',
+                assetFileNames: 'assets/[name]-[hash][extname]'
             }
         }
     },

@@ -1,0 +1,826 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editor de Níveis - Wacky Works VR</title>
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css" />
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="../css/level-editor.css" />
+  </head>
+  <body>
+    <!-- Navbar com botões de ação -->
+    <nav class="navbar is-primary">
+      <div class="navbar-brand">
+        <span class="navbar-item">
+          <strong>✏️ Level Editor - Wacky Works VR</strong>
+        </span>
+      </div>
+      <div class="navbar-menu">
+        <div class="navbar-end">
+          <div class="navbar-item">
+            <div class="buttons">
+              <button class="button is-success" onclick="saveLevel()" title="Salvar alterações">
+                <span class="icon"><i class="fas fa-save"></i></span>
+                <span>Salvar</span>
+              </button>
+              <button class="button is-warning" onclick="downloadJSON()" title="Baixar JSON">
+                <span class="icon"><i class="fas fa-download"></i></span>
+                <span>Download</span>
+              </button>
+              <button class="button is-info" onclick="openBackupsModal()" title="Ver backups">
+                <span class="icon"><i class="fas fa-history"></i></span>
+                <span>Backups</span>
+              </button>
+              <button class="button is-warning" onclick="duplicateLevel()" title="Duplicar nível">
+                <span class="icon"><i class="fas fa-copy"></i></span>
+                <span>Duplicar</span>
+              </button>
+              <button class="button is-danger" onclick="deleteLevel()" title="Deletar nível">
+                <span class="icon"><i class="fas fa-trash"></i></span>
+                <span>Deletar</span>
+              </button>
+              <button class="button is-light" onclick="backToGame()">
+                <span class="icon"><i class="fas fa-arrow-left"></i></span>
+                <span>Voltar</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <div class="container is-fullhd" style="padding: 2rem 0">
+      <div class="columns is-gapless">
+        <!-- Painel Esquerdo: Lista de Níveis -->
+        <div class="column is-2" style="border-right: 1px solid #dbdbdb">
+          <div style="height: calc(100vh - 120px); overflow-y: auto; padding: 1rem">
+            <h3 class="title is-5">📋 Níveis</h3>
+
+            <div class="field" style="margin-bottom: 1rem">
+              <div class="control">
+                <button class="button is-success is-fullwidth is-small" onclick="addNewLevel()">
+                  <span class="icon"><i class="fas fa-plus"></i></span>
+                  <span>Novo Nível</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="levels-list"></div>
+          </div>
+        </div>
+
+        <!-- Painel Central: Lista de Elementos -->
+        <div class="column is-2" style="border-right: 1px solid #dbdbdb">
+          <div style="height: calc(100vh - 120px); overflow-y: auto; padding: 1rem">
+            <h3 class="title is-5">🎯 Elementos</h3>
+
+            <div class="field" style="margin-bottom: 1rem" id="add-element-container" style="display: none">
+              <div class="control">
+                <button class="button is-info is-fullwidth is-small" onclick="addElement()">
+                  <span class="icon"><i class="fas fa-cube"></i></span>
+                  <span>Novo Elemento</span>
+                </button>
+              </div>
+            </div>
+
+            <div id="elements-list"></div>
+
+            <div id="no-level-message" class="has-text-centered" style="padding: 2rem 0; color: #999">
+              <p><i class="fas fa-arrow-left"></i></p>
+              <p style="font-size: 0.9rem">Selecione um nível</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Painel Direito: Editor de Elemento/Nível -->
+        <div class="column">
+          <div style="height: calc(100vh - 120px); overflow-y: auto; padding: 1rem">
+            <!-- Editor de Nível (quando nenhum elemento selecionado) -->
+            <div id="level-editor" style="display: none">
+              <h3 class="title is-4">Editar Nível</h3>
+
+              <!-- Abas -->
+              <div class="tabs is-small" style="margin-bottom: 1rem">
+                <ul>
+                  <li class="is-active" data-tab="general-tab">
+                    <a onclick="switchTab('general-tab', event)">
+                      <span class="icon"><i class="fas fa-info-circle"></i></span>
+                      <span>Geral</span>
+                    </a>
+                  </li>
+                  <li data-tab="environment-tab">
+                    <a onclick="switchTab('environment-tab', event)">
+                      <span class="icon"><i class="fas fa-globe"></i></span>
+                      <span>Ambiente</span>
+                    </a>
+                  </li>
+                </ul>
+              </div>
+
+              <!-- Aba: General -->
+              <div id="general-tab" class="tab-content" style="display: block">
+                <div class="field">
+                  <label class="label">ID</label>
+                  <div class="control">
+                    <input class="input" type="number" id="levelId" placeholder="ex: 1" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Nome</label>
+                  <div class="control">
+                    <input class="input" type="text" id="levelName" placeholder="ex: First Ramp" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Descrição</label>
+                  <div class="control">
+                    <textarea class="textarea" id="levelDescription" placeholder="Descreva o nível"></textarea>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Objetivo</label>
+                  <div class="control">
+                    <textarea class="textarea" id="levelObjective" placeholder="Qual é o objetivo?"></textarea>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Dificuldade</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="levelDifficulty">
+                        <option>basics</option>
+                        <option>easy</option>
+                        <option>medium</option>
+                        <option>hard</option>
+                        <option>expert</option>
+                        <option>extreme</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Aba: Environment -->
+              <div id="environment-tab" class="tab-content" style="display: none">
+                <div class="form-section">
+                  <div class="section-title"><i class="fas fa-cog"></i> Configuração Geral</div>
+
+                  <div class="field">
+                    <label class="label">Ativo</label>
+                    <div class="control">
+                      <label class="checkbox">
+                        <input type="checkbox" id="envActive" />
+                        Mostrar ambiente
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Preset</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envPreset">
+                          <option>none</option>
+                          <option>default</option>
+                          <option>contact</option>
+                          <option>egypt</option>
+                          <option>checkerboard</option>
+                          <option>forest</option>
+                          <option>goaland</option>
+                          <option>yavapai</option>
+                          <option>goldmine</option>
+                          <option>threetowers</option>
+                          <option>poison</option>
+                          <option>arches</option>
+                          <option>tron</option>
+                          <option>japan</option>
+                          <option>dream</option>
+                          <option>volcano</option>
+                          <option>starry</option>
+                          <option>osiris</option>
+                          <option>moon</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Seed (Randomização)</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envSeed" placeholder="1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-title"><i class="fas fa-sun"></i> Céu e Iluminação</div>
+
+                  <div class="field">
+                    <label class="label">Tipo de Céu</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envSkyType">
+                          <option>color</option>
+                          <option>gradient</option>
+                          <option>atmosphere</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor do Céu</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envSkyColor" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor do Horizonte</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envHorizonColor" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Iluminação</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envLighting">
+                          <option>none</option>
+                          <option>distant</option>
+                          <option>point</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Posição da Luz (x y z)</label>
+                    <div class="control vector-inputs">
+                      <input class="input" type="number" id="envLightX" placeholder="x" step="0.1" />
+                      <input class="input" type="number" id="envLightY" placeholder="y" step="0.1" />
+                      <input class="input" type="number" id="envLightZ" placeholder="z" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Sombras</label>
+                    <div class="control">
+                      <label class="checkbox">
+                        <input type="checkbox" id="envShadow" />
+                        Ativar sombras
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Tamanho das Sombras</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envShadowSize" placeholder="10" step="1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-title"><i class="fas fa-mountain"></i> Terreno</div>
+
+                  <div class="field">
+                    <label class="label">Tipo de Terreno</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envGround">
+                          <option>none</option>
+                          <option>flat</option>
+                          <option>hills</option>
+                          <option>canyon</option>
+                          <option>spikes</option>
+                          <option>noise</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor do Terreno</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envGroundColor" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor Secundária</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envGroundColor2" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Textura</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envGroundTexture">
+                          <option>none</option>
+                          <option>checkerboard</option>
+                          <option>squares</option>
+                          <option>walkernoise</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Altura Máx (Y Scale)</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envGroundYScale" placeholder="3" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Densidade</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envGroundDensity" placeholder="64" step="1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Frequência</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envGroundFrequency" placeholder="10" step="0.1" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-title"><i class="fas fa-tree"></i> Decoração (Dressing)</div>
+
+                  <div class="field">
+                    <label class="label">Tipo</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envDressing">
+                          <option>none</option>
+                          <option>cubes</option>
+                          <option>pyramids</option>
+                          <option>cylinders</option>
+                          <option>towers</option>
+                          <option>mushrooms</option>
+                          <option>trees</option>
+                          <option>apparatus</option>
+                          <option>torii</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Quantidade</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envDressingAmount" placeholder="10" step="1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envDressingColor" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Escala</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envDressingScale" placeholder="5" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Variância (x y z)</label>
+                    <div class="control vector-inputs">
+                      <input class="input" type="number" id="envDressingVarianceX" placeholder="x" step="0.1" />
+                      <input class="input" type="number" id="envDressingVarianceY" placeholder="y" step="0.1" />
+                      <input class="input" type="number" id="envDressingVarianceZ" placeholder="z" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Escala Uniforme</label>
+                    <div class="control">
+                      <label class="checkbox">
+                        <input type="checkbox" id="envDressingUniformScale" />
+                        Usar escala uniforme
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-section">
+                  <div class="section-title"><i class="fas fa-th"></i> Grade e Outros</div>
+
+                  <div class="field">
+                    <label class="label">Grade</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="envGrid">
+                          <option>none</option>
+                          <option>1x1</option>
+                          <option>2x2</option>
+                          <option>crosses</option>
+                          <option>dots</option>
+                          <option>xlines</option>
+                          <option>ylines</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Cor da Grade</label>
+                    <div class="control">
+                      <input class="input color-input" type="color" id="envGridColor" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Neblina</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envFog" placeholder="0" min="0" max="1" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Flat Shading</label>
+                    <div class="control">
+                      <label class="checkbox">
+                        <input type="checkbox" id="envFlatShading" />
+                        Usar flat shading
+                      </label>
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Área de Jogo (Raio)</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envPlayArea" placeholder="1" step="0.1" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label class="label">Tamanho do Palco</label>
+                    <div class="control">
+                      <input class="input" type="number" id="envStageSize" placeholder="200" step="10" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Editor de Elemento -->
+            <div id="element-editor" style="display: none">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem">
+                <h3 class="title is-4" style="margin: 0">Editar Elemento</h3>
+                <div class="buttons are-small">
+                  <button class="button is-info is-outlined" onclick="duplicateElement()" title="Duplicar elemento">
+                    <span class="icon"><i class="fas fa-copy"></i></span>
+                  </button>
+                  <button class="button is-danger is-outlined" onclick="removeElement()" title="Deletar elemento">
+                    <span class="icon"><i class="fas fa-trash"></i></span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><i class="fas fa-info-circle"></i> Informações</div>
+                <div class="field">
+                  <label class="label">ID</label>
+                  <div class="control">
+                    <input class="input" type="text" id="elementId" onchange="updateElementField('id', this.value)" />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Tipo</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="elementType" onchange="updateElementField('type', this.value)">
+                        <option>sphere</option>
+                        <option>cube</option>
+                        <option>cylinder</option>
+                        <option>cone</option>
+                        <option>torus</option>
+                        <option>domino</option>
+                        <option>ramp</option>
+                        <option>platform</option>
+                        <option>model</option>
+                        <option>cannon</option>
+                        <option>candle</option>
+                        <option>wall</option>
+                        <option>lever</option>
+                        <option>target</option>
+                        <option>moving-platform</option>
+                        <option>seesaw</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><i class="fas fa-cube"></i> Posição</div>
+                <!-- Campos X, Y, Z originais -->
+                  <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+                    <div class="field" style="flex: 1;">
+                      <label class="label">X</label>
+                      <div class="control">
+                        <input class="input" type="number" step="0.1" id="posX" onchange="updatePosition('x', this.value)" />
+                      </div>
+                    </div>
+                    <div class="field" style="flex: 1;">
+                      <label class="label">Y</label>
+                      <div class="control">
+                        <input class="input" type="number" step="0.1" id="posY" onchange="updatePosition('y', this.value)" />
+                      </div>
+                    </div>
+                    <div class="field" style="flex: 1;">
+                      <label class="label">Z</label>
+                      <div class="control">
+                        <input class="input" type="number" step="0.1" id="posZ" onchange="updatePosition('z', this.value)" />
+                      </div>
+                    </div>
+                  </div>
+                <div class="vector-inputs" style="display: flex; gap: 1rem; flex-direction: column;">
+                  <!-- Linha 1: maxY centralizado -->
+                  <div style="display: flex; justify-content: center; align-items: center;">
+                    <div class="field" style="flex: 0 1 200px; text-align: center;">
+                      <label class="label">maxY</label>
+                      <div class="control">
+                        <input class="input" type="number" id="maxY" step="0.1" style="text-align: center;" />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Linha 2: minX à esquerda, maxX à direita -->
+                  <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div class="field" style="flex: 1; text-align: left;">
+                      <label class="label">minX</label>
+                      <div class="control">
+                        <input class="input" type="number" id="minX" step="0.1" style="text-align: left;" />
+                      </div>
+                    </div>
+                    <div style="flex: 1;"></div>
+                    <div class="field" style="flex: 1; text-align: right;">
+                      <label class="label">maxX</label>
+                      <div class="control">
+                        <input class="input" type="number" id="maxX" step="0.1" style="text-align: right;" />
+                      </div>
+                    </div>
+                  </div>
+                  <!-- Linha 3: minY centralizado -->
+                  <div style="display: flex; justify-content: center; align-items: center;">
+                    <div class="field" style="flex: 0 1 200px; text-align: center;">
+                      <label class="label">minY</label>
+                      <div class="control">
+                        <input class="input" type="number" id="minY" step="0.1" style="text-align: center;" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                </div>
+              </div>
+
+              <div class="form-section" id="rotation-section" style="display: none">
+                <div class="section-title"><i class="fas fa-sync"></i> Rotação</div>
+                <div class="vector-inputs">
+                  <div class="field">
+                    <label class="label">X</label>
+                    <div class="control">
+                      <input
+                        class="input"
+                        type="number"
+                        step="0.1"
+                        id="rotX"
+                        onchange="updateRotation('x', this.value)"
+                      />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label">Y</label>
+                    <div class="control">
+                      <input
+                        class="input"
+                        type="number"
+                        step="0.1"
+                        id="rotY"
+                        onchange="updateRotation('y', this.value)"
+                      />
+                    </div>
+                  </div>
+                  <div class="field">
+                    <label class="label">Z</label>
+                    <div class="control">
+                      <input
+                        class="input"
+                        type="number"
+                        step="0.1"
+                        id="rotZ"
+                        onchange="updateRotation('z', this.value)"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section" id="dimensions-section">
+                <div class="section-title"><i class="fas fa-expand"></i> Dimensões</div>
+                <div class="vector-inputs" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Largura</label>
+                    <div class="control">
+                      <input class="input" type="number" step="0.1" id="dimWidth" onchange="updateDimension('width', this.value)" />
+                    </div>
+                  </div>
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Altura</label>
+                    <div class="control">
+                      <input class="input" type="number" step="0.1" id="dimHeight" onchange="updateDimension('height', this.value)" />
+                    </div>
+                  </div>
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Profundidade</label>
+                    <div class="control">
+                      <input class="input" type="number" step="0.1" id="dimDepth" onchange="updateDimension('depth', this.value)" />
+                    </div>
+                  </div>
+                </div>
+                <div class="vector-inputs" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Raio</label>
+                    <div class="control">
+                      <input class="input" type="number" id="elementRadius" step="0.01" onchange="updateElementField('radius', this.value)" placeholder="Raio" />
+                    </div>
+                  </div>
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Altura</label>
+                    <div class="control">
+                      <input class="input" type="number" id="candleHeight" step="0.01" onchange="updateElementField('height', this.value)" placeholder="Altura" />
+                    </div>
+                  </div>
+                </div>
+                <div class="vector-inputs" style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Scale X</label>
+                    <div class="control">
+                      <input class="input" type="number" id="modelScaleX" step="0.01" onchange="updateElementField('scaleX', this.value)" placeholder="X" />
+                    </div>
+                  </div>
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Scale Y</label>
+                    <div class="control">
+                      <input class="input" type="number" id="modelScaleY" step="0.01" onchange="updateElementField('scaleY', this.value)" placeholder="Y" />
+                    </div>
+                  </div>
+                  <div class="field" style="flex: 1;">
+                    <label class="label">Scale Z</label>
+                    <div class="control">
+                      <input class="input" type="number" id="modelScaleZ" step="0.01" onchange="updateElementField('scaleZ', this.value)" placeholder="Z" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+
+              <div class="form-section">
+                <div class="section-title"><i class="fas fa-palette"></i> Aparência</div>
+                <div class="field">
+                  <label class="label">Cor</label>
+                  <div class="control" style="display: flex; gap: 0.5rem; align-items: center">
+                    <input
+                      class="color-input"
+                      type="color"
+                      id="elementColor"
+                      onchange="updateElementField('color', this.value)"
+                    />
+                    <span id="colorValue"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <div class="section-title"><i class="fas fa-cog"></i> Propriedades</div>
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input type="checkbox" id="movable" onchange="updateElementField('movable', this.checked)" />
+                      Movível
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input type="checkbox" id="isStart" onchange="updateElementField('isStart', this.checked)" />
+                      É Início
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input type="checkbox" id="isTarget" onchange="updateElementField('isTarget', this.checked)" />
+                      É Alvo
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <!-- Campos sempre visíveis -->
+              <div class="form-section">
+                <div class="section-title"><i class="fas fa-cogs"></i> Física</div>
+                <div class="field">
+                  <label class="label">Body Type</label>
+                  <div class="control">
+                    <div class="select is-fullwidth">
+                      <select id="bodyType" onchange="updateElementField('bodyType', this.value)">
+                        <option value="">Selecione...</option>
+                        <option value="dynamic">dynamic</option>
+                        <option value="static">static</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Massa</label>
+                  <div class="control">
+                    <input class="input" type="number" id="bodyMass" step="0.01" min="0" onchange="updateElementField('bodyMass', this.value)" placeholder="Massa" />
+                  </div>
+                </div>
+              </div>
+              <!-- Campos dinâmicos por tipo -->
+              <div id="model-fields" class="form-section" style="display: none">
+                <div class="section-title"><i class="fas fa-cube"></i> Modelo 3D</div>
+                <div class="field">
+                  <label class="label">Model URL</label>
+                  <div class="control">
+                    <input
+                      class="input"
+                      type="text"
+                      id="modelUrl"
+                      onchange="updateElementField('modelUrl', this.value)"
+                      placeholder="URL do modelo"
+                    />
+                  </div>
+                </div>
+                <div class="field">
+                  <label class="label">Scale</label>
+                  <div class="control">
+                    <input
+                      class="input"
+                      type="number"
+                      id="modelScale"
+                      step="0.01"
+                      onchange="updateElementField('scale', this.value)"
+                      placeholder="Escala"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- Mantém apenas um campo de raio -->
+              <!-- Campo body.type para todos os tipos -->
+              <div class="form-section">
+            </div>
+
+            <div id="no-selection" class="has-text-centered" style="padding: 3rem 0; color: #999">
+              <p style="font-size: 1.5rem"><i class="fas fa-cursor"></i></p>
+              <p style="margin-top: 1rem">Selecione um nível ou elemento para começar</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de Backups -->
+    <div id="backups-modal" class="modal">
+      <div class="modal-background" onclick="closeBackupsModal()"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">📋 Backups Disponíveis</p>
+          <button class="delete" onclick="closeBackupsModal()"></button>
+        </header>
+        <section class="modal-card-body">
+          <div id="backups-list" style="max-height: 400px; overflow-y: auto"></div>
+        </section>
+        <footer class="modal-card-foot">
+          <button class="button" onclick="closeBackupsModal()">Fechar</button>
+        </footer>
+      </div>
+    </div>
+
+    <script type="module" src="../js/level-editor.js"></script>
+  </body>
+</html>

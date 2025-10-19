@@ -482,6 +482,8 @@ class LevelSelectManager {
 
     static _getDifficultyProps(difficulty, id) {
         switch (difficulty) {
+            case 'basics':
+                return { color: '#00d0ff', radius: 0.7, animation: 'property: rotation; to: 0 360 0; dur: 8000; loop: true;easing: linear;' };
             case 'easy':
                 return { color: '#00ff88', radius: 0.7, animation: 'property: rotation; to: 0 360 0; dur: 8000; loop: true;easing: linear;' };
             case 'medium':
@@ -490,6 +492,8 @@ class LevelSelectManager {
                 return { color: '#ff8800', radius: 0.9, animation: 'property: rotation; to: 0 360 720; dur: 4000; loop: true;easing: linear;' };
             case 'expert':
                 return { color: '#ff0044', radius: 1.0, animation: 'property: rotation; to: 720 360 0; dur: 3000; loop: true;easing: linear;' };
+            case 'extreme':
+                return { color: '#9500ff', radius: 1.0, animation: 'property: rotation; to: 720 360 0; dur: 3000; loop: true;easing: linear;' };
             default:
                 return { color: '#8888ff', radius: 0.75, animation: 'property: rotation; to: 0 360 0; dur: 7000; loop: true;easing: linear;' };
         }
