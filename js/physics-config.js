@@ -156,6 +156,15 @@ export const PhysicsConfig = {
             linearDamping: 0.01,
             angularDamping: 0.01,
             material: 'brick'
+        },
+        seesaw: {
+            mass: 20,
+            restitution: 0.3, // Menos quique
+            friction: 0.8, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
+            material: 'wood',
+            customShape: "shape: box;halfExtents: 0.25 0.05 0.25;offset: 0 0 0;"
         }
     },
 

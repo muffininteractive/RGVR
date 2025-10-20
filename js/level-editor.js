@@ -454,6 +454,20 @@ function showElementEditor() {
     if (element.radius !== undefined) {
         document.getElementById('elementRadius').value = element.radius;
     }
+
+    // Campo rotateAxis
+    const rotateAxisInput = document.getElementById('rotateAxis');
+    if (rotateAxisInput) {
+        rotateAxisInput.value = element.rotateAxis || '';
+        rotateAxisInput.onchange = e => {
+            element.rotateAxis = e.target.value;
+            // Atualiza no componente se já estiver instanciado
+            const aframeEl = document.querySelector(`[data-element-id='${element.id}']`);
+            if (aframeEl && aframeEl.components && aframeEl.components['movable-element']) {
+                aframeEl.components['movable-element'].rotateAxis = element.rotateAxis || null;
+            }
+        };
+    }
 }
 
 // Funções de atualização
@@ -472,6 +486,13 @@ function updateElementField(field, value) {
     } else if (field === 'bodyMass') {
         if (!element.body) element.body = {};
         element.body.mass = value === '' ? undefined : parseFloat(value);
+    } else if (field === 'rotateAxis') {
+        element.rotateAxis = value;
+        // Atualiza no componente se já estiver instanciado
+        const aframeEl = document.querySelector(`[data-element-id='${element.id}']`);
+        if (aframeEl && aframeEl.components && aframeEl.components['movable-element']) {
+            aframeEl.components['movable-element'].rotateAxis = value || null;
+        }
     } else {
         element[field] = value;
     }
@@ -739,6 +760,7 @@ window.updatePosition = updatePosition;
 window.updateRotation = updateRotation;
 window.updateDimension = updateDimension;
 window.backToGame = backToGame;
+window.switchTab = switchTab;
 
 function closeBackupsModal() {
     document.getElementById('backups-modal').classList.remove('is-active');

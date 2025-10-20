@@ -52,6 +52,13 @@ AFRAME.registerComponent('movable-element', {
         // === Configuração ===
         this.minDistance = this.data.minDistance;
         this.maxDistance = this.data.maxDistance;
+
+        // === Atribui rotateAxis do atributo HTML, se existir ===
+        if (this.el.hasAttribute('rotateaxis')) {
+            this.rotateAxis = this.el.getAttribute('rotateaxis');
+        } else {
+            this.rotateAxis = null;
+        }
     },
 
     /**
@@ -250,18 +257,31 @@ AFRAME.registerComponent('movable-element', {
     onVRThumbstickMoved: function (evt, controller) {
         if (!this.isGrabbing || this.vrController !== controller) return;
 
-        const { y } = evt.detail;
-
-        if (Math.abs(y) > 0.1) {
-            this.moveOnlyXY = false;
-
-            // Y positivo = para trás (mais perto)
-            // Y negativo = para frente (mais longe)
-            this.grabDistance -= y * this.data.vrDistanceSpeed;
-
-            this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
+        // Gira o objeto no eixo definido por rotateAxis, se existir
+        const { x } = evt.detail;
+        if (Math.abs(x) > 0.05 && this.rotateAxis) {
+            const rotationSpeed = 2.0 * (Math.PI / 180); // radianos por tick
+            if (this.rotateAxis === 'x') {
+                this.el.object3D.rotation.x -= x * rotationSpeed;
+            } else if (this.rotateAxis === 'y') {
+                this.el.object3D.rotation.y -= x * rotationSpeed;
+            } else {
+                this.el.object3D.rotation.z -= x * rotationSpeed;
+            }
         }
-
+        /*
+                const { y } = evt.detail;
+        
+                if (Math.abs(y) > 0.1) {
+                    this.moveOnlyXY = false;
+        
+                    // Y positivo = para trás (mais perto)
+                    // Y negativo = para frente (mais longe)
+                    this.grabDistance -= y * this.data.vrDistanceSpeed;
+        
+                    this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
+                }
+        */
         evt.stopPropagation();
     },
 
@@ -411,12 +431,17 @@ AFRAME.registerComponent('movable-element', {
     onWheel: function (evt) {
         if (!this.isGrabbing) return;
 
-        this.moveOnlyXY = false;
-
-        // Ajusta distância com a roda do mouse
-        this.grabDistance -= evt.deltaY * this.data.wheelSpeed;
-        this.grabDistance = Math.max(this.minDistance, Math.min(this.maxDistance, this.grabDistance));
-
+        // Rotaciona conforme rotateAxis
+        if (this.rotateAxis) {
+            const rotationSpeed = 0.001 * 0.5; // radianos por tick
+            if (this.rotateAxis === 'x') {
+                this.el.object3D.rotation.x += evt.deltaY * rotationSpeed;
+            } else if (this.rotateAxis === 'y') {
+                this.el.object3D.rotation.y += evt.deltaY * rotationSpeed;
+            } else {
+                this.el.object3D.rotation.z += evt.deltaY * rotationSpeed;
+            }
+        }
         evt.preventDefault();
 
         // Timer para voltar ao modo XY
@@ -451,6 +476,7 @@ AFRAME.registerComponent('movable-element', {
      */
     hideGrabFeedback: function () {
         this.removeBouncingCone();
+        this.el.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad');
     },
 
     /**
@@ -458,6 +484,7 @@ AFRAME.registerComponent('movable-element', {
      */
     hideHoverFeedback: function () {
         this.removeBouncingCone();
+        this.el.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad');
     },
 
     /**
@@ -467,41 +494,50 @@ AFRAME.registerComponent('movable-element', {
         // Remove se existir
         this.removeBouncingCone();
 
-        const cone = document.createElement('a-cone');
-        cone.setAttribute('color', '#00FF00');
-        cone.setAttribute('radius-bottom', '0.5');
-        cone.setAttribute('radius-top', '0');
-        cone.setAttribute('height', '0.9');
-        cone.setAttribute('rotation', '180 0 0');
-        cone.classList.add('feedback-cone');
+        // Evita duplicidade: só cria se não existir
+        if (this.el.querySelector('.feedback-plane')) return;
 
-        // Posiciona acima do objeto
-        const boundingBox = new THREE.Box3().setFromObject(this.el.object3D);
-        const height = boundingBox.max.y - boundingBox.min.y;
-        const offset = this.inputSource === 'vr' ? 0.3 : 1.5;
+        const plane = document.createElement('a-image');
+        plane.setAttribute('width', '1');
+        plane.setAttribute('height', '1');
+        plane.setAttribute('rotation', '0 0 0');
+        plane.setAttribute('position', '0 1.5 0.5');
+        plane.classList.add('feedback-plane');
 
-        cone.setAttribute('position', `0 ${height / 2 + offset} 0`);
+        // Adiciona textura (sprite.png)
+        plane.setAttribute('src', '#feedbackTexture');
+        //plane.setAttribute('transparent', 'true');
+        //plane.setAttribute('material', 'side: double; transparent: true; alphaTest: 0.01;');
 
-        // Animação de bouncing
-        cone.setAttribute('animation', {
-            property: 'position',
-            to: `0 ${height / 2 + offset - 0.3} 0`,
-            dur: 500,
-            dir: 'alternate',
-            loop: true,
-            easing: 'easeInOutQuad'
-        });
+        //plane.setAttribute('shadow', 'cast: false; receive: false');
+        // Torna o plano não interativo para não bloquear eventos
+        plane.setAttribute('pointer-events', 'none');
+        plane.style.pointerEvents = 'none';
 
-        this.el.appendChild(cone);
+        // Cria asset se não existir
+        const sceneEl = this.el.sceneEl;
+        if (sceneEl && !sceneEl.querySelector('#feedbackTexture')) {
+            let assets = sceneEl.querySelector('a-assets');
+            if (!assets) {
+                assets = document.createElement('a-assets');
+                sceneEl.appendChild(assets);
+            }
+            const img = document.createElement('img');
+            img.setAttribute('id', 'feedbackTexture');
+            img.setAttribute('src', '../assets/imgs/grab.png');
+            assets.appendChild(img);
+        }
+
+        this.el.appendChild(plane);
     },
 
     /**
      * Remove o cone de feedback
      */
     removeBouncingCone: function () {
-        const cone = this.el.querySelector('.feedback-cone');
-        if (cone) {
-            this.el.removeChild(cone);
+        const plane = this.el.querySelector('.feedback-plane');
+        if (plane && plane.parentNode === this.el) {
+            this.el.removeChild(plane);
         }
     },
 

@@ -22,7 +22,8 @@ class ElementFactory {
             'button': PhysicsConfig.objects.cube,
             'cannon': PhysicsConfig.objects.cannon,
             'model': PhysicsConfig.objects.model,
-            'wall': PhysicsConfig.objects.wall
+            'wall': PhysicsConfig.objects.wall,
+            'seesaw': PhysicsConfig.objects.seesaw
         };
         return configMap[type] || null;
     }
@@ -85,6 +86,9 @@ class ElementFactory {
 
         let element;
 
+
+
+
         switch (data.type) {
             case 'sphere':
                 element = document.createElement('a-sphere');
@@ -123,10 +127,12 @@ class ElementFactory {
             case 'ramp':
                 element = document.createElement('a-box');
                 if (data.dimensions) {
-                    element.setAttribute('width', data.dimensions.width);
-                    element.setAttribute('height', data.dimensions.height);
-                    element.setAttribute('depth', data.dimensions.depth);
+                    element.setAttribute('width', data.dimensions.width || 4);
+                    element.setAttribute('height', data.dimensions.height || 0.3);
+                    element.setAttribute('depth', data.dimensions.depth || 3);
                 }
+                element.setAttribute('position', data.position || '0 0.2 -5');
+                element.setAttribute('minY', data.minY || '0.2');
                 break;
 
             case 'platform':
@@ -164,7 +170,7 @@ class ElementFactory {
                 }
                 if (!data.body) data.body = {};
                 data.body.shape = 'none';
-                element.setAttribute('body', 'shape:none');
+                element.setAttribute('body', data.body || 'shape:none');
                 element.setAttribute('cannon-activator', '');
                 break;
 
@@ -174,6 +180,7 @@ class ElementFactory {
                 element.setAttribute('radius', data.radius || 0.2);
                 element.setAttribute('height', data.height || 1.5);
                 element.setAttribute('color', data.color || '#FFFCCB');
+
                 //element.setAttribute('position', data.position || '0 0.75 -5');
                 //element.setAttribute('minY', data.minY || '0.75');
 
@@ -201,7 +208,54 @@ class ElementFactory {
                     element.setAttribute('depth', data.dimensions.depth);
                 }
                 break;
+            case 'seesaw':
+                element = document.createElement('a-entity');
+                element.setAttribute('position', data.position || '0 0.1 5');
 
+                if (!data.body) data.body = {};
+                data.body.shape = 'none';
+                element.setAttribute('body', 'type:static;mass:50;shape:none');
+                element.setAttribute('minY', '0.15');
+                const base = document.createElement('a-box');
+                base.setAttribute('id', "seesaw-base");
+                base.setAttribute('position', '0 0 0');
+                base.setAttribute('width', 0.5);
+                base.setAttribute('height', 0.1);
+                base.setAttribute('depth', 0.5);
+                base.setAttribute('color', '#ff0000');
+
+                base.setAttribute('body', 'type:static; mass:0; restitution:0.3; friction:0.8;');
+
+                const piramid = document.createElement('a-tetrahedron');
+                piramid.setAttribute('position', '0 0.25 0');
+                piramid.setAttribute('rotation', '0 -45 0');
+                piramid.setAttribute('radius', 0.45);
+                piramid.setAttribute('color', '#ffffff');
+                piramid.setAttribute('body', 'type:static;shape:none; mass:0; restitution:0.3; friction:0.8;');
+
+
+
+                const plank = document.createElement('a-box');
+                plank.setAttribute('width', data.dimensions?.width || 3);
+                plank.setAttribute('height', data.dimensions?.height || 0.1);
+                plank.setAttribute('depth', data.dimensions?.depth || 0.5);
+
+                plank.setAttribute('color', '#ffa600');
+                plank.setAttribute('body', 'type:dynamic;shape:box; mass:10; restitution:0.3; friction:2;');
+                plank.setAttribute('constraint', 'type: hinge;target: #seesaw-base;axis: 0 0 1;targetAxis: 0 0 1; pivot: 0 0 0; targetPivot: 0 0.5 0;');
+
+                // Torna o plank interativo/móvel
+                if (data.movable) {
+                    plank.classList.add('interactive');
+                    base.classList.add('interactive');
+                    piramid.classList.add('interactive');
+                }
+
+                element.appendChild(base);
+                element.appendChild(piramid);
+                element.appendChild(plank);
+
+                break;
             default:
                 console.warn(`Unknown element type: ${data.type}`);
                 return null;
@@ -210,6 +264,15 @@ class ElementFactory {
         // Propriedades básicas
         element.setAttribute('id', data.id);
         element.setAttribute('position', data.position);
+        // Rotação (se existir)
+        if (data.rotation) {
+            element.setAttribute('rotation', data.rotation);
+        }
+
+        // Eixo de rotação customizado
+        if (data.rotateAxis) {
+            element.setAttribute('rotateaxis', data.rotateAxis);
+        }
 
         // Evita forçar cor em entidades genéricas (como raízes GLTF)
         if (data.color && element.tagName !== 'A-ENTITY') {
@@ -217,16 +280,14 @@ class ElementFactory {
         }
         element.setAttribute('shadow', 'cast: true; receive: false');
 
-        // Rotação (se existir)
-        if (data.rotation) {
-            element.setAttribute('rotation', data.rotation);
-        }
+
 
         // Componente de elemento móvel (se não for fixo)
         if (data.movable) {
+
             element.setAttribute('movable-element', '');
             element.classList.add('interactive');
-            element.classList.add('grab');
+
             element.setAttribute('material', {
                 emissive: '#ffffff',
                 emissiveIntensity: 0

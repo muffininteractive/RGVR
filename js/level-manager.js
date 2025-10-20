@@ -95,15 +95,16 @@ AFRAME.registerComponent('level-manager', {
         if (levelState.levelData && levelState.levelData.elements) {
             levelState.levelData.elements.forEach(data => {
                 const element = document.querySelector(`#${data.id}`);
+
                 ElementFactory.applyPhysicsToElement(element, data, applyPhysicsMaterial);
+
             });
         }
 
         // Remove possibilidade de mover objetos
         levelState.movableObjects.forEach(obj => {
             obj.removeAttribute('movable-element');
-            obj.classList.remove('interactive');
-            obj.classList.remove('grab');
+
 
         });
 
@@ -274,8 +275,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set specific environment for the level
         const envConfig = levelEnvironments[levelId] || levelEnvironments[1];
         const envEl = document.querySelector('#environment');
-        if (envEl) {
-            const envSettings = `preset: ${envConfig.preset}; groundColor: ${envConfig.groundColor}; ${envConfig.gridColor ? 'gridColor: ' + envConfig.gridColor + ';' : ''} dressingAmount: ${envConfig.dressingAmount}; dressingColor: ${envConfig.dressingColor};shadow:true;shadowSize:10;`;
+        if (envEl && levelData.environment) {
+            // Converte o objeto environment em string de atributos para o componente
+            const envObj = levelData.environment;
+            const envSettings = Object.entries(envObj)
+                .filter(([k, v]) => v !== undefined && v !== null && v !== "")
+                .map(([k, v]) => `${k}: ${typeof v === 'boolean' ? (v ? 'true' : 'false') : v}`)
+                .join('; ');
             envEl.setAttribute('environment', envSettings);
         }
 

@@ -59,14 +59,14 @@
           "id": "ramp-1",
           "type": "ramp",
           "position": {
-            "x": -1,
-            "y": 1.5,
+            "x": -2,
+            "y": 0.15,
             "z": -5
           },
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -20
+            "z": 0
           },
           "dimensions": {
             "width": 4,
@@ -98,55 +98,6 @@
           "body": {
             "type": "static"
           }
-        },
-        {
-          "id": "element-1760849101176",
-          "type": "cannon",
-          "position": {
-            "x": 0,
-            "y": 0,
-            "z": -5
-          },
-          "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "dimensions": {
-            "width": null,
-            "height": null,
-            "depth": null
-          },
-          "color": "#ffffff",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "element-1760850847020",
-          "type": "candle",
-          "position": {
-            "x": null,
-            "y": 0.75,
-            "z": null
-          },
-          "rotation": {
-            "x": null,
-            "y": null,
-            "z": null
-          },
-          "dimensions": {
-            "width": null,
-            "height": null,
-            "depth": null
-          },
-          "color": "",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0.75
         }
       ]
     },
@@ -217,7 +168,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -25
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -241,7 +192,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -20
+            "z": 0
           },
           "dimensions": {
             "width": 3.5,
@@ -371,7 +322,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -25
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -472,7 +423,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -30
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -967,7 +918,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -35
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -991,7 +942,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -25
+            "z": 0
           },
           "dimensions": {
             "width": 3.5,
@@ -1523,7 +1474,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -30
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -1982,7 +1933,7 @@
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -35
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -2005,8 +1956,8 @@
           },
           "rotation": {
             "x": 0,
-            "y": 20,
-            "z": -25
+            "y": 0,
+            "z": 0
           },
           "dimensions": {
             "width": 2.5,
@@ -2155,8 +2106,8 @@
           },
           "rotation": {
             "x": 0,
-            "y": -30,
-            "z": -20
+            "y": 0,
+            "z": 0
           },
           "dimensions": {
             "width": 3,
@@ -2363,14 +2314,14 @@
           "id": "ramp-1",
           "type": "ramp",
           "position": {
-            "x": 0,
-            "y": 1.5,
+            "x": -1,
+            "y": 0.15,
             "z": -5
           },
           "rotation": {
             "x": 0,
             "y": 0,
-            "z": -20
+            "z": 0
           },
           "dimensions": {
             "width": 4,
@@ -2547,6 +2498,125 @@
         "groundYScale": 3,
         "groundTexture": "none",
         "groundColor": "#553e35",
+        "groundColor2": "#694439",
+        "groundDensity": 64,
+        "groundFrequency": 10,
+        "dressing": "none",
+        "dressingAmount": 10,
+        "dressingColor": "#795449",
+        "dressingScale": 5,
+        "dressingVariance": "1 1 1",
+        "dressingUniformScale": true,
+        "grid": "none",
+        "gridColor": "#ccc",
+        "seed": 1
+      }
+    },
+    {
+      "id": 14,
+      "name": "Novo Nível 14",
+      "difficulty": "basics",
+      "objective": "Descreva o objetivo",
+      "description": "Descreva o nível",
+      "elements": [
+        {
+          "id": "seesaw",
+          "type": "seesaw",
+          "position": {
+            "x": 0,
+            "y": 0.1,
+            "z": -5
+          },
+          "rotation": {
+            "x": null,
+            "y": null,
+            "z": null
+          },
+          "dimensions": {
+            "width": null,
+            "height": null,
+            "depth": null
+          },
+          "color": "#ffffff",
+          "movable": true,
+          "body": {
+            "type": "static",
+            "mass": 30
+          }
+        },
+        {
+          "id": "bola",
+          "type": "sphere",
+          "position": {
+            "x": -1.5,
+            "y": 3,
+            "z": -5
+          },
+          "rotation": {
+            "x": null,
+            "y": null,
+            "z": null
+          },
+          "dimensions": {
+            "width": null,
+            "height": null,
+            "depth": null
+          },
+          "color": "#bb00ff",
+          "movable": true,
+          "body": {
+            "type": "dynamic",
+            "mass": 30
+          },
+          "radius": 0.3,
+          "isStart": true
+        },
+        {
+          "id": "cube",
+          "type": "sphere",
+          "position": {
+            "x": 1,
+            "y": 2,
+            "z": -5
+          },
+          "rotation": {
+            "x": null,
+            "y": null,
+            "z": null
+          },
+          "dimensions": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          },
+          "color": "#ffffff",
+          "movable": true,
+          "body": {
+            "type": "dynamic",
+            "mass": 1
+          },
+          "minY": -0.5,
+          "radius": 0.27
+        }
+      ],
+      "environment": {
+        "preset": "starry",
+        "active": true,
+        "skyType": "atmosphere",
+        "skyColor": "",
+        "horizonColor": "#ff9d14",
+        "lighting": "distant",
+        "shadow": false,
+        "shadowSize": 10,
+        "lightPosition": "0 1 -0.2",
+        "fog": 0,
+        "flatShading": false,
+        "playArea": 1,
+        "stageSize": 200,
+        "ground": "flat",
+        "groundYScale": 3,
+        "groundTexture": "none",
+        "groundColor": "#ceaea1",
         "groundColor2": "#694439",
         "groundDensity": 64,
         "groundFrequency": 10,

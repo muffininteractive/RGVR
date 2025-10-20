@@ -715,6 +715,12 @@
               <div class="form-section">
                 <div class="section-title"><i class="fas fa-cog"></i> Propriedades</div>
                 <div class="field">
+                  <label class="label">Eixo de Rotação</label>
+                  <div class="control">
+                    <input id="rotateAxis" class="input" type="text" placeholder="x, y ou z" onchange="updateElementField('rotateAxis', this.value)">
+                  </div>
+                </div>
+                <div class="field">
                   <div class="control">
                     <label class="checkbox">
                       <input type="checkbox" id="movable" onchange="updateElementField('movable', this.checked)" />
