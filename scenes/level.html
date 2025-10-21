@@ -26,6 +26,12 @@
       <!-- Assets -->
       <a-assets>
         <img src="../assets/imgs/flame.png" id="flameTex" />
+        <img src="../assets/imgs/grab.png" id="grabTex" />
+        <img src="../assets/imgs/roll.png" id="rollTex" />
+        <img src="../assets/imgs/scroll.png" id="scrollTex" />
+        <img src="../assets/imgs/sprite.png" id="spriteTex" />
+        <img src="../assets/imgs/colors.png" id="soccerTex" />
+
         <!-- Textures and sounds can be added here -->
       </a-assets>
 
@@ -56,7 +62,9 @@
       ></a-plane>
 
       <!-- Objective Panel (will be updated dynamically) -->
-      <a-entity id="objective-panel" position="0 6 -9"></a-entity>
+      <a-entity id="objective-panel" position="0 6 -9">
+        <a-text id="timer-text" value="00:00" position="0 0 0" align="center" color="#fff" width="4"></a-text>
+      </a-entity>
 
       <!-- Level elements will be created dynamically by level-manager -->
 
@@ -71,7 +79,10 @@
       </a-entity>
 
       <!-- Victory Panel (initially invisible; not interactive until shown) -->
-      <a-entity id="victory-panel" position="0 5 -2" victory-panel></a-entity>
+      <a-entity id="victory-panel" position="0 5 -2" visible="false" victory-panel>
+        <a-text id="victory-time" value="" position="0 0.5 0" align="center" color="#fff" width="4"></a-text>
+        <a-text id="victory-stats" value="" position="0 -0.2 0" align="center" color="#fff" width="4"></a-text>
+      </a-entity>
 
       <!-- Celebration Effect -->
       <a-entity celebration-effect></a-entity>

@@ -1,3 +1,34 @@
+// Cache dos defaults
+let elementDefaults = null;
+
+// Carrega os defaults do elemento
+async function loadElementDefaults() {
+    if (elementDefaults) return elementDefaults;
+    try {
+        const response = await fetch('/data/element-defaults.json');
+        elementDefaults = await response.json();
+        return elementDefaults;
+    } catch (error) {
+        console.error('Erro ao carregar defaults dos elementos:', error);
+        return {};
+    }
+}
+
+// Aplica os valores padrão ao elemento atual
+async function applyDefaultsToElement(type) {
+    const defaults = await loadElementDefaults();
+    if (!defaults[type]) return;
+    const element = levelsData.levels[currentLevelIndex].elements[currentElementIndex];
+    // Mantém o id atual
+    const currentId = element.id;
+    Object.keys(defaults[type]).forEach(key => {
+        if (key === 'id') return;
+        element[key] = JSON.parse(JSON.stringify(defaults[type][key]));
+    });
+    element.id = currentId;
+    renderElementsList();
+    showElementEditor();
+}
 let levelsData = null;
 let currentLevelIndex = null;
 let currentElementIndex = null;
@@ -124,6 +155,7 @@ function showLevelEditor() {
     document.getElementById('levelDescription').value = level.description;
     document.getElementById('levelObjective').value = level.objective;
     document.getElementById('levelDifficulty').value = level.difficulty;
+    document.getElementById('levelActive').checked = level.active === undefined ? true : !!level.active;
 
     // Carregar dados de environment
     if (!level.environment) {
@@ -182,6 +214,9 @@ function showLevelEditor() {
     };
     document.getElementById('levelDifficulty').onchange = e => {
         level.difficulty = e.target.value;
+    };
+    document.getElementById('levelActive').onchange = e => {
+        level.active = e.target.checked;
     };
 
     // Listeners para ambiente
@@ -398,6 +433,14 @@ function showElementEditor() {
     // Preencher campos
     document.getElementById('elementId').value = element.id;
     document.getElementById('elementType').value = element.type;
+    // Adiciona listener para carregar defaults ao mudar tipo
+    const typeSelect = document.getElementById('elementType');
+    if (typeSelect && !typeSelect._defaultsListener) {
+        typeSelect.addEventListener('change', async (e) => {
+            await applyDefaultsToElement(e.target.value);
+        });
+        typeSelect._defaultsListener = true;
+    }
     document.getElementById('posX').value = element.position.x;
     document.getElementById('posY').value = element.position.y;
     document.getElementById('posZ').value = element.position.z;
@@ -613,13 +656,59 @@ function saveLevel() {
     level.description = document.getElementById('levelDescription').value;
     level.objective = document.getElementById('levelObjective').value;
     level.difficulty = document.getElementById('levelDifficulty').value;
+    level.active = document.getElementById('levelActive').checked;
+
+    // Limpeza dos elementos antes de salvar
+    const cleanLevelsData = JSON.parse(JSON.stringify(levelsData));
+    cleanLevelsData.levels.forEach(lvl => {
+        lvl.elements.forEach(element => {
+            // Limpar campos vazios (exceto position, rotation e minY)
+            Object.keys(element).forEach(key => {
+                if (key === 'position' || key === 'rotation' || key === 'minY') return;
+                if (element[key] === '' || element[key] === null || element[key] === undefined) {
+                    delete element[key];
+                }
+            });
+            // Para position e rotation, garantir 0 se vazio
+            if (element.position) {
+                ['x', 'y', 'z'].forEach(axis => {
+                    if (element.position[axis] === '' || element.position[axis] === null || element.position[axis] === undefined || isNaN(element.position[axis])) {
+                        element.position[axis] = 0;
+                    }
+                });
+            }
+            if (element.rotation) {
+                ['x', 'y', 'z'].forEach(axis => {
+                    if (element.rotation[axis] === '' || element.rotation[axis] === null || element.rotation[axis] === undefined || isNaN(element.rotation[axis])) {
+                        element.rotation[axis] = 0;
+                    }
+                });
+            }
+            // minY: se vazio, 0
+            if (element.minY === '' || element.minY === null || element.minY === undefined || isNaN(element.minY)) {
+                element.minY = 0;
+            }
+            // Para dimensions, remove campos vazios
+            if (element.dimensions) {
+                Object.keys(element.dimensions).forEach(dim => {
+                    if (element.dimensions[dim] === '' || element.dimensions[dim] === null || element.dimensions[dim] === undefined || isNaN(element.dimensions[dim])) {
+                        delete element.dimensions[dim];
+                    }
+                });
+                // Remove dimensions se ficar vazio
+                if (Object.keys(element.dimensions).length === 0) {
+                    delete element.dimensions;
+                }
+            }
+        });
+    });
 
     fetch('http://localhost:3001/api/levels', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify(levelsData),
+        body: JSON.stringify(cleanLevelsData),
     })
         .then(response => response.json())
         .then(data => {
@@ -761,6 +850,7 @@ window.updateRotation = updateRotation;
 window.updateDimension = updateDimension;
 window.backToGame = backToGame;
 window.switchTab = switchTab;
+window.restoreBackup = restoreBackup;
 
 function closeBackupsModal() {
     document.getElementById('backups-modal').classList.remove('is-active');

@@ -55,7 +55,7 @@ class ElementFactory {
         element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
         element.dataset.physicsCustomShape = data.customShape || physicsConfig.customShape || '';
         element.dataset.physicsCustomBody = data.body || '';
-        element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.5;
+        //element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.4;
         element.dataset.physicsCylinderAxis = data.body?.cylinderAxis || 'z';
         element.dataset.physicsMass = data.body?.mass || physicsConfig.mass;
         element.dataset.physicsRestitution = data.body?.restitution || physicsConfig.restitution;
@@ -92,7 +92,9 @@ class ElementFactory {
         switch (data.type) {
             case 'sphere':
                 element = document.createElement('a-sphere');
-                element.setAttribute('radius', data.radius || 0.5);
+                element.setAttribute('radius', data.radius || 0.4);
+                element.setAttribute('material', 'src: #soccerTex');
+
                 break;
 
             case 'cube':
@@ -119,9 +121,7 @@ class ElementFactory {
                     const url = String(data.modelUrl).trim();
                     element.setAttribute('gltf-model', url.startsWith('#') ? url : `url(${url})`);
                 }
-                if (data.scale) {
-                    element.setAttribute('scale', data.scale);
-                }
+                // Scale será definido no final da função
                 break;
 
             case 'ramp':
@@ -131,8 +131,7 @@ class ElementFactory {
                     element.setAttribute('height', data.dimensions.height || 0.3);
                     element.setAttribute('depth', data.dimensions.depth || 3);
                 }
-                element.setAttribute('position', data.position || '0 0.2 -5');
-                element.setAttribute('minY', data.minY || '0.2');
+
                 break;
 
             case 'platform':
@@ -142,6 +141,24 @@ class ElementFactory {
                     element.setAttribute('height', data.dimensions.height);
                     element.setAttribute('depth', data.dimensions.depth);
                 }
+                const targetPlane = document.createElement('a-plane');
+                targetPlane.setAttribute('width', data.dimensions.width);
+                targetPlane.setAttribute('height', data.dimensions.height);
+                targetPlane.setAttribute('rotation', `${data.rotation?.x || 0} ${data.rotation?.y || 0} ${data.rotation?.z || 0}`);
+                targetPlane.setAttribute('position', `${data.position.x} ${data.position.y} ${data.position.z + data.dimensions.depth / 2 + 0.01}`);
+                targetPlane.setAttribute('color', '#000000');
+                targetPlane.setAttribute('opacity', '0.5');
+
+
+                const targetText = document.createElement('a-text');
+                targetText.setAttribute('value', 'TARGET');
+                targetText.setAttribute('color', '#FFFFFF');
+                targetText.setAttribute('align', 'center');
+                targetText.setAttribute('z-offset', '0.01');
+                targetPlane.appendChild(targetText);
+                const scene = document.querySelector('a-scene');
+                scene.appendChild(targetPlane);
+
                 break;
 
             case 'domino':
@@ -165,9 +182,7 @@ class ElementFactory {
             case 'cannon':
                 element = document.createElement('a-entity');
                 element.setAttribute('gltf-model', 'url(../assets/models/cannon.glb)');
-                if (data.scale) {
-                    element.setAttribute('scale', data.scale);
-                }
+                // Scale será definido no final da função
                 if (!data.body) data.body = {};
                 data.body.shape = 'none';
                 element.setAttribute('body', data.body || 'shape:none');
@@ -179,10 +194,9 @@ class ElementFactory {
                 element.classList.add('candle');
                 element.setAttribute('radius', data.radius || 0.2);
                 element.setAttribute('height', data.height || 1.5);
-                element.setAttribute('color', data.color || '#FFFCCB');
-
-                //element.setAttribute('position', data.position || '0 0.75 -5');
-                //element.setAttribute('minY', data.minY || '0.75');
+                element.setAttribute('color', '#FFFCCB');
+                // Não define position aqui, será definido no final da função
+                element.setAttribute('minY', data.minY || '0.75');
 
                 const flame = document.createElement('a-plane');
                 flame.setAttribute('width', '0.4');
@@ -196,7 +210,7 @@ class ElementFactory {
 
             case 'cylinder':
                 element = document.createElement('a-cylinder');
-                element.setAttribute('radius', data.radius || 0.5);
+                element.setAttribute('radius', data.radius || 0.4);
                 element.setAttribute('height', data.height || 1);
                 break;
 
@@ -210,12 +224,12 @@ class ElementFactory {
                 break;
             case 'seesaw':
                 element = document.createElement('a-entity');
-                element.setAttribute('position', data.position || '0 0.1 5');
+                // Não define position aqui, será definido no final da função
 
                 if (!data.body) data.body = {};
                 data.body.shape = 'none';
                 element.setAttribute('body', 'type:static;mass:50;shape:none');
-                element.setAttribute('minY', '0.15');
+
                 const base = document.createElement('a-box');
                 base.setAttribute('id', "seesaw-base");
                 base.setAttribute('position', '0 0 0');
@@ -236,7 +250,7 @@ class ElementFactory {
 
 
                 const plank = document.createElement('a-box');
-                plank.setAttribute('width', data.dimensions?.width || 3);
+                plank.setAttribute('width', data.dimensions?.width || 4);
                 plank.setAttribute('height', data.dimensions?.height || 0.1);
                 plank.setAttribute('depth', data.dimensions?.depth || 0.5);
 
@@ -261,12 +275,86 @@ class ElementFactory {
                 return null;
         }
 
+        if (data.isTarget) {
+            element.classList.add('target-element');
+            element.setAttribute('material', {
+                emissive: '#00ff00',
+                emissiveIntensity: 0.0
+            });
+            element.setAttribute('animation', {
+                property: 'material.emissiveIntensity',
+                to: 0.8,
+                dur: 1000,
+                dir: 'alternate',
+                loop: true
+            });
+
+
+
+        }
+
         // Propriedades básicas
         element.setAttribute('id', data.id);
-        element.setAttribute('position', data.position);
+
+        // Converte position para string se for objeto, ou usa valor padrão
+        if (data.position) {
+            if (typeof data.position === 'object' && data.position !== null) {
+                const x = parseFloat(data.position.x) || 0;
+                const y = parseFloat(data.position.y) || 0;
+                const z = parseFloat(data.position.z) || 0;
+
+                // Valida se há valores NaN
+                if (isNaN(x) || isNaN(y) || isNaN(z)) {
+                    console.warn(`⚠️ Invalid position values for ${data.id}, using default:`, data.position);
+                    element.setAttribute('position', '0 0 0');
+                } else {
+                    element.setAttribute('position', `${x} ${y} ${z}`);
+                }
+            } else {
+                element.setAttribute('position', data.position);
+            }
+        } else {
+            // Valor padrão se position não foi fornecido
+            element.setAttribute('position', '0 0 0');
+        }
+
         // Rotação (se existir)
         if (data.rotation) {
-            element.setAttribute('rotation', data.rotation);
+            // Converte rotation para string se for objeto
+            if (typeof data.rotation === 'object' && data.rotation !== null) {
+                const x = parseFloat(data.rotation.x) || 0;
+                const y = parseFloat(data.rotation.y) || 0;
+                const z = parseFloat(data.rotation.z) || 0;
+
+                // Valida se há valores NaN
+                if (isNaN(x) || isNaN(y) || isNaN(z)) {
+                    console.warn(`⚠️ Invalid rotation values for ${data.id}, using default:`, data.rotation);
+                    element.setAttribute('rotation', '0 0 0');
+                } else {
+                    element.setAttribute('rotation', `${x} ${y} ${z}`);
+                }
+            } else {
+                element.setAttribute('rotation', data.rotation);
+            }
+        }
+
+        // Scale (se existir)
+        if (data.scale) {
+            if (typeof data.scale === 'object' && data.scale !== null) {
+                const x = parseFloat(data.scale.x) || 1;
+                const y = parseFloat(data.scale.y) || 1;
+                const z = parseFloat(data.scale.z) || 1;
+
+                // Valida se há valores NaN
+                if (isNaN(x) || isNaN(y) || isNaN(z)) {
+                    console.warn(`⚠️ Invalid scale values for ${data.id}, using default:`, data.scale);
+                    element.setAttribute('scale', '1 1 1');
+                } else {
+                    element.setAttribute('scale', `${x} ${y} ${z}`);
+                }
+            } else {
+                element.setAttribute('scale', data.scale);
+            }
         }
 
         // Eixo de rotação customizado
@@ -303,20 +391,7 @@ class ElementFactory {
             });
         }
 
-        if (data.isTarget) {
-            element.classList.add('target-element');
-            element.setAttribute('material', {
-                emissive: '#00ff00',
-                emissiveIntensity: 0.5
-            });
-            element.setAttribute('animation', {
-                property: 'material.emissiveIntensity',
-                to: 0.8,
-                dur: 1000,
-                dir: 'alternate',
-                loop: true
-            });
-        }
+
 
 
 
@@ -355,7 +430,7 @@ class ElementFactory {
         const bodyConfig = {
             type: data.body.type || 'dynamic',
             mass: element.dataset.physicsMass || data.body.mass || 1,
-            sphereRadius: element.dataset.physicsSphereRadius || data.body.sphereRadius || 0.5,
+            sphereRadius: element.dataset.physicsSphereRadius || data.body.sphereRadius || data.radius || 0.4,
             cylinderAxis: element.dataset.physicsCylinderAxis || data.body.cylinderAxis || 'z',
             restitution: parseFloat(element.dataset.physicsRestitution) || data.body.restitution || 0.3,
             friction: parseFloat(element.dataset.physicsFriction) || data.body.friction || 0.5,
@@ -391,7 +466,7 @@ class ElementFactory {
         if (bodyType === 'static') {
             element.setAttribute('static-body', bodyConfig);
             console.log(`🎮 Static physics applied to ${data.id}:`, bodyConfig);
-        } else {
+        } else if (bodyType === 'dynamic') {
             element.setAttribute('dynamic-body', bodyConfig);
             console.log(`🎮 Dynamic physics applied to ${data.id}:`, bodyConfig);
         }

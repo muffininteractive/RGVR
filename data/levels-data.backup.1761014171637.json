@@ -2220,7 +2220,7 @@
           "type": "cannon",
           "modelUrl": "../assets/models/cannon.glb",
           "position": {
-            "x": 0,
+            "x": -8,
             "y": 0,
             "z": -5
           },
@@ -2246,7 +2246,7 @@
           "id": "candle",
           "type": "candle",
           "position": {
-            "x": 0,
+            "x": 4,
             "y": 0.75,
             "z": -5
           },
@@ -2287,7 +2287,7 @@
           "id": "ramp-1",
           "type": "ramp",
           "position": {
-            "x": -8,
+            "x": -1,
             "y": 0.15,
             "z": -5
           },

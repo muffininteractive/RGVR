@@ -222,7 +222,11 @@ AFRAME.registerComponent('movable-element', {
 
         this.moveOnlyXY = true;
 
-        this.showGrabFeedback();
+        this.hideHoverFeedback();
+        if (this.rotateAxis) {
+            this.showGrabFeedback();
+        }
+
 
         this.el.removeAttribute('animation');
         this.el.removeAttribute('animation__position');
@@ -336,7 +340,10 @@ AFRAME.registerComponent('movable-element', {
         this.moveOnlyXY = true;
 
         // Feedback visual
-        this.showGrabFeedback();
+        this.hideHoverFeedback();
+        if (this.rotateAxis) {
+            this.showGrabFeedback();
+        }
 
         // Remove animações pré-existentes (principalmente VR)
         this.el.removeAttribute('animation');
@@ -455,19 +462,15 @@ AFRAME.registerComponent('movable-element', {
     // FEEDBACK VISUAL
     // ============================================================
 
-    /**
-     * Mostra feedback ao capturar (cone bouncing + scale)
-     */
+
     showGrabFeedback: function () {
-        this.createBouncingCone();
+        this.createRollFeedback();
         this.el.setAttribute('animation', 'property: scale; to: 1.1 1.1 1.1; dur: 200; easing: easeOutQuad');
     },
 
-    /**
-     * Mostra feedback ao fazer hover (cone bouncing + scale)
-     */
+
     showHoverFeedback: function () {
-        this.createBouncingCone();
+        this.createGrabFeedback();
         this.el.setAttribute('animation', 'property: scale; to: 1.1 1.1 1.1; dur: 200; easing: easeOutQuad');
     },
 
@@ -475,7 +478,7 @@ AFRAME.registerComponent('movable-element', {
      * Esconde feedback ao liberar
      */
     hideGrabFeedback: function () {
-        this.removeBouncingCone();
+        this.removeRollFeedback();
         this.el.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad');
     },
 
@@ -483,29 +486,27 @@ AFRAME.registerComponent('movable-element', {
      * Esconde feedback ao finalizar hover
      */
     hideHoverFeedback: function () {
-        this.removeBouncingCone();
+        this.removeGrabFeedback();
         this.el.setAttribute('animation', 'property: scale; to: 1 1 1; dur: 200; easing: easeOutQuad');
     },
 
-    /**
-     * Cria o cone verde bouncing
-     */
-    createBouncingCone: function () {
+
+    createGrabFeedback: function () {
         // Remove se existir
-        this.removeBouncingCone();
+        this.removeGrabFeedback();
 
         // Evita duplicidade: só cria se não existir
-        if (this.el.querySelector('.feedback-plane')) return;
+        if (this.el.querySelector('.grab-img')) return;
 
         const plane = document.createElement('a-image');
         plane.setAttribute('width', '1');
         plane.setAttribute('height', '1');
         plane.setAttribute('rotation', '0 0 0');
         plane.setAttribute('position', '0 1.5 0.5');
-        plane.classList.add('feedback-plane');
+        plane.classList.add('grab-img');
 
         // Adiciona textura (sprite.png)
-        plane.setAttribute('src', '#feedbackTexture');
+        plane.setAttribute('src', '#grabTex');
         //plane.setAttribute('transparent', 'true');
         //plane.setAttribute('material', 'side: double; transparent: true; alphaTest: 0.01;');
 
@@ -516,26 +517,52 @@ AFRAME.registerComponent('movable-element', {
 
         // Cria asset se não existir
         const sceneEl = this.el.sceneEl;
-        if (sceneEl && !sceneEl.querySelector('#feedbackTexture')) {
-            let assets = sceneEl.querySelector('a-assets');
-            if (!assets) {
-                assets = document.createElement('a-assets');
-                sceneEl.appendChild(assets);
-            }
-            const img = document.createElement('img');
-            img.setAttribute('id', 'feedbackTexture');
-            img.setAttribute('src', '../assets/imgs/grab.png');
-            assets.appendChild(img);
-        }
 
         this.el.appendChild(plane);
     },
+    removeGrabFeedback: function () {
+        const plane = this.el.querySelector('.grab-img');
+        if (plane && plane.parentNode === this.el) {
+            this.el.removeChild(plane);
+        }
+    },
 
-    /**
-     * Remove o cone de feedback
-     */
-    removeBouncingCone: function () {
-        const plane = this.el.querySelector('.feedback-plane');
+    createRollFeedback: function () {
+        // Remove se existir
+        this.removeRollFeedback();
+
+        // Evita duplicidade: só cria se não existir
+        if (this.el.querySelector('.roll-img')) return;
+
+        const plane = document.createElement('a-image');
+        plane.setAttribute('width', '1');
+        plane.setAttribute('height', '1');
+        plane.setAttribute('rotation', '0 0 0');
+        plane.setAttribute('position', '0 1.5 0.5');
+        plane.classList.add('grab-img');
+
+        // Adiciona textura (sprite.png)
+        if (this.inputSource === 'vr') {
+            plane.setAttribute('src', '#rollTex');
+        } else {
+            plane.setAttribute('src', '#scrollTex');
+        }
+
+        //plane.setAttribute('transparent', 'true');
+        //plane.setAttribute('material', 'side: double; transparent: true; alphaTest: 0.01;');
+
+        //plane.setAttribute('shadow', 'cast: false; receive: false');
+        // Torna o plano não interativo para não bloquear eventos
+        plane.setAttribute('pointer-events', 'none');
+        plane.style.pointerEvents = 'none';
+
+        // Cria asset se não existir
+        const sceneEl = this.el.sceneEl;
+
+        this.el.appendChild(plane);
+    },
+    removeRollFeedback: function () {
+        const plane = this.el.querySelector('.roll-img');
         if (plane && plane.parentNode === this.el) {
             this.el.removeChild(plane);
         }

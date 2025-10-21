@@ -17,14 +17,18 @@ AFRAME.registerComponent('level-manager', {
         this.levelId = this.data.levelId;
         this.loadLevelData();
 
-        // Aplica as configurações globais de mundo do PhysicsConfig na cena
-        // this.applyWorldPhysicsConfig();
+        // Timer vars
+        this.timerInterval = null;
+        this.startTime = null;
+        this.elapsedTime = 0;
+
+        // Timer: inicia ao carregar a fase
+        this.startTimer();
 
         // Event listeners
         document.addEventListener('level-play', this.startPhysics.bind(this));
         document.addEventListener('level-restart', this.restartLevel.bind(this));
         document.addEventListener('level-objective-reached', this.onObjectiveReached.bind(this));
-
     },
 
 
@@ -91,21 +95,19 @@ AFRAME.registerComponent('level-manager', {
         levelState.physicsEnabled = true;
         levelState.attemptCount++;
 
+        // Timer já inicia ao carregar a fase
+
         // Aplicar configuração de física para cada elemento do nível
         if (levelState.levelData && levelState.levelData.elements) {
             levelState.levelData.elements.forEach(data => {
                 const element = document.querySelector(`#${data.id}`);
-
                 ElementFactory.applyPhysicsToElement(element, data, applyPhysicsMaterial);
-
             });
         }
 
         // Remove possibilidade de mover objetos
         levelState.movableObjects.forEach(obj => {
             obj.removeAttribute('movable-element');
-
-
         });
 
         // Desabilita botão Play
@@ -137,10 +139,14 @@ AFRAME.registerComponent('level-manager', {
         levelState.objectiveReached = true;
         console.log('🎉 OBJETIVO ATINGIDO!');
 
+        // Timer: para
+        this.stopTimer();
+
         // Emite evento de vitória
         this.el.sceneEl.emit('level-complete', {
             levelId: this.levelId,
-            attempts: levelState.attemptCount
+            attempts: levelState.attemptCount,
+            time: this.elapsedTime
         });
 
         // Mostra UI de vitória
@@ -163,21 +169,93 @@ AFRAME.registerComponent('level-manager', {
             });
         }
 
-        // Update stats
+        // Update stats (Attempts)
         const statsText = document.querySelector('#victory-stats');
         if (statsText) {
             statsText.setAttribute('value', `Attempts: ${levelState.attemptCount}`);
         }
+
+        // Show time and record
+        const victoryTime = document.querySelector('#victory-time');
+        if (victoryTime) {
+            // Busca recorde salvo
+            let times = JSON.parse(localStorage.getItem('rgvr-level-times') || '{}');
+            const levelKey = String(this.levelId);
+            const last = times[levelKey]?.last ?? this.elapsedTime;
+            const record = times[levelKey]?.record ?? this.elapsedTime;
+            victoryTime.setAttribute('value', `Time: ${this.formatTime(last)}   Best: ${this.formatTime(record)}`);
+        }
+    },
+
+    // TIMER LOGIC
+    startTimer: function () {
+        this.startTime = performance.now();
+        this.elapsedTime = 0;
+        this.updateTimerText(0);
+        if (this.timerInterval) clearInterval(this.timerInterval);
+        this.timerInterval = setInterval(() => {
+            const now = performance.now();
+            this.elapsedTime = (now - this.startTime) / 1000;
+            this.updateTimerText(this.elapsedTime);
+        }, 100);
+    },
+
+    stopTimer: function () {
+        if (this.timerInterval) {
+            clearInterval(this.timerInterval);
+            this.timerInterval = null;
+        }
+        // Atualiza uma última vez
+        this.updateTimerText(this.elapsedTime);
+    },
+
+    updateTimerText: function (seconds) {
+        const timerText = document.querySelector('#timer-text');
+        if (timerText) {
+            timerText.setAttribute('value', this.formatTime(seconds));
+        }
+    },
+
+    formatTime: function (seconds) {
+        const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+        const ss = String(Math.floor(seconds % 60)).padStart(2, '0');
+        const ds = String(Math.floor((seconds % 1) * 10));
+        return `${mm}:${ss}.${ds}`;
     },
 
     saveProgress: function () {
         try {
+            // Salva progresso antigo (mantém para compatibilidade)
             const completedLevels = JSON.parse(localStorage.getItem('rgvr-completed-levels') || '[]');
-
             if (!completedLevels.includes(this.levelId)) {
                 completedLevels.push(this.levelId);
                 localStorage.setItem('rgvr-completed-levels', JSON.stringify(completedLevels));
                 console.log('💾 Progress saved');
+            }
+
+            // Salva tempo e recorde por fase
+            let times = JSON.parse(localStorage.getItem('rgvr-level-times') || '{}');
+            const levelKey = String(this.levelId);
+            const lastTime = this.elapsedTime;
+            const prevRecord = times[levelKey]?.record ?? null;
+            let newRecord = prevRecord;
+            if (prevRecord === null || lastTime < prevRecord) {
+                newRecord = lastTime;
+            }
+            times[levelKey] = {
+                last: lastTime,
+                record: newRecord
+            };
+            localStorage.setItem('rgvr-level-times', JSON.stringify(times));
+            console.log(`⏱️ Tempo salvo: ${this.formatTime(lastTime)} | Recorde: ${this.formatTime(newRecord)}`);
+
+            // NOVO: libera próxima fase em rgvr-level-progress
+            let progress = JSON.parse(localStorage.getItem('rgvr-level-progress') || '{}');
+            const nextLevelId = this.levelId + 1;
+            if (progress[nextLevelId]) {
+                progress[nextLevelId].Available = true;
+                localStorage.setItem('rgvr-level-progress', JSON.stringify(progress));
+                console.log('🔓 Próxima fase liberada:', nextLevelId);
             }
         } catch (error) {
             console.error('❌ Error saving progress:', error);

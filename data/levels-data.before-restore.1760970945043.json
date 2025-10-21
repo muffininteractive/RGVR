@@ -7,35 +7,10 @@
       "objective": "Make the ball roll down the ramp and hit the target",
       "description": "Learn the basics: position the ramp correctly to guide the ball to the target",
       "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "preset": "forest",
+        "groundColor": "#2a4a2a",
+        "dressingColor": "#4a8a4a",
+        "dressingAmount": 30
       },
       "elements": [
         {
@@ -109,35 +84,10 @@
       "objective": "Use two ramps to create a path to the target",
       "description": "Connect two ramps to guide the ball on a longer course",
       "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "preset": "egypt",
+        "groundColor": "#d4a574",
+        "dressingColor": "#aa7744",
+        "dressingAmount": 20
       },
       "elements": [
         {
@@ -358,35 +308,10 @@
         }
       ],
       "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "preset": "checkerboard",
+        "groundColor": "#333366",
+        "gridColor": "#6666aa",
+        "dressingAmount": 50
       }
     },
     {
@@ -1969,11 +1894,7 @@
           "movable": true,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "domino-1",
@@ -2260,10 +2181,8 @@
             "type": "dynamic",
             "shape": "none"
           },
-          "minX": null,
           "minY": 0,
-          "maxX": 3,
-          "maxY": null
+          "maxX": 3
         },
         {
           "id": "candle",
@@ -2286,9 +2205,7 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          },
-          "minX": null,
-          "maxY": null
+          }
         },
         {
           "id": "start-ball",
@@ -2305,11 +2222,7 @@
           "body": {
             "type": "dynamic",
             "mass": 2.5
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "ramp-1",
@@ -2334,10 +2247,8 @@
           "body": {
             "type": "static"
           },
-          "minX": null,
           "minY": 0.2,
           "maxX": 4,
-          "maxY": null,
           "rotateAxis": "z"
         },
         {
@@ -2363,11 +2274,7 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "topWall",
@@ -2391,11 +2298,7 @@
           "movable": false,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "rightWall",
@@ -2419,11 +2322,7 @@
           "movable": false,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "bottomWall",
@@ -2447,11 +2346,7 @@
           "movable": false,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         },
         {
           "id": "leftWall",
@@ -2475,43 +2370,14 @@
           "movable": false,
           "body": {
             "type": "static"
-          },
-          "minX": null,
-          "minY": null,
-          "maxX": null,
-          "maxY": null
+          }
         }
       ],
       "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "preset": "arches",
+        "groundColor": "#8a6a4a",
+        "dressingColor": "#cc9966",
+        "dressingAmount": 5
       }
     },
     {
@@ -2526,24 +2392,13 @@
           "type": "seesaw",
           "position": {
             "x": 0,
-            "y": 0.1,
+            "y": 0.05,
             "z": -5
-          },
-          "rotation": {
-            "x": null,
-            "y": null,
-            "z": null
-          },
-          "dimensions": {
-            "width": null,
-            "height": null,
-            "depth": null
           },
           "color": "#ffffff",
           "movable": true,
           "body": {
-            "type": "static",
-            "mass": 30
+            "type": "static"
           }
         },
         {
@@ -2553,16 +2408,6 @@
             "x": -1.5,
             "y": 3,
             "z": -5
-          },
-          "rotation": {
-            "x": null,
-            "y": null,
-            "z": null
-          },
-          "dimensions": {
-            "width": null,
-            "height": null,
-            "depth": null
           },
           "color": "#bb00ff",
           "movable": true,
@@ -2581,11 +2426,6 @@
             "y": 2,
             "z": -5
           },
-          "rotation": {
-            "x": null,
-            "y": null,
-            "z": null
-          },
           "dimensions": {
             "width": 1,
             "height": 1,
@@ -2597,40 +2437,15 @@
             "type": "dynamic",
             "mass": 1
           },
-          "minY": -0.5,
-          "radius": 0.27
+          "radius": 0.27,
+          "rotateAxis": "z"
         }
       ],
       "environment": {
-        "preset": "starry",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "#ff9d14",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "flat",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#ceaea1",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "preset": "arches",
+        "groundColor": "#8a6a4a",
+        "dressingColor": "#cc9966",
+        "dressingAmount": 5
       }
     }
   ]

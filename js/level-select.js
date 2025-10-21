@@ -79,19 +79,13 @@ AFRAME.registerComponent('level-selector', {
         levelSelectState.hoveredLevel = this.levelId;
 
         // Efeito visual de hover
-        // Remove possíveis animações antigas antes de aplicar novas
-        // Aplica escala de hover diretamente
         this.setCrystalScale(this.hoverScale);
-
         this.crystal.setAttribute('animation__glow', {
             property: 'material.emissiveIntensity',
             to: 0.5,
             dur: 300
         });
-
-        // Atualiza interface VR
         LevelSelectManager.updateLevelInfoVR(this.levelId);
-
         console.log(`Hovering over level: ${this.levelId}`);
     },
 
@@ -102,13 +96,14 @@ AFRAME.registerComponent('level-selector', {
         levelSelectState.hoveredLevel = null;
 
         // Remove efeito visual
-        // Remove animações se existirem
         this.crystal.removeAttribute('animation__hover');
         this.crystal.removeAttribute('animation__glow');
         // Restaura escala padrão
         this.setCrystalScale(this.normalScale, 180);
-        // Restaura emissiveIntensity
-        this.crystal.setAttribute('material', `metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: ${this.originalColor}; emissiveIntensity: ${this.originalEmissiveIntensity}`);
+        // Restaura emissiveIntensity e opacidade conforme Available
+        const level = levelSelectState.levelData?.[this.levelId];
+        const opacity = (level && !level.Available) ? 0.25 : 0.8;
+        this.crystal.setAttribute('material', `metalness: 0.3; roughness: 0.1; transparent: true; opacity: ${opacity}; emissive: ${this.originalColor}; emissiveIntensity: ${this.originalEmissiveIntensity}`);
 
         // Limpa interface se não há nível selecionado
         if (!levelSelectState.selectedLevel) {
@@ -117,6 +112,9 @@ AFRAME.registerComponent('level-selector', {
     },
 
     onSelect: function () {
+        // Impede seleção se não está disponível
+        const level = levelSelectState.levelData?.[this.levelId];
+        if (level && !level.Available) return;
         console.log(`Selected level: ${this.levelId}`);
 
         // Deseleciona outros níveis
@@ -234,31 +232,46 @@ class LevelSelectManager {
     }
 
     static async loadLevelData() {
+        // Inicializa ou carrega progresso salvo
+        let progress = JSON.parse(localStorage.getItem('rgvr-level-progress') || '{}');
+        let data;
         try {
             const response = await fetch('../data/levels-data.json');
-            const data = await response.json();
-
-            // Converte array de níveis em objeto indexado por ID
-            levelSelectState.levelData = {};
-            data.levels.forEach(level => {
-                levelSelectState.levelData[level.id] = level;
-            });
-
-            console.log('✅ Dados de 12 níveis carregados:', levelSelectState.levelData);
+            data = await response.json();
         } catch (error) {
             console.error('❌ Erro ao carregar dados dos níveis:', error);
-            // Dados de fallback básicos
-            levelSelectState.levelData = {};
+            // fallback
+            data = { levels: [] };
             for (let i = 1; i <= 12; i++) {
-                levelSelectState.levelData[i] = {
+                data.levels.push({
                     id: i,
                     name: `level ${i}`,
                     difficulty: i <= 3 ? 'easy' : i <= 6 ? 'medium' : i <= 9 ? 'hard' : 'expert',
                     objective: 'Complete o desafio',
                     description: 'Descrição do nível'
-                };
+                });
             }
         }
+
+        // Inicializa levelData e progresso
+        levelSelectState.levelData = {};
+        data.levels.forEach(level => {
+            // Garante que o campo active exista
+            if (level.active === undefined) level.active = true;
+            // Inicializa Available e tentativas
+            if (!progress[level.id]) {
+                progress[level.id] = {
+                    Available: level.id === 1, // Só a fase 1 liberada
+                    tentativas: 0
+                };
+            }
+            level.Available = progress[level.id].Available;
+            level.tentativas = progress[level.id].tentativas;
+            levelSelectState.levelData[level.id] = level;
+        });
+        // Salva progresso atualizado
+        localStorage.setItem('rgvr-level-progress', JSON.stringify(progress));
+        console.log('✅ Dados de níveis carregados:', levelSelectState.levelData);
     }
 
     static setupEventListeners() {
@@ -287,7 +300,6 @@ class LevelSelectManager {
         this.navSoundEl = document.getElementById('navSound');
         this._audioCtx = null;
 
-
         if (!this.carouselEl) {
             console.warn('⚠️ Elemento do carrossel #level-crystals não encontrado.');
             return;
@@ -295,9 +307,10 @@ class LevelSelectManager {
 
         // Estado interno
         this._isRotating = false;
-        // Define passo de rotação baseado na quantidade de níveis
-        const levelCount = Object.keys(levelSelectState.levelData || {}).length || 12;
-        this._stepDeg = 360 / levelCount;
+        // Define passo de rotação baseado na quantidade de cristais ativos
+        const levels = levelSelectState.levelData || {};
+        const activeLevelCount = Object.values(levels).filter(l => l.active).length || 1;
+        this._stepDeg = 360 / activeLevelCount;
 
         // Clique nos triângulos (setas)
         if (this.rotateBtn) {
@@ -429,19 +442,23 @@ class LevelSelectManager {
         const levels = levelSelectState.levelData;
         if (!levels) return;
 
-        const levelIds = Object.keys(levels).map(id => parseInt(id, 10)).sort((a, b) => a - b);
+        // Filtra apenas níveis ativos
+        const activeLevelIds = Object.keys(levels)
+            .map(id => parseInt(id, 10))
+            .filter(id => levels[id].active)
+            .sort((a, b) => a - b);
+
         const radius = 8; // Raio do círculo
         const baseY = 2.5;
 
-        levelIds.forEach((id, index) => {
+        activeLevelIds.forEach((id, index) => {
             const level = levels[id];
-            const angleDeg = (index / levelIds.length) * 360; // Distribuição uniforme
+            const angleDeg = (index / activeLevelIds.length) * 360;
             const angleRad = angleDeg * Math.PI / 180;
             const x = radius * Math.sin(angleRad);
-            const z = -radius * Math.cos(angleRad); // negativo para manter orientação inicial
+            const z = -radius * Math.cos(angleRad);
             const y = baseY;
 
-            // Mapeia dificuldade para propriedades visuais
             const diffProps = this._getDifficultyProps(level.difficulty, id);
 
             const levelEntity = document.createElement('a-entity');
@@ -455,22 +472,28 @@ class LevelSelectManager {
             crystal.setAttribute('radius', diffProps.radius);
             crystal.setAttribute('color', diffProps.color);
             crystal.setAttribute('shadow', 'cast: true');
-            crystal.setAttribute('material', `metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: ${diffProps.color}; emissiveIntensity: 0`);
+            // Se não está disponível, baixa opacidade e remove classe interactive
+            if (!level.Available) {
+                crystal.setAttribute('material', `metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.25; emissive: ${diffProps.color}; emissiveIntensity: 0`);
+                crystal.classList.add('level-crystal');
+                // Remove interação de clique
+                levelEntity.classList.remove('interactive');
+                // Adiciona apenas hover visual (handled pelo level-selector)
+            } else {
+                crystal.setAttribute('material', `metalness: 0.3; roughness: 0.1; transparent: true; opacity: 0.8; emissive: ${diffProps.color}; emissiveIntensity: 0`);
+                crystal.classList.add('level-crystal', 'interactive');
+                levelEntity.classList.add('interactive');
+            }
             crystal.setAttribute('animation', diffProps.animation);
-            crystal.classList.add('level-crystal', 'interactive');
             levelEntity.appendChild(crystal);
 
-            // Texto
+            // Texto sequencial
             const label = document.createElement('a-text');
-            label.setAttribute('value', id);
+            label.setAttribute('value', (index + 1));
             label.setAttribute('position', '0 1 0');
             label.setAttribute('align', 'center');
             label.setAttribute('color', diffProps.color);
             label.setAttribute('width', 4);
-            // Rotaciona label para olhar para o centro (0, *, 0)
-            // Como o nível está em (x, y, z), o ângulo para o centro é o ângulo atual + 180° no eixo Y
-            // Cálculo correto: cristal em ângulo angleDeg (0° está em z negativo). Para o texto olhar para (0,0,0), yaw deve ser -angleDeg.
-            // Ajuste fino: normaliza para intervalo 0..360 para evitar valores negativos.
             let faceCenterYaw = (-angleDeg) % 360;
             if (faceCenterYaw < 0) faceCenterYaw += 360;
             label.setAttribute('rotation', `0 ${faceCenterYaw} 0`);
@@ -552,8 +575,28 @@ class LevelSelectManager {
                     'hard': 'Hard',
                     'expert': 'Expert'
                 }[level.difficulty] || level.difficulty;
+                const tentativas = level.tentativas || 0;
 
-                levelStats.setAttribute('value', `${difficultyLabel}`);
+                // Busca tempos salvos
+                let times = {};
+                try {
+                    times = JSON.parse(localStorage.getItem('rgvr-level-times') || '{}');
+                } catch { }
+                const levelKey = String(levelId);
+                const last = times[levelKey]?.last ?? null;
+                const record = times[levelKey]?.record ?? null;
+                const formatTime = (seconds) => {
+                    if (seconds == null) return '--:--';
+                    const mm = String(Math.floor(seconds / 60)).padStart(2, '0');
+                    const ss = String(Math.floor(seconds % 60)).padStart(2, '0');
+                    const ds = String(Math.floor((seconds % 1) * 10));
+                    return `${mm}:${ss}.${ds}`;
+                };
+                let timeText = '';
+                if (record != null || last != null) {
+                    timeText = `Best: ${formatTime(record)} | Last: ${formatTime(last)}`;
+                }
+                levelStats.setAttribute('value', `${difficultyLabel} | Attempts: ${tentativas}${timeText ? ' | ' + timeText : ''}`);
             }
         }
     }
@@ -586,9 +629,19 @@ class LevelSelectManager {
 
     static startLevel(levelId) {
         console.log(`Starting level: ${levelId}`);
-
-        // Navega para a página dinâmica do nível com query parameter
-        window.location.href = `level.html?id=${levelId}`;
+        // Verifica Available e incrementa tentativas
+        let progress = JSON.parse(localStorage.getItem('rgvr-level-progress') || '{}');
+        if (progress[levelId] && progress[levelId].Available) {
+            // Incrementa tentativas
+            progress[levelId].tentativas = (progress[levelId].tentativas || 0) + 1;
+            localStorage.setItem('rgvr-level-progress', JSON.stringify(progress));
+            // Navega para a página dinâmica do nível com query parameter
+            window.location.href = `level.html?id=${levelId}`;
+        } else {
+            // Não liberado, volta para seleção
+            alert('Esta fase ainda não está liberada!');
+            window.location.href = 'level-select.html';
+        }
     }
 
     // Efeito de partículas para celebração

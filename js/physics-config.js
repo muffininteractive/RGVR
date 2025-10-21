@@ -69,7 +69,8 @@ export const PhysicsConfig = {
             restitution: 5, // Quique médio
             friction: 0.3,
             contactEquationStiffness: 1e8,
-            contactEquationRelaxation: 8
+            contactEquationRelaxation: 8,
+            material: 'rubber'
         },
         cube: {
             mass: 2, // Mais pesado
@@ -119,10 +120,10 @@ export const PhysicsConfig = {
         },
         platform: {
             mass: 0, // Estático
-            friction: 5,
-            restitution: 0,
-            linearDamping: 1,
-            angularDamping: 1,
+            restitution: 0.3, // Menos quique
+            friction: 0.8, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
         },
         model: {
             mass: 10,

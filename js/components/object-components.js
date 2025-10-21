@@ -57,7 +57,7 @@ AFRAME.registerComponent('cannon-activator', {
         const ps = document.createElement('a-entity');
         ps.setAttribute('position', `${cannonPos.x - 0.8} ${cannonPos.y + 1.4} ${cannonPos.z}`);
         // config compacto de particle-system: rajada curta, cores quentes
-        const psAttr = `particleCount: 10; color: #ffcc00,#ff8800; size: 0.32; maxAge: 0.01; velocity: 0 1 0; spread: 1 1 1; acceleration: 0 1 0; duration: 1.8;`;
+        const psAttr = `type: 3;particleCount: 30; color: #ffcc00,#ff8800; size: 0.2;sizeSpread:0.9; maxAge: 0.05; velocityValue: 1 1 0; accelerationValue: -0.5 -0.5 0; opacitySpread: 0.5; duration: 2;`;
         ps.setAttribute('particle-system', psAttr);
         scene.appendChild(ps);
 
