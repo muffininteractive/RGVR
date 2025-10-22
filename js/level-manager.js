@@ -101,13 +101,14 @@ AFRAME.registerComponent('level-manager', {
         if (levelState.levelData && levelState.levelData.elements) {
             levelState.levelData.elements.forEach(data => {
                 const element = document.querySelector(`#${data.id}`);
-                ElementFactory.applyPhysicsToElement(element, data, applyPhysicsMaterial);
+                ElementFactory.startDynamicBodyApplication(element, data);
+
             });
         }
 
         // Remove possibilidade de mover objetos
         levelState.movableObjects.forEach(obj => {
-            obj.removeAttribute('movable-element');
+            //obj.removeAttribute('movable-element');
         });
 
         // Desabilita botão Play
@@ -278,10 +279,9 @@ AFRAME.registerComponent('target-detector', {
         const collidedWith = evt.detail.body.el;
 
         // Check if collided with start element or other relevant elements
-        if (collidedWith && (
-            collidedWith.classList.contains('start-element') ||
-            collidedWith.hasAttribute('dynamic-body')
-        )) {
+        if (collidedWith &&
+            collidedWith.hasAttribute('can-finish')
+        ) {
             this.collisionCount++;
             console.log(`🎯 Collision detected on target! (${this.collisionCount}x)`);
 

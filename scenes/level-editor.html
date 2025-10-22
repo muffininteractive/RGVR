@@ -719,6 +719,18 @@
                     <span id="colorValue"></span>
                   </div>
                 </div>
+                <div class="field">
+                  <label class="label">Textura do Objeto</label>
+                  <div class="control">
+                    <input
+                      class="input"
+                      type="text"
+                      id="objTexture"
+                      onchange="updateElementField('objTexture', this.value)"
+                      placeholder="ID da textura ou URL"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div class="form-section">
@@ -750,6 +762,14 @@
                     <label class="checkbox">
                       <input type="checkbox" id="isTarget" onchange="updateElementField('isTarget', this.checked)" />
                       É Alvo
+                    </label>
+                  </div>
+                </div>
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input type="checkbox" id="canFinish" onchange="updateElementField('canFinish', this.checked)" />
+                      Pode Concluir Fase
                     </label>
                   </div>
                 </div>

@@ -14,8 +14,8 @@ export const PhysicsConfig = {
     // Materiais físicos pré-definidos
     materials: {
         rubber: {
-            friction: 0.9,
-            restitution: 0.9,
+            restitution: 1, // Menos quique
+            friction: 1.2, // Mais fricção (estável)
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3
         },
@@ -34,10 +34,10 @@ export const PhysicsConfig = {
             contactEquationStiffness: 1e9,
             contactEquationRelaxation: 3,
             linearDamping: 0.01,
-            angularDamping: 0.01
+            angularDamping: 0.01,
         },
         wood: {
-            friction: 0.6,
+            friction: 0.1,
             restitution: 0.4,
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3
@@ -55,21 +55,27 @@ export const PhysicsConfig = {
             contactEquationRelaxation: 3
         },
         brick: {
-            restitution: 0.9,
-            friction: 0.9,
-            linearDamping: 0.1,
-            angularDamping: 0.1,
+            friction: 0.6,
+            restitution: 0.4,
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 3
+        },
+        wax: {
+            friction: 0.4,
+            restitution: 0.2,
+            contactEquationStiffness: 1e8,
+            contactEquationRelaxation: 3
         }
     },
 
     // Configurações específicas por tipo de objeto
     objects: {
         sphere: {
-            mass: .5,
-            restitution: 5, // Quique médio
-            friction: 0.3,
-            contactEquationStiffness: 1e8,
-            contactEquationRelaxation: 8,
+            mass: 1,
+            restitution: 1, // Menos quique
+            friction: 1.2, // Mais fricção (estável)
+            linearDamping: 0.05,
+            angularDamping: 0.05,
             material: 'rubber'
         },
         cube: {
@@ -105,16 +111,14 @@ export const PhysicsConfig = {
             material: 'rubber'
         },
         domino: {
-            mass: 2, // Mais pesado
-            restitution: 0.3, // Menos quique
-            friction: 0.8, // Mais fricção (estável)
+            mass: 5, // Mais pesado
             linearDamping: 0.05,
             angularDamping: 0.05,
             material: 'wood' // Comportamento de madeira
         },
         ramp: {
             mass: 0, // Estático
-            friction: 0.2,
+            friction: 1,
             restitution: 1,
             material: 'wood'
         },
@@ -124,6 +128,7 @@ export const PhysicsConfig = {
             friction: 0.8, // Mais fricção (estável)
             linearDamping: 0.05,
             angularDamping: 0.05,
+            material: 'amortecido'
         },
         model: {
             mass: 10,
@@ -131,16 +136,16 @@ export const PhysicsConfig = {
             friction: 1,
             linearDamping: 0.5,
             angularDamping: 0.5,
-
         },
         cannon: {
-            mass: 50,
-            restitution: 0.1,
-            friction: 1,
-            linearDamping: 0.5,
-            angularDamping: 0.5,
+            mass: 10,
+            restitution: 1,
+            friction: 0.1,
+            linearDamping: 0.05,
+            angularDamping: 0.05,
             material: 'metal',
-            customShape: "shape: box;halfExtents: 0.6 0.5 0.7;offset: -0.2 0.5 0;"
+            customShape: "shape: box;halfExtents: 0.8 0.2 0.7;offset: -0.4 0.2 0;",
+            customShape2: "shape: sphere;halfExtents: 0.7 0.3 0.5;offset: 0.1 0.9 0;radius:0.9;"
         },
         candle: {
             mass: 2, // Mais pesado
@@ -148,14 +153,13 @@ export const PhysicsConfig = {
             friction: 0.8, // Mais fricção (estável)
             linearDamping: 0.05,
             angularDamping: 0.05,
+            material: 'wax',
             //customShape: "shape: cylinder;radiusTop: 0.19;radiusBottom: 0.19;height: 1.75;offset: 0 0.25 0;cylinderAxis:y"
         },
         wall: {
-            mass: 100,
-            restitution: 0.9,
-            friction: 0.9,
-            linearDamping: 0.01,
-            angularDamping: 0.01,
+            mass: 0, // Estático
+            friction: 1,
+            restitution: 1,
             material: 'brick'
         },
         seesaw: {

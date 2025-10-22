@@ -55,11 +55,12 @@ AFRAME.registerComponent('cannon-activator', {
         this.el.object3D.getWorldPosition(cannonPos);
 
         const ps = document.createElement('a-entity');
-        ps.setAttribute('position', `${cannonPos.x - 0.8} ${cannonPos.y + 1.4} ${cannonPos.z}`);
+        //ps.setAttribute('position', `${cannonPos.x - 1.7} ${cannonPos.y + 1.4} ${cannonPos.z}`);
+        ps.setAttribute('position', `-.6 1.45 0`);
         // config compacto de particle-system: rajada curta, cores quentes
-        const psAttr = `type: 3;particleCount: 30; color: #ffcc00,#ff8800; size: 0.2;sizeSpread:0.9; maxAge: 0.05; velocityValue: 1 1 0; accelerationValue: -0.5 -0.5 0; opacitySpread: 0.5; duration: 2;`;
+        const psAttr = `type: 3;particleCount: 30; color: #ffcc00,#ff8800; size: 0.01;sizeSpread:1.5; maxAge: 0.05; velocityValue: -1 0 0; accelerationValue: 1 1 1; opacitySpread: 0.5; duration: 2;`;
         ps.setAttribute('particle-system', psAttr);
-        scene.appendChild(ps);
+        this.el.appendChild(ps);
 
         // Remover partículas após ~2s e disparar
         setTimeout(() => {
@@ -85,6 +86,9 @@ AFRAME.registerComponent('cannon-activator', {
         ball.setAttribute('material', 'color: #666666; metalness: 0.7; roughness: 0.2');
         ball.setAttribute('shadow', 'cast: true; receive: false');
 
+        if (this.el.getAttribute('can-finish')) {
+            ball.setAttribute('can-finish', 'true');
+        }
         // adicionar à cena e depois aplicar física dynamic-body
         scene.appendChild(ball);
 

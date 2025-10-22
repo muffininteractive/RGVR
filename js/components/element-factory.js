@@ -54,6 +54,7 @@ class ElementFactory {
         element.dataset.physicsType = data.body.type;
         element.dataset.physicsShape = data.body?.shape || physicsConfig.shape || 'auto';
         element.dataset.physicsCustomShape = data.customShape || physicsConfig.customShape || '';
+        element.dataset.physicsCustomShape2 = data.customShape2 || physicsConfig.customShape2 || '';
         element.dataset.physicsCustomBody = data.body || '';
         //element.dataset.physicsSphereRadius = data.body?.sphereRadius || 0.4;
         element.dataset.physicsCylinderAxis = data.body?.cylinderAxis || 'z';
@@ -93,7 +94,6 @@ class ElementFactory {
             case 'sphere':
                 element = document.createElement('a-sphere');
                 element.setAttribute('radius', data.radius || 0.4);
-                element.setAttribute('material', 'src: #soccerTex');
 
                 break;
 
@@ -366,6 +366,15 @@ class ElementFactory {
         if (data.color && element.tagName !== 'A-ENTITY') {
             element.setAttribute('color', data.color);
         }
+
+        // Aplica textura se fornecida
+        if (data.objTexture && data.objTexture.trim() !== '') {
+            const textureValue = data.objTexture.trim();
+            // Verifica se é um ID (começa com #) ou uma URL
+            const src = textureValue.startsWith('#') ? textureValue : `url(${textureValue})`;
+            element.setAttribute('material', `src: ${src}`);
+        }
+
         element.setAttribute('shadow', 'cast: true; receive: false');
 
 
@@ -380,6 +389,14 @@ class ElementFactory {
                 emissive: '#ffffff',
                 emissiveIntensity: 0
             });
+            /*
+            if (data.body.type !== 'static')
+                element.setAttribute('dynamic-body', data.body);
+            else {
+                element.setAttribute('static-body', data.body);
+            }
+            */
+
         }
 
         // Marca elementos especiais
@@ -412,6 +429,14 @@ class ElementFactory {
             element.dataset.maxX = data.maxX;
         }
 
+        // Define o atributo canFinish
+        if (data.canFinish) {
+            element.setAttribute('can-finish', 'true');
+            element.dataset.canFinish = 'true';
+        }
+
+        this.applyPhysicsToElement(element, data, applyPhysicsMaterial);
+        // Força o carregamento do corpo rígido
         return element;
     }
 
@@ -428,8 +453,8 @@ class ElementFactory {
 
         // Obtém configuração de física do dataset ou do physics-config.js
         const bodyConfig = {
-            type: data.body.type || 'dynamic',
-            mass: element.dataset.physicsMass || data.body.mass || 1,
+            type: data.body.type || 'static',
+            mass: 0,
             sphereRadius: element.dataset.physicsSphereRadius || data.body.sphereRadius || data.radius || 0.4,
             cylinderAxis: element.dataset.physicsCylinderAxis || data.body.cylinderAxis || 'z',
             restitution: parseFloat(element.dataset.physicsRestitution) || data.body.restitution || 0.3,
@@ -440,9 +465,16 @@ class ElementFactory {
             bodyConfig.shape = element.dataset.physicsShape;
         }
 
+
+
+
         if (element.dataset.physicsCustomShape) {
             element.setAttribute('body', 'shape: none;');
             element.setAttribute('shape__custom', element.dataset.physicsCustomShape);
+        }
+        if (element.dataset.physicsCustomShape2) {
+            element.setAttribute('body', 'shape: none;');
+            element.setAttribute('shape__custom2', element.dataset.physicsCustomShape2);
         }
 
         // Adiciona damping se disponível
@@ -461,8 +493,11 @@ class ElementFactory {
 
         // Aplica configuração de corpo usando atributos corretos de A-Frame Physics
         const bodyType = bodyConfig.type;
-        delete bodyConfig.type; // Remove type do objeto config
+        //delete bodyConfig.type; // Remove type do objeto config
 
+        element.setAttribute('body', bodyConfig);
+        //element.removeAttribute('static-body');
+        /*
         if (bodyType === 'static') {
             element.setAttribute('static-body', bodyConfig);
             console.log(`🎮 Static physics applied to ${data.id}:`, bodyConfig);
@@ -470,6 +505,8 @@ class ElementFactory {
             element.setAttribute('dynamic-body', bodyConfig);
             console.log(`🎮 Dynamic physics applied to ${data.id}:`, bodyConfig);
         }
+*/
+
 
         // Aplica material de física após o corpo ser carregado
         const materialName = element.dataset.physicsMaterial;
@@ -484,6 +521,25 @@ class ElementFactory {
                     }
                 }
             }, { once: true });
+        }
+    }
+
+    static startDynamicBodyApplication(element, data) {
+
+        if (element || data.body) {
+
+            element.body.mass = element.dataset.physicsMass || data.body.mass || 1;
+            //element.body.type = CANNON.Body.DYNAMIC;
+            element.body.updateMassProperties();
+            console.log(`✅ Dynamic body started for start element ${data.id}:`, {
+                mass: element.body.mass,
+                type: element.body.type
+            });
+
+        } else {
+            if (element.isStart) {
+                console.log(`⚠️ Element or body data missing for start element ${data.id}`);
+            }
         }
     }
 }

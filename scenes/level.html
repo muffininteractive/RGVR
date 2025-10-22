@@ -30,7 +30,8 @@
         <img src="../assets/imgs/roll.png" id="rollTex" />
         <img src="../assets/imgs/scroll.png" id="scrollTex" />
         <img src="../assets/imgs/sprite.png" id="spriteTex" />
-        <img src="../assets/imgs/colors.png" id="soccerTex" />
+        <img src="../assets/imgs/soccer2.png" id="soccerTex" />
+        <img src="../assets/imgs/colors.png" id="colorsTex" />
 
         <!-- Textures and sounds can be added here -->
       </a-assets>
@@ -56,9 +57,8 @@
         rotation="-90 0 0"
         width="30"
         height="30"
-        color="#3a3a5a"
         material="shader: flat; transparent: true; opacity: 0"
-        static-body
+        static-body="friction: 0.1; restitution: 1"
       ></a-plane>
 
       <!-- Objective Panel (will be updated dynamically) -->

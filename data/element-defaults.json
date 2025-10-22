@@ -13,6 +13,7 @@
         },
         "radius": 0.5,
         "color": "#ffffff",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "dynamic",
@@ -40,6 +41,7 @@
             "depth": 1
         },
         "color": "#ffffff",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static",
@@ -63,6 +65,7 @@
         "radius": 0.5,
         "height": 1,
         "color": "#ffffff",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "dynamic",
@@ -89,6 +92,7 @@
             "depth": 3
         },
         "color": "#555555",
+        "objTexture": "",
         "movable": true,
         "body": {
             "type": "static",
@@ -115,6 +119,7 @@
             "depth": 2
         },
         "color": "#00ff00",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static",
@@ -135,6 +140,7 @@
             "depth": 1
         },
         "color": "#8B4513",
+        "objTexture": "",
         "movable": true,
         "body": {
             "type": "dynamic"
@@ -160,6 +166,7 @@
             "depth": 0.5
         },
         "color": "#ffa600",
+        "objTexture": "",
         "movable": true,
         "body": {
             "type": "dynamic",
@@ -183,6 +190,7 @@
         "radius": 0.2,
         "height": 1.5,
         "color": "#FFFCCB",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static",
@@ -210,6 +218,7 @@
             "depth": 0.5
         },
         "color": "#888888",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static",
@@ -236,6 +245,7 @@
             "depth": 0.5
         },
         "color": "#ff0000",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static",
@@ -259,6 +269,7 @@
         "modelUrl": "",
         "scale": "1 1 1",
         "color": "#ffffff",
+        "objTexture": "",
         "movable": false,
         "body": {
             "type": "static"

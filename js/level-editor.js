@@ -50,9 +50,16 @@ function renderLevelsList() {
     const list = document.getElementById('levels-list');
     list.innerHTML = '';
 
-    levelsData.levels.forEach((level, index) => {
+    // Ordena os níveis pelo id antes de renderizar
+    const sortedLevels = levelsData.levels
+        .map((level, idx) => ({ ...level, _originalIndex: idx }))
+        .sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
+
+    sortedLevels.forEach((level, sortedIdx) => {
         const card = document.createElement('div');
-        card.className = `box level-item-card ${index === currentLevelIndex ? 'active' : ''}`;
+        // Mantém o destaque do nível selecionado
+        const isActive = level._originalIndex === currentLevelIndex;
+        card.className = `box level-item-card ${isActive ? 'active' : ''}`;
         card.style.padding = '0.75rem';
         card.style.marginBottom = '0.5rem';
         card.style.cursor = 'pointer';
@@ -66,16 +73,16 @@ function renderLevelsList() {
                       </div>
                   </div>
                   <div class="buttons are-small" style="margin-left: 0.5rem;">
-                      <button class="button is-warning is-small" onclick="event.stopPropagation(); duplicateLevelByIndex(${index})" title="Duplicar nível">
+                      <button class="button is-warning is-small" onclick="event.stopPropagation(); duplicateLevelByIndex(${level._originalIndex})" title="Duplicar nível">
                           <span class="icon"><i class="fas fa-copy"></i></span>
                       </button>
-                      <button class="button is-danger is-small" onclick="event.stopPropagation(); deleteLevelByIndex(${index})" title="Deletar nível">
+                      <button class="button is-danger is-small" onclick="event.stopPropagation(); deleteLevelByIndex(${level._originalIndex})" title="Deletar nível">
                           <span class="icon"><i class="fas fa-trash"></i></span>
                       </button>
                   </div>
               </div>
           `;
-        card.onclick = () => selectLevel(index);
+        card.onclick = () => selectLevel(level._originalIndex);
         list.appendChild(card);
     });
 }
@@ -446,6 +453,7 @@ function showElementEditor() {
     document.getElementById('posZ').value = element.position.z;
     document.getElementById('elementColor').value = element.color;
     document.getElementById('colorValue').textContent = element.color;
+    document.getElementById('objTexture').value = element.objTexture || '';
     document.getElementById('movable').checked = element.movable || false;
     document.getElementById('isStart').checked = element.isStart || false;
     document.getElementById('isTarget').checked = element.isTarget || false;
@@ -523,6 +531,8 @@ function updateElementField(field, value) {
     } else if (field === 'color') {
         element[field] = value;
         document.getElementById('colorValue').textContent = value;
+    } else if (field === 'objTexture') {
+        element[field] = value;
     } else if (field === 'bodyType') {
         if (!element.body) element.body = {};
         element.body.type = value;
@@ -623,6 +633,7 @@ function addElement() {
         rotation: { x: null, y: null, z: null },
         dimensions: { width: null, height: null, depth: null },
         color: '#ffffff',
+        objTexture: '',
         movable: false,
         body: { type: 'static' },
     };
