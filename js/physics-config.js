@@ -15,7 +15,7 @@ export const PhysicsConfig = {
     materials: {
         rubber: {
             restitution: 1, // Menos quique
-            friction: 1.2, // Mais fricção (estável)
+            friction: 1, // Mais fricção (estável)
             contactEquationStiffness: 1e8,
             contactEquationRelaxation: 3
         },
@@ -72,8 +72,6 @@ export const PhysicsConfig = {
     objects: {
         sphere: {
             mass: 1,
-            restitution: 1, // Menos quique
-            friction: 1.2, // Mais fricção (estável)
             linearDamping: 0.05,
             angularDamping: 0.05,
             material: 'rubber'
@@ -170,6 +168,15 @@ export const PhysicsConfig = {
             angularDamping: 0.05,
             material: 'wood',
             customShape: "shape: box;halfExtents: 0.25 0.05 0.25;offset: 0 0 0;"
+        },
+        swing: {
+            mass: 15,
+            restitution: 0.2,
+            friction: 0.7,
+            linearDamping: 0.1,
+            angularDamping: 0.1,
+            material: 'wood',
+
         }
     },
 

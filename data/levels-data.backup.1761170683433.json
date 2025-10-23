@@ -730,161 +730,36 @@
     },
     {
       "id": 6,
-      "name": "Curved Dominoes",
+      "name": "Swing",
       "difficulty": "medium",
-      "objective": "Arrange dominoes in a curve to reach the target",
-      "description": "Position 5 dominoes forming a curve to create the chain reaction",
+      "objective": "Arrange the swing to reach the target",
+      "description": "Position the swing to create the chain reaction",
       "elements": [
         {
           "id": "push-ball",
           "type": "sphere",
           "position": {
             "x": -5,
-            "y": 1.5,
-            "z": -6
+            "y": 4,
+            "z": -2.5
           },
-          "color": "#eeff00",
+          "color": "#ffffff",
           "radius": 0.4,
           "movable": false,
           "isStart": true,
           "body": {
-            "mass": 2,
+            "mass": 5,
             "type": "dynamic"
           },
           "minY": 0,
-          "objTexture": "#soccerTex"
-        },
-        {
-          "id": "domino-1",
-          "type": "domino",
-          "position": {
-            "x": -3,
-            "y": 1,
-            "z": -6
-          },
-          "rotation": {
-            "x": 0,
-            "y": 0,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0
-        },
-        {
-          "id": "domino-2",
-          "type": "domino",
-          "position": {
-            "x": -1.5,
-            "y": 1,
-            "z": -5.5
-          },
-          "rotation": {
-            "x": 0,
-            "y": 20,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0
-        },
-        {
-          "id": "domino-3",
-          "type": "domino",
-          "position": {
-            "x": 0,
-            "y": 1,
-            "z": -4.5
-          },
-          "rotation": {
-            "x": 0,
-            "y": 40,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0
-        },
-        {
-          "id": "domino-4",
-          "type": "domino",
-          "position": {
-            "x": 1.5,
-            "y": 1,
-            "z": -3.5
-          },
-          "rotation": {
-            "x": 0,
-            "y": 60,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0
-        },
-        {
-          "id": "domino-5",
-          "type": "domino",
-          "position": {
-            "x": 3,
-            "y": 1,
-            "z": -3
-          },
-          "rotation": {
-            "x": 0,
-            "y": 80,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          },
-          "minY": 0
+          "objTexture": "#ballTex"
         },
         {
           "id": "target-button",
           "type": "platform",
           "position": {
             "x": 4.5,
-            "y": 0.5,
+            "y": 0.25,
             "z": -2.5
           },
           "dimensions": {
@@ -899,38 +774,174 @@
             "type": "static"
           },
           "minY": 0
+        },
+        {
+          "id": "ramp",
+          "type": "ramp",
+          "position": {
+            "x": -5,
+            "y": 0.2,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#555555",
+          "movable": true,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "rotateAxis": "z"
+        },
+        {
+          "id": "element-1761138880435",
+          "type": "swing",
+          "position": {
+            "x": 0,
+            "y": 2.4,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "movable": false,
+          "body": {
+            "type": "static"
+          },
+          "minY": 0,
+          "canFinish": false
+        },
+        {
+          "id": "ramp-2",
+          "type": "ramp",
+          "position": {
+            "x": -3,
+            "y": 0.7,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#555555",
+          "movable": true,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "rotateAxis": "z"
+        },
+        {
+          "id": "ground",
+          "type": "wall",
+          "position": {
+            "x": 2,
+            "y": 1.2,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 7,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#ffffff",
+          "objTexture": "#brickTex",
+          "movable": false,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "canFinish": false,
+          "minY": 0
+        },
+        {
+          "id": "finish-ball",
+          "type": "sphere",
+          "position": {
+            "x": -0.7,
+            "y": 1.4,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "objTexture": "#soccerTex",
+          "movable": false,
+          "body": {
+            "type": "dynamic",
+            "mass": 1
+          },
+          "radius": 0.3,
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "canFinish": true
         }
       ],
       "environment": {
-        "preset": "default",
         "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "#ecce8e",
+        "dressing": "pyramids",
+        "dressingAmount": 7,
+        "dressingColor": "#9e7b47",
+        "dressingOnPlayArea": 0,
+        "dressingScale": 5,
+        "dressingUniformScale": true,
+        "dressingVariance": "30 30 30",
+        "flatShading": false,
+        "fog": 0,
+        "grid": "dots",
+        "gridColor": "#daa452",
+        "ground": "hills",
+        "groundColor": "#9e7b47",
+        "groundColor2": "#9e7b47",
+        "groundDensity": 64,
+        "groundFrequency": 10,
+        "groundTexture": "none",
+        "groundYScale": 3,
+        "horizonColor": "#ddd",
+        "lightPosition": "0 0.05 -2.32",
         "lighting": "distant",
+        "playArea": 1,
+        "preset": "osiris",
+        "seed": 46,
         "shadow": false,
         "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 10,
-        "groundTexture": "walkernoise",
-        "groundColor": "#a08d4b",
-        "groundColor2": "#a19987",
-        "groundDensity": 100,
-        "groundFrequency": 100,
-        "dressing": "towers",
-        "dressingAmount": 10,
-        "dressingColor": "#d4a421",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
+        "skyColor": "#88c",
+        "skyType": "atmosphere",
+        "stageSize": 200
       },
       "active": true
     },

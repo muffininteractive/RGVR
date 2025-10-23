@@ -23,7 +23,8 @@ class ElementFactory {
             'cannon': PhysicsConfig.objects.cannon,
             'model': PhysicsConfig.objects.model,
             'wall': PhysicsConfig.objects.wall,
-            'seesaw': PhysicsConfig.objects.seesaw
+            'seesaw': PhysicsConfig.objects.seesaw,
+            'swing': PhysicsConfig.objects.swing
         };
         return configMap[type] || null;
     }
@@ -94,7 +95,7 @@ class ElementFactory {
             case 'sphere':
                 element = document.createElement('a-sphere');
                 element.setAttribute('radius', data.radius || 0.4);
-
+                element.setAttribute('material', 'src: #soccerTex; repeat: 2 1;');
                 break;
 
             case 'cube':
@@ -113,6 +114,7 @@ class ElementFactory {
                     element.setAttribute('height', data.dimensions.height);
                     element.setAttribute('depth', data.dimensions.depth);
                 }
+                element.setAttribute('material', 'src: #brickTex; repeat: 1 0.5;');
                 break;
 
             case 'model':
@@ -270,6 +272,69 @@ class ElementFactory {
                 element.appendChild(plank);
 
                 break;
+            case 'swing':
+                element = document.createElement('a-entity');
+                // Não define position aqui, será definido no final da função
+
+                if (!data.body) data.body = {};
+                data.body.shape = 'none';
+                element.setAttribute('body', 'shape: none;type:static;mass:50;shape:none');
+
+
+
+                const swingBase = document.createElement('a-box');
+                swingBase.setAttribute('id', "swing-base");
+                swingBase.setAttribute('position', '0 0 0');
+                swingBase.setAttribute('width', 3);
+                swingBase.setAttribute('height', 0.1);
+                swingBase.setAttribute('depth', 2.5);
+                swingBase.setAttribute('color', '#A0522D');
+                swingBase.setAttribute('body', 'type:static; mass:0; restitution:0.3; friction:0.8;');
+
+                const swingPole = document.createElement('a-box');
+                swingPole.setAttribute('id', "swing-pole");
+                swingPole.setAttribute('position', '0 0 1');
+                swingPole.setAttribute('width', 0.1);
+                swingPole.setAttribute('height', 1.5);
+                swingPole.setAttribute('depth', 0.5);
+                swingPole.setAttribute('color', '#D2691E');
+                swingPole.setAttribute('body', 'type:dynamic; mass:8; restitution:0.3; friction:0.8;');
+
+                swingPole.setAttribute('constraint', 'type: hinge; target: #swing-base; pivot: 0 0 0; targetPivot: 0 0 0;collideConnected: false');
+                //swingPole.setAttribute('constraint__top', 'type: pointToPoint; target: #swing-base; pivot: 0 1 0; targetPivot: 0 1 0;');
+
+                const hammer = document.createElement('a-cylinder');
+                hammer.setAttribute('radius', 0.1);
+                hammer.setAttribute('height', 0.2);
+                hammer.setAttribute('position', '0 -0.75 0');
+                hammer.setAttribute('rotation', '0 0 90');
+                hammer.setAttribute('color', '#808080');
+
+
+                swingPole.appendChild(hammer);
+
+                const hammer2 = document.createElement('a-cylinder');
+                hammer2.setAttribute('radius', 0.1);
+                hammer2.setAttribute('height', 0.2);
+                hammer2.setAttribute('position', '0 0.75 0');
+                hammer2.setAttribute('rotation', '0 0 90');
+                hammer2.setAttribute('color', '#808080');
+
+
+                swingPole.appendChild(hammer2);
+
+
+                // Torna o swingPole interativo/móvel
+                if (data.movable) {
+                    swingPole.classList.add('interactive');
+                    swingBase.classList.add('interactive');
+                }
+
+                element.appendChild(swingBase);
+                element.appendChild(swingPole);
+
+
+                break;
             default:
                 console.warn(`Unknown element type: ${data.type}`);
                 return null;
@@ -372,7 +437,7 @@ class ElementFactory {
             const textureValue = data.objTexture.trim();
             // Verifica se é um ID (começa com #) ou uma URL
             const src = textureValue.startsWith('#') ? textureValue : `url(${textureValue})`;
-            element.setAttribute('material', `src: ${src}`);
+            element.setAttribute('material', `src: ${src};roughness: 0.7; metalness: 0.2;shader: flat;`);
         }
 
         element.setAttribute('shadow', 'cast: true; receive: false');
