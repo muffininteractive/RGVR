@@ -1,0 +1,583 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>River Raid VR</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script>
+      // Aguardar A-Frame carregar completamente antes de carregar extras
+      document.addEventListener('DOMContentLoaded', function () {
+        if (typeof AFRAME !== 'undefined') {
+          // Carregar aframe-extras após A-Frame estar pronto
+          const script = document.createElement('script');
+          script.src = 'https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js';
+          script.onload = function () {
+            console.log('A-Frame extras carregado');
+          };
+          script.onerror = function () {
+            console.warn('Erro ao carregar A-Frame extras, continuando sem ele');
+          };
+          document.head.appendChild(script);
+        }
+      });
+    </script>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #000;
+      }
+
+      #ui {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        color: white;
+        z-index: 1000;
+        font-size: 14px;
+      }
+
+      #instructions {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        color: white;
+        z-index: 1000;
+        font-size: 12px;
+        max-width: 300px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <div>Velocidade: <span id="speed">0</span> km/h</div>
+      <div>Posição X: <span id="posX">0</span>m</div>
+      <div>Distância: <span id="distance">0</span>m</div>
+      <div>Direção: <span id="direction">⬆️ Frente</span></div>
+    </div>
+
+    <div id="instructions">
+      <strong>Controles VR:</strong><br />
+      • Thumbstick direito: Controla velocidade (Y) e posição lateral (X)<br />
+      • Solte o thumbstick para velocidade de cruzeiro<br />
+      • Entre no modo VR para começar
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: true"
+      background="color: #87CEEB"
+      fog="type: linear; color: #87CEEB; near: 50; far: 200"
+      embedded
+      style="height: 100vh; width: 100vw"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Materiais -->
+        <a-mixin
+          id="water-material"
+          material="color: #006994; roughness: 0.1; metalness: 0.2; transparent: true; opacity: 0.8"
+        ></a-mixin>
+        <a-mixin id="shore-material" material="color: #8B7355; roughness: 0.8"></a-mixin>
+        <a-mixin id="island-material" material="color: #228B22; roughness: 0.9"></a-mixin>
+        <a-mixin id="tree-material" material="color: #006400"></a-mixin>
+      </a-assets>
+
+      <!-- Iluminação -->
+      <a-light type="ambient" color="#404040" intensity="0.4"></a-light>
+      <a-light
+        type="directional"
+        position="10 20 10"
+        color="#FFF8DC"
+        intensity="0.8"
+        light="castShadow: true; shadowMapHeight: 1024; shadowMapWidth: 1024"
+      ></a-light>
+
+      <!-- Camera VR -->
+      <a-entity id="cameraRig" position="0 15 0">
+        <a-camera id="camera" position="0 0 0" look-controls="pointerLockEnabled: false" wasd-controls="enabled: false">
+          <!-- Cursor para interação -->
+          <a-cursor
+            color="#FFF"
+            raycaster="objects: .clickable"
+            geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+            material="color: white; shader: flat"
+          ></a-cursor>
+        </a-camera>
+
+        <!-- Controles VR -->
+        <a-entity
+          id="leftHand"
+          hand-controls="hand: left; handModelStyle: lowPoly; color: #ffccaa"
+          vive-controls="hand: left"
+          oculus-touch-controls="hand: left"
+          windows-motion-controls="hand: left"
+        ></a-entity>
+
+        <a-entity
+          id="rightHand"
+          hand-controls="hand: right; handModelStyle: lowPoly; color: #ffccaa"
+          vive-controls="hand: right"
+          oculus-touch-controls="hand: right"
+          windows-motion-controls="hand: right"
+        ></a-entity>
+      </a-entity>
+
+      <!-- Entidade do jogo -->
+      <a-entity id="gameWorld"></a-entity>
+
+      <!-- Entidade para elementos do rio -->
+      <a-entity id="riverContainer"></a-entity>
+    </a-scene>
+
+    <script>
+      // Configurações do jogo
+      const CONFIG = {
+        riverWidth: 20,
+        segmentLength: 10,
+        maxSpeed: 80,
+        cruiseSpeed: 30,
+        acceleration: 2,
+        deceleration: 1.5,
+        maxLateralSpeed: 15,
+        renderDistance: 100,
+        cleanupDistance: -50,
+      };
+
+      // Estado do jogo
+      let gameState = {
+        cameraZ: 0,
+        cameraX: 0,
+        speed: CONFIG.cruiseSpeed, // Começar já com velocidade de cruzeiro
+        targetSpeed: CONFIG.cruiseSpeed,
+        lateralSpeed: 0,
+        targetLateralSpeed: 0,
+        lastSegmentZ: 0,
+        riverSegments: [],
+        islands: [],
+        trees: [],
+        vrControllers: {
+          left: null,
+          right: null,
+        },
+        noiseOffset: 0,
+        gameStarted: false,
+      };
+
+      // Gerador de ruído simples para procedural
+      function noise(x, scale = 1) {
+        return Math.sin(x * scale) * 0.5 + Math.sin(x * scale * 2.3) * 0.3 + Math.sin(x * scale * 5.7) * 0.2;
+      }
+
+      // Classe para gerenciar segmentos do rio
+      class RiverSegment {
+        constructor(z, riverPath) {
+          this.z = z;
+          this.riverPath = riverPath;
+          this.width = CONFIG.riverWidth + noise(z * 0.1) * 5;
+          this.created = false;
+          this.elements = []; // Array para rastrear elementos criados
+        }
+
+        create() {
+          if (this.created) return;
+
+          const riverContainer = document.querySelector('#riverContainer');
+
+          // Criar água
+          const water = document.createElement('a-box');
+          water.setAttribute('mixin', 'water-material');
+          water.setAttribute('width', this.width);
+          water.setAttribute('height', 0.2);
+          water.setAttribute('depth', CONFIG.segmentLength);
+          water.setAttribute('position', `${this.riverPath} 0 ${this.z}`);
+          water.setAttribute('class', 'river-segment');
+          water.setAttribute('data-z', this.z);
+          riverContainer.appendChild(water);
+          this.elements.push(water); // Adicionar ao array
+
+          // Criar margens
+          this.createShores(riverContainer);
+
+          // Criar ilhas ocasionalmente
+          if (Math.random() < 0.3) {
+            this.createIsland(riverContainer);
+          }
+
+          this.created = true;
+        }
+
+        createShores(container) {
+          const shoreWidth = 10;
+          const shoreHeight = 2;
+
+          // Margem esquerda
+          const leftShore = document.createElement('a-box');
+          leftShore.setAttribute('mixin', 'shore-material');
+          leftShore.setAttribute('width', shoreWidth);
+          leftShore.setAttribute('height', shoreHeight);
+          leftShore.setAttribute('depth', CONFIG.segmentLength);
+          leftShore.setAttribute(
+            'position',
+            `${this.riverPath - this.width / 2 - shoreWidth / 2} ${shoreHeight / 2} ${this.z}`
+          );
+          leftShore.setAttribute('class', 'shore');
+          container.appendChild(leftShore);
+          this.elements.push(leftShore); // Adicionar ao array
+
+          // Margem direita
+          const rightShore = document.createElement('a-box');
+          rightShore.setAttribute('mixin', 'shore-material');
+          rightShore.setAttribute('width', shoreWidth);
+          rightShore.setAttribute('height', shoreHeight);
+          rightShore.setAttribute('depth', CONFIG.segmentLength);
+          rightShore.setAttribute(
+            'position',
+            `${this.riverPath + this.width / 2 + shoreWidth / 2} ${shoreHeight / 2} ${this.z}`
+          );
+          rightShore.setAttribute('class', 'shore');
+          container.appendChild(rightShore);
+          this.elements.push(rightShore); // Adicionar ao array
+
+          // Adicionar algumas árvores nas margens
+          this.createTrees(container, this.riverPath - this.width / 2 - shoreWidth, this.z);
+          this.createTrees(container, this.riverPath + this.width / 2 + shoreWidth, this.z);
+        }
+
+        createIsland(container) {
+          const islandSize = 2 + Math.random() * 3;
+          const islandX = this.riverPath + (Math.random() - 0.5) * (this.width - islandSize);
+
+          const island = document.createElement('a-cylinder');
+          island.setAttribute('mixin', 'island-material');
+          island.setAttribute('radius', islandSize);
+          island.setAttribute('height', 0.5);
+          island.setAttribute('position', `${islandX} 0.25 ${this.z}`);
+          island.setAttribute('class', 'island');
+          container.appendChild(island);
+          this.elements.push(island); // Adicionar ao array
+
+          // Adicionar algumas árvores na ilha
+          for (let i = 0; i < 2 + Math.random() * 3; i++) {
+            const treeX = islandX + (Math.random() - 0.5) * islandSize * 1.5;
+            const treeZ = this.z + (Math.random() - 0.5) * CONFIG.segmentLength * 0.8;
+            this.createTree(container, treeX, treeZ);
+          }
+        }
+
+        createTrees(container, baseX, baseZ) {
+          const treeCount = 1 + Math.random() * 3;
+          for (let i = 0; i < treeCount; i++) {
+            const treeX = baseX + (Math.random() - 0.5) * 8;
+            const treeZ = baseZ + (Math.random() - 0.5) * CONFIG.segmentLength;
+            this.createTree(container, treeX, treeZ);
+          }
+        }
+
+        createTree(container, x, z) {
+          const treeHeight = 3 + Math.random() * 4;
+
+          // Tronco
+          const trunk = document.createElement('a-cylinder');
+          trunk.setAttribute('material', 'color: #8B4513');
+          trunk.setAttribute('radius', 0.2);
+          trunk.setAttribute('height', treeHeight * 0.7);
+          trunk.setAttribute('position', `${x} ${treeHeight * 0.35} ${z}`);
+          trunk.setAttribute('class', 'tree');
+          container.appendChild(trunk);
+          this.elements.push(trunk); // Adicionar ao array
+
+          // Copa
+          const foliage = document.createElement('a-sphere');
+          foliage.setAttribute('mixin', 'tree-material');
+          foliage.setAttribute('radius', 1 + Math.random() * 0.5);
+          foliage.setAttribute('position', `${x} ${treeHeight * 0.8} ${z}`);
+          foliage.setAttribute('class', 'tree');
+          container.appendChild(foliage);
+          this.elements.push(foliage); // Adicionar ao array
+        }
+
+        destroy() {
+          // Usar o array de elementos para remoção segura
+          this.elements.forEach(element => {
+            try {
+              if (element && element.parentNode) {
+                element.parentNode.removeChild(element);
+              }
+            } catch (error) {
+              console.warn('Erro ao remover elemento:', error);
+            }
+          });
+          this.elements = []; // Limpar array
+        }
+      }
+
+      // Inicializar VR controllers
+      function initVRControllers() {
+        const leftHand = document.querySelector('#leftHand');
+        const rightHand = document.querySelector('#rightHand');
+
+        if (leftHand) {
+          gameState.vrControllers.left = leftHand;
+        }
+
+        if (rightHand) {
+          gameState.vrControllers.right = rightHand;
+
+          // Verificar se os event listeners já existem antes de adicionar
+          if (!rightHand.hasAttribute('data-listeners-added')) {
+            // Adicionar listener para thumbstick do controle direito
+            rightHand.addEventListener('thumbstickmoved', event => {
+              if (event.detail) {
+                handleThumbstickInput(event.detail);
+              }
+            });
+
+            rightHand.addEventListener('thumbstickup', () => {
+              // Quando soltar o thumbstick, voltar à velocidade de cruzeiro
+              gameState.targetSpeed = CONFIG.cruiseSpeed;
+              gameState.targetLateralSpeed = 0;
+            });
+
+            // Fallback para outros tipos de controle
+            rightHand.addEventListener('axismove', event => {
+              if (event.detail && event.detail.axis) {
+                const axes = event.detail.axis;
+                if (axes.length >= 4) {
+                  // thumbstick direito normalmente são eixos 2 e 3
+                  handleThumbstickInput({ x: axes[2], y: axes[3] });
+                }
+              }
+            });
+
+            rightHand.setAttribute('data-listeners-added', 'true');
+          }
+        }
+      }
+
+      // Processar input do thumbstick
+      function handleThumbstickInput(thumbstickData) {
+        if (!thumbstickData) return;
+
+        const { x, y } = thumbstickData;
+
+        // Y controla velocidade (para frente/trás)
+        // Inverter Y para que empurrar para frente seja positivo
+        if (typeof y === 'number' && Math.abs(y) > 0.1) {
+          gameState.targetSpeed = CONFIG.cruiseSpeed + -y * CONFIG.maxSpeed * 0.5;
+          gameState.targetSpeed = Math.max(0, Math.min(CONFIG.maxSpeed, gameState.targetSpeed));
+        } else {
+          gameState.targetSpeed = CONFIG.cruiseSpeed;
+        }
+
+        // X controla movimento lateral
+        if (typeof x === 'number' && Math.abs(x) > 0.1) {
+          gameState.targetLateralSpeed = x * CONFIG.maxLateralSpeed;
+        } else {
+          gameState.targetLateralSpeed = 0;
+        }
+      }
+
+      // Gerar rio proceduralmente
+      function generateRiver() {
+        const cameraRig = document.querySelector('#cameraRig');
+        const currentZ = gameState.cameraZ;
+
+        // Gerar novos segmentos à frente
+        while (gameState.lastSegmentZ < currentZ + CONFIG.renderDistance) {
+          gameState.lastSegmentZ += CONFIG.segmentLength;
+
+          // Calcular path do rio usando noise
+          const riverPath = noise(gameState.lastSegmentZ * 0.02, 1) * 15;
+
+          const segment = new RiverSegment(gameState.lastSegmentZ, riverPath);
+          gameState.riverSegments.push(segment);
+          segment.create();
+        }
+
+        // Limpar segmentos antigos
+        gameState.riverSegments = gameState.riverSegments.filter(segment => {
+          if (segment.z < currentZ + CONFIG.cleanupDistance) {
+            segment.destroy();
+            return false;
+          }
+          return true;
+        });
+      }
+
+      // Atualizar física do movimento
+      function updateMovement(deltaTime) {
+        // Suavizar velocidade
+        const speedDiff = gameState.targetSpeed - gameState.speed;
+        if (Math.abs(speedDiff) > 0.1) {
+          const acceleration = speedDiff > 0 ? CONFIG.acceleration : CONFIG.deceleration;
+          gameState.speed += speedDiff * acceleration * deltaTime;
+        } else {
+          gameState.speed = gameState.targetSpeed;
+        }
+
+        // Suavizar movimento lateral
+        const lateralDiff = gameState.targetLateralSpeed - gameState.lateralSpeed;
+        if (Math.abs(lateralDiff) > 0.1) {
+          gameState.lateralSpeed += lateralDiff * 3 * deltaTime;
+        } else {
+          gameState.lateralSpeed = gameState.targetLateralSpeed;
+        }
+
+        // Atualizar posição da camera (Z positivo = para frente no A-Frame)
+        gameState.cameraZ -= gameState.speed * deltaTime;
+        gameState.cameraX += gameState.lateralSpeed * deltaTime;
+
+        // Limitar movimento lateral
+        gameState.cameraX = Math.max(-50, Math.min(50, gameState.cameraX));
+
+        // Aplicar posição à camera
+        const cameraRig = document.querySelector('#cameraRig');
+        if (cameraRig) {
+          cameraRig.setAttribute('position', `${gameState.cameraX} 15 ${gameState.cameraZ}`);
+        }
+      }
+
+      // Atualizar UI
+      function updateUI() {
+        document.getElementById('speed').textContent = Math.round(gameState.speed);
+        document.getElementById('posX').textContent = Math.round(gameState.cameraX);
+        document.getElementById('distance').textContent = Math.round(gameState.cameraZ);
+
+        // Mostrar direção baseada na velocidade
+        const directionElement = document.getElementById('direction');
+        if (gameState.speed > 0) {
+          directionElement.textContent = '⬆️ Frente';
+          directionElement.style.color = '#00ff00';
+        } else if (gameState.speed < 0) {
+          directionElement.textContent = '⬇️ Trás';
+          directionElement.style.color = '#ff0000';
+        } else {
+          directionElement.textContent = '⏸️ Parado';
+          directionElement.style.color = '#ffff00';
+        }
+      }
+
+      // Loop principal do jogo
+      let lastTime = 0;
+      function gameLoop(time) {
+        const deltaTime = (time - lastTime) / 1000;
+        lastTime = time;
+
+        if (deltaTime < 0.1 && gameState.gameStarted) {
+          // Evitar delta time muito grande
+          updateMovement(deltaTime);
+          generateRiver();
+          updateUI();
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Inicializar jogo quando a cena estiver pronta
+      document.addEventListener('DOMContentLoaded', () => {
+        const scene = document.querySelector('a-scene');
+
+        if (!scene) {
+          console.error('Cena A-Frame não encontrada');
+          return;
+        }
+
+        scene.addEventListener('loaded', () => {
+          console.log('Cena A-Frame carregada');
+
+          // Aguardar um pouco para garantir que tudo esteja inicializado
+          setTimeout(() => {
+            initVRControllers();
+
+            // Gerar rio inicial
+            try {
+              // Começar com segmentos à frente da camera
+              for (let i = 0; i < 15; i++) {
+                gameState.lastSegmentZ = i * CONFIG.segmentLength;
+                const riverPath = noise(gameState.lastSegmentZ * 0.02, 1) * 15;
+                const segment = new RiverSegment(gameState.lastSegmentZ, riverPath);
+                gameState.riverSegments.push(segment);
+                segment.create();
+              }
+
+              // Definir posição inicial da camera atrás do rio
+              gameState.cameraZ = -CONFIG.segmentLength;
+
+              gameState.gameStarted = true;
+              console.log('Rio inicial gerado com sucesso');
+            } catch (error) {
+              console.error('Erro ao gerar rio inicial:', error);
+            }
+
+            // Iniciar loop do jogo
+            requestAnimationFrame(gameLoop);
+          }, 500);
+        });
+
+        // Detectar quando entrar em VR
+        scene.addEventListener('enter-vr', () => {
+          console.log('Entrando no modo VR');
+          // Re-inicializar controllers em VR
+          setTimeout(initVRControllers, 1000);
+        });
+
+        scene.addEventListener('exit-vr', () => {
+          console.log('Saindo do modo VR');
+        });
+
+        // Tratar erros
+        scene.addEventListener('error', event => {
+          console.error('Erro na cena A-Frame:', event);
+        });
+      });
+
+      // Fallback para teclado quando não estiver em VR
+      document.addEventListener('keydown', event => {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'w':
+          case 'W':
+            gameState.targetSpeed = CONFIG.maxSpeed;
+            break;
+          case 'ArrowDown':
+          case 's':
+          case 'S':
+            gameState.targetSpeed = 0;
+            break;
+          case 'ArrowLeft':
+          case 'a':
+          case 'A':
+            gameState.targetLateralSpeed = -CONFIG.maxLateralSpeed;
+            break;
+          case 'ArrowRight':
+          case 'd':
+          case 'D':
+            gameState.targetLateralSpeed = CONFIG.maxLateralSpeed;
+            break;
+        }
+      });
+
+      document.addEventListener('keyup', event => {
+        switch (event.key) {
+          case 'ArrowUp':
+          case 'ArrowDown':
+          case 'w':
+          case 'W':
+          case 's':
+          case 'S':
+            gameState.targetSpeed = CONFIG.cruiseSpeed;
+            break;
+          case 'ArrowLeft':
+          case 'ArrowRight':
+          case 'a':
+          case 'A':
+          case 'd':
+          case 'D':
+            gameState.targetLateralSpeed = 0;
+            break;
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,497 @@
+<!doctype html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>River Raid VR - Versão Estável</title>
+    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #000;
+      }
+
+      #ui {
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        color: white;
+        z-index: 1000;
+        font-size: 14px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      #instructions {
+        position: fixed;
+        bottom: 10px;
+        left: 10px;
+        color: white;
+        z-index: 1000;
+        font-size: 12px;
+        max-width: 350px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="ui">
+      <div>🚁 Velocidade: <span id="speed">0</span> km/h</div>
+      <div>📍 Posição X: <span id="posX">0</span>m</div>
+      <div>📏 Distância: <span id="distance">0</span>m</div>
+      <div>🎮 Status: <span id="vrStatus">Desktop</span></div>
+    </div>
+
+    <div id="instructions">
+      <strong>🥽 Controles VR:</strong><br />
+      • Thumbstick direito: Controla velocidade (Y) e posição lateral (X)<br />
+      • Solte o thumbstick para velocidade de cruzeiro<br />
+      <br />
+      <strong>⌨️ Controles Desktop:</strong><br />
+      • WASD ou Setas: Movimento<br />
+      • Mouse: Olhar ao redor<br />
+      • Enter: Entrar no modo VR
+    </div>
+
+    <a-scene
+      vr-mode-ui="enabled: true"
+      background="color: #87CEEB"
+      fog="type: linear; color: #87CEEB; near: 50; far: 200"
+      embedded
+      style="height: 100vh; width: 100vw"
+    >
+      <!-- Assets -->
+      <a-assets>
+        <!-- Materiais -->
+        <a-mixin
+          id="water-material"
+          material="color: #006994; roughness: 0.2; metalness: 0.3; transparent: true; opacity: 0.85"
+        ></a-mixin>
+        <a-mixin id="shore-material" material="color: #8B7355; roughness: 0.8"></a-mixin>
+        <a-mixin id="island-material" material="color: #228B22; roughness: 0.9"></a-mixin>
+        <a-mixin id="tree-trunk-material" material="color: #8B4513; roughness: 0.9"></a-mixin>
+        <a-mixin id="tree-foliage-material" material="color: #006400; roughness: 0.8"></a-mixin>
+      </a-assets>
+
+      <!-- Iluminação -->
+      <a-light type="ambient" color="#404040" intensity="0.5"></a-light>
+      <a-light type="directional" position="20 30 20" color="#FFF8DC" intensity="0.8"></a-light>
+
+      <!-- Camera VR -->
+      <a-entity id="cameraRig" position="0 15 0">
+        <a-camera id="camera" position="0 0 0" look-controls="pointerLockEnabled: false">
+          <!-- Cursor para interação -->
+          <a-cursor
+            color="#FFF"
+            geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.02"
+            material="color: white; shader: flat"
+          ></a-cursor>
+        </a-camera>
+
+        <!-- Controles VR -->
+        <a-entity
+          id="leftHand"
+          hand-controls="hand: left"
+          vive-controls="hand: left"
+          oculus-touch-controls="hand: left"
+          windows-motion-controls="hand: left"
+        ></a-entity>
+
+        <a-entity
+          id="rightHand"
+          hand-controls="hand: right"
+          vive-controls="hand: right"
+          oculus-touch-controls="hand: right"
+          windows-motion-controls="hand: right"
+        ></a-entity>
+      </a-entity>
+
+      <!-- Container do mundo do jogo -->
+      <a-entity id="gameWorld"></a-entity>
+      <a-entity id="riverContainer"></a-entity>
+    </a-scene>
+
+    <script>
+      // Configurações do jogo
+      const CONFIG = {
+        riverWidth: 20,
+        segmentLength: 8,
+        maxSpeed: 100,
+        cruiseSpeed: 40,
+        acceleration: 3,
+        deceleration: 2,
+        maxLateralSpeed: 20,
+        renderDistance: 120,
+        cleanupDistance: -60,
+      };
+
+      // Estado do jogo
+      let gameState = {
+        cameraZ: 0,
+        cameraX: 0,
+        speed: 0,
+        targetSpeed: CONFIG.cruiseSpeed,
+        lateralSpeed: 0,
+        targetLateralSpeed: 0,
+        lastSegmentZ: 0,
+        riverSegments: [],
+        inVR: false,
+        controllerData: {
+          rightThumbstick: { x: 0, y: 0 },
+        },
+      };
+
+      // Gerador de ruído simples
+      function noise(x, scale = 1) {
+        return Math.sin(x * scale) * 0.5 + Math.sin(x * scale * 2.3) * 0.3 + Math.sin(x * scale * 5.7) * 0.2;
+      }
+
+      // Classe para segmentos do rio
+      class RiverSegment {
+        constructor(z, riverPath) {
+          this.z = z;
+          this.riverPath = riverPath;
+          this.width = CONFIG.riverWidth + noise(z * 0.08) * 6;
+          this.created = false;
+          this.elements = [];
+        }
+
+        create() {
+          if (this.created) return;
+
+          const riverContainer = document.querySelector('#riverContainer');
+
+          // Água
+          this.createWater(riverContainer);
+
+          // Margens
+          this.createShores(riverContainer);
+
+          // Elementos aleatórios
+          if (Math.random() < 0.25) {
+            this.createIsland(riverContainer);
+          }
+
+          this.created = true;
+        }
+
+        createWater(container) {
+          const water = document.createElement('a-box');
+          water.setAttribute('mixin', 'water-material');
+          water.setAttribute('width', this.width);
+          water.setAttribute('height', 0.3);
+          water.setAttribute('depth', CONFIG.segmentLength);
+          water.setAttribute('position', `${this.riverPath} 0 ${this.z}`);
+          water.setAttribute('animation', 'property: rotation; to: 0 0.5 0; loop: true; dur: 10000');
+          container.appendChild(water);
+          this.elements.push(water);
+        }
+
+        createShores(container) {
+          const shoreWidth = 12;
+          const shoreHeight = 2.5;
+
+          // Margem esquerda
+          const leftShore = document.createElement('a-box');
+          leftShore.setAttribute('mixin', 'shore-material');
+          leftShore.setAttribute('width', shoreWidth);
+          leftShore.setAttribute('height', shoreHeight);
+          leftShore.setAttribute('depth', CONFIG.segmentLength);
+          leftShore.setAttribute(
+            'position',
+            `${this.riverPath - this.width / 2 - shoreWidth / 2} ${shoreHeight / 2} ${this.z}`
+          );
+          container.appendChild(leftShore);
+          this.elements.push(leftShore);
+
+          // Margem direita
+          const rightShore = document.createElement('a-box');
+          rightShore.setAttribute('mixin', 'shore-material');
+          rightShore.setAttribute('width', shoreWidth);
+          rightShore.setAttribute('height', shoreHeight);
+          rightShore.setAttribute('depth', CONFIG.segmentLength);
+          rightShore.setAttribute(
+            'position',
+            `${this.riverPath + this.width / 2 + shoreWidth / 2} ${shoreHeight / 2} ${this.z}`
+          );
+          container.appendChild(rightShore);
+          this.elements.push(rightShore);
+
+          // Árvores nas margens
+          this.createTrees(container, this.riverPath - this.width / 2 - shoreWidth, this.z);
+          this.createTrees(container, this.riverPath + this.width / 2 + shoreWidth, this.z);
+        }
+
+        createIsland(container) {
+          const islandSize = 1.5 + Math.random() * 2.5;
+          const islandX = this.riverPath + (Math.random() - 0.5) * (this.width - islandSize * 2);
+
+          const island = document.createElement('a-cylinder');
+          island.setAttribute('mixin', 'island-material');
+          island.setAttribute('radius', islandSize);
+          island.setAttribute('height', 0.8);
+          island.setAttribute('position', `${islandX} 0.4 ${this.z}`);
+          container.appendChild(island);
+          this.elements.push(island);
+
+          // Árvores na ilha
+          for (let i = 0; i < 2 + Math.random() * 4; i++) {
+            const treeX = islandX + (Math.random() - 0.5) * islandSize * 1.2;
+            const treeZ = this.z + (Math.random() - 0.5) * CONFIG.segmentLength * 0.6;
+            this.createTree(container, treeX, treeZ);
+          }
+        }
+
+        createTrees(container, baseX, baseZ) {
+          const treeCount = 1 + Math.random() * 4;
+          for (let i = 0; i < treeCount; i++) {
+            const treeX = baseX + (Math.random() - 0.5) * 10;
+            const treeZ = baseZ + (Math.random() - 0.5) * CONFIG.segmentLength;
+            this.createTree(container, treeX, treeZ);
+          }
+        }
+
+        createTree(container, x, z) {
+          const treeHeight = 2.5 + Math.random() * 3.5;
+
+          // Tronco
+          const trunk = document.createElement('a-cylinder');
+          trunk.setAttribute('mixin', 'tree-trunk-material');
+          trunk.setAttribute('radius', 0.15);
+          trunk.setAttribute('height', treeHeight * 0.6);
+          trunk.setAttribute('position', `${x} ${treeHeight * 0.3} ${z}`);
+          container.appendChild(trunk);
+          this.elements.push(trunk);
+
+          // Copa
+          const foliage = document.createElement('a-sphere');
+          foliage.setAttribute('mixin', 'tree-foliage-material');
+          foliage.setAttribute('radius', 0.8 + Math.random() * 0.4);
+          foliage.setAttribute('position', `${x} ${treeHeight * 0.75} ${z}`);
+          container.appendChild(foliage);
+          this.elements.push(foliage);
+        }
+
+        destroy() {
+          this.elements.forEach(element => {
+            if (element.parentNode) {
+              element.parentNode.removeChild(element);
+            }
+          });
+          this.elements = [];
+        }
+      }
+
+      // Inicializar controles VR
+      function initVRControllers() {
+        const rightHand = document.querySelector('#rightHand');
+
+        if (rightHand) {
+          // Remover listeners existentes
+          rightHand.removeEventListener('thumbstickmoved', handleThumbstickMoved);
+          rightHand.removeEventListener('thumbstickup', handleThumbstickUp);
+          rightHand.removeEventListener('axismove', handleAxisMove);
+
+          // Adicionar novos listeners
+          rightHand.addEventListener('thumbstickmoved', handleThumbstickMoved);
+          rightHand.addEventListener('thumbstickup', handleThumbstickUp);
+          rightHand.addEventListener('axismove', handleAxisMove);
+
+          console.log('Controles VR inicializados');
+        }
+      }
+
+      // Handlers dos controles
+      function handleThumbstickMoved(event) {
+        if (event.detail) {
+          processControllerInput(event.detail.x || 0, event.detail.y || 0);
+        }
+      }
+
+      function handleThumbstickUp() {
+        gameState.targetSpeed = CONFIG.cruiseSpeed;
+        gameState.targetLateralSpeed = 0;
+      }
+
+      function handleAxisMove(event) {
+        if (event.detail && event.detail.axis && event.detail.axis.length >= 4) {
+          // Thumbstick direito geralmente são eixos 2 e 3
+          processControllerInput(event.detail.axis[2] || 0, event.detail.axis[3] || 0);
+        }
+      }
+
+      function processControllerInput(x, y) {
+        // Y controla velocidade
+        if (Math.abs(y) > 0.15) {
+          gameState.targetSpeed = CONFIG.cruiseSpeed + y * CONFIG.maxSpeed * 0.6;
+          gameState.targetSpeed = Math.max(0, Math.min(CONFIG.maxSpeed, gameState.targetSpeed));
+        } else {
+          gameState.targetSpeed = CONFIG.cruiseSpeed;
+        }
+
+        // X controla movimento lateral
+        if (Math.abs(x) > 0.15) {
+          gameState.targetLateralSpeed = x * CONFIG.maxLateralSpeed;
+        } else {
+          gameState.targetLateralSpeed = 0;
+        }
+      }
+
+      // Gerar rio proceduralmente
+      function generateRiver() {
+        const currentZ = gameState.cameraZ;
+
+        // Gerar novos segmentos
+        while (gameState.lastSegmentZ < currentZ + CONFIG.renderDistance) {
+          gameState.lastSegmentZ += CONFIG.segmentLength;
+
+          const riverPath = noise(gameState.lastSegmentZ * 0.015, 1) * 18;
+          const segment = new RiverSegment(gameState.lastSegmentZ, riverPath);
+          gameState.riverSegments.push(segment);
+          segment.create();
+        }
+
+        // Limpar segmentos antigos
+        gameState.riverSegments = gameState.riverSegments.filter(segment => {
+          if (segment.z < currentZ + CONFIG.cleanupDistance) {
+            segment.destroy();
+            return false;
+          }
+          return true;
+        });
+      }
+
+      // Atualizar movimento
+      function updateMovement(deltaTime) {
+        // Suavizar velocidade
+        const speedDiff = gameState.targetSpeed - gameState.speed;
+        if (Math.abs(speedDiff) > 0.5) {
+          const acceleration = speedDiff > 0 ? CONFIG.acceleration : CONFIG.deceleration;
+          gameState.speed += speedDiff * acceleration * deltaTime;
+        } else {
+          gameState.speed = gameState.targetSpeed;
+        }
+
+        // Suavizar movimento lateral
+        const lateralDiff = gameState.targetLateralSpeed - gameState.lateralSpeed;
+        if (Math.abs(lateralDiff) > 0.5) {
+          gameState.lateralSpeed += lateralDiff * 4 * deltaTime;
+        } else {
+          gameState.lateralSpeed = gameState.targetLateralSpeed;
+        }
+
+        // Atualizar posição
+        gameState.cameraZ += gameState.speed * deltaTime;
+        gameState.cameraX += gameState.lateralSpeed * deltaTime;
+
+        // Limites laterais
+        gameState.cameraX = Math.max(-60, Math.min(60, gameState.cameraX));
+
+        // Aplicar à camera
+        const cameraRig = document.querySelector('#cameraRig');
+        if (cameraRig) {
+          cameraRig.setAttribute('position', `${gameState.cameraX} 15 ${gameState.cameraZ}`);
+        }
+      }
+
+      // Atualizar UI
+      function updateUI() {
+        document.getElementById('speed').textContent = Math.round(gameState.speed);
+        document.getElementById('posX').textContent = Math.round(gameState.cameraX);
+        document.getElementById('distance').textContent = Math.round(gameState.cameraZ);
+        document.getElementById('vrStatus').textContent = gameState.inVR ? 'VR Ativo' : 'Desktop';
+      }
+
+      // Loop principal
+      let lastTime = 0;
+      function gameLoop(time) {
+        const deltaTime = Math.min((time - lastTime) / 1000, 0.1);
+        lastTime = time;
+
+        if (deltaTime > 0) {
+          updateMovement(deltaTime);
+          generateRiver();
+          updateUI();
+        }
+
+        requestAnimationFrame(gameLoop);
+      }
+
+      // Controles de teclado para desktop
+      const keys = {};
+
+      document.addEventListener('keydown', event => {
+        keys[event.key.toLowerCase()] = true;
+
+        if (keys['w'] || keys['arrowup']) {
+          gameState.targetSpeed = CONFIG.maxSpeed;
+        }
+        if (keys['s'] || keys['arrowdown']) {
+          gameState.targetSpeed = Math.max(0, gameState.targetSpeed - 10);
+        }
+        if (keys['a'] || keys['arrowleft']) {
+          gameState.targetLateralSpeed = -CONFIG.maxLateralSpeed;
+        }
+        if (keys['d'] || keys['arrowright']) {
+          gameState.targetLateralSpeed = CONFIG.maxLateralSpeed;
+        }
+      });
+
+      document.addEventListener('keyup', event => {
+        keys[event.key.toLowerCase()] = false;
+
+        if (!keys['w'] && !keys['s'] && !keys['arrowup'] && !keys['arrowdown']) {
+          gameState.targetSpeed = CONFIG.cruiseSpeed;
+        }
+        if (!keys['a'] && !keys['d'] && !keys['arrowleft'] && !keys['arrowright']) {
+          gameState.targetLateralSpeed = 0;
+        }
+      });
+
+      // Inicialização
+      document.addEventListener('DOMContentLoaded', () => {
+        const scene = document.querySelector('a-scene');
+
+        if (scene) {
+          scene.addEventListener('loaded', () => {
+            console.log('🎮 Jogo River Raid VR iniciado!');
+
+            // Gerar rio inicial
+            for (let i = 0; i < 15; i++) {
+              gameState.lastSegmentZ = i * CONFIG.segmentLength - 60;
+              const riverPath = noise(gameState.lastSegmentZ * 0.015, 1) * 18;
+              const segment = new RiverSegment(gameState.lastSegmentZ, riverPath);
+              gameState.riverSegments.push(segment);
+              segment.create();
+            }
+
+            // Inicializar controles
+            initVRControllers();
+
+            // Iniciar loop
+            requestAnimationFrame(gameLoop);
+          });
+
+          scene.addEventListener('enter-vr', () => {
+            console.log('🥽 Entrando no modo VR');
+            gameState.inVR = true;
+            setTimeout(initVRControllers, 1000);
+          });
+
+          scene.addEventListener('exit-vr', () => {
+            console.log('🖥️ Saindo do modo VR');
+            gameState.inVR = false;
+          });
+
+          scene.addEventListener('error', event => {
+            console.error('❌ Erro na cena:', event);
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
