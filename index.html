@@ -3,216 +3,192 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Projeto A-Frame - RGVR</title>
-
-    <!-- CSS personalizado -->
+    <title>Nilo Raider</title>
     <link rel="stylesheet" href="./css/style.css" />
-
-    <!-- A-Frame CDN -->
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-extras@7.6.0/dist/aframe-extras.min.js"></script>
     <script src="https://unpkg.com/aframe-environment-component@1.5.x/dist/aframe-environment-component.min.js"></script>
   </head>
   <body>
-    <!-- Interface 2D -->
-    <div id="ui-overlay">
-      <div class="info-panel">
-        <h1>Projeto A-Frame</h1>
-        <p>Use WASD para mover, mouse para olhar ao redor</p>
-        <!--
-        <div class="controls">
-          <button id="enterVR">Entrar em VR</button>
-          <button id="resetPosition">Reset Posição</button>
-        </div>
-        -->
-      </div>
-    </div>
-
-    <!-- Cena A-Frame -->
-    <a-scene
-      vr-mode-ui="enabled: true"
-      embedded
-      style="height: 100vh; width: 100vw"
-      background="color: #87CEEB"
-      fog="type: linear; color: #87CEEB; near: 10; far: 100"
-    >
-      <!-- Assets -->
+    <a-scene vr-mode-ui="enabled: true" embedded style="height: 100vh; width: 100vw" background="color: #87CEEB">
       <a-assets>
-        <!-- Texturas -->
-        <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg" />
-        <img id="skyTexture" src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg" />
-
-        <!-- Cores -->
-        <a-mixin id="cube" geometry="primitive: box"></a-mixin>
-        <a-mixin id="sphere" geometry="primitive: sphere"></a-mixin>
-        <a-mixin id="cylinder" geometry="primitive: cylinder"></a-mixin>
+        <img id="carpeTex" src="./assets/carpetex2.png" />
       </a-assets>
-
-      <!-- Iluminação -->
       <a-light type="ambient" color="#fff" intensity=".5"></a-light>
-
       <a-light type="directional" position="5 10 5" color="#ffffff" intensity="0.8" castShadow="true"></a-light>
 
-      <a-entity environment="preset: moon"></a-entity>
-
-      <!-- Céu -->
-
-      <!--<a-sky src="#skyTexture"></a-sky>-->
-
-      <!-- Chão -->
-      <!--<a-plane
-        id="ground"
-        position="0 0 0"
-        rotation="-90 0 0"
-        width="50"
-        height="50"
-        color="#7BC8A4"
-        shadow="receive: true"
-        material="src: #groundTexture; repeat: 10 10"
-        class="teleportable"
-        visible="true"
-      ></a-plane>-->
-
-      <!-- Objetos da cena -->
-
-      <a-box
-        position="0 0.5 -3"
-        rotation="0 45 0"
-        color="#4CC3D9"
-        shadow="cast: true; receive: true"
-        animation="property: rotation; to: 0 405 0; loop: true; dur: 10000"
-        class="interactive grab"
-      >
-      </a-box>
-
-      <a-sphere
-        position="-2 1.25 -5"
-        radius="1.25"
-        color="#EF2D5E"
-        shadow="cast: true; receive: true"
-        animation="property: position; to: -2 2.5 -5; dir: alternate; dur: 2000; loop: true"
-        class="interactive grab"
-      >
-      </a-sphere>
-
-      <a-sphere
-        position="2 1.25 -5"
-        radius="1.25"
-        color="#FFC65D"
-        shadow="cast: true; receive: true"
-        animation="property: position; to: 2 2.5 -5; dir: alternate; dur: 3000; loop: true"
-        class="interactive grab"
-      >
-      </a-sphere>
-
-      <a-cylinder
-        position="-4 0.75 0"
-        radius="0.5"
-        height="1.5"
-        color="#7BC8A4"
-        shadow="cast: true; receive: true"
-        class="interactive grab"
-      >
-      </a-cylinder>
-
-      <a-cylinder
-        position="4 0.75 0"
-        radius="0.5"
-        height="1.5"
-        color="#FF6B6B"
-        shadow="cast: true; receive: true"
-        class="interactive grab"
-      >
-      </a-cylinder>
-
-      <a-text
-        value="Bem-vindo ao A-Frame!"
-        position="0 3 -5"
-        align="center"
-        color="#000000"
-        font="roboto"
-        width="6"
-        wrap-count="40"
-      >
-      </a-text>
-
-      <a-entity id="particles" position="0 5 -10">
-        <a-box
-          position="1 0 0"
-          width="0.1"
-          height="0.1"
-          depth="0.1"
-          color="white"
-          animation="property: position; to: 1 -2 0; dur: 4000; loop: true"
-        >
-        </a-box>
-        <a-box
-          position="-1 0 0"
-          width="0.1"
-          height="0.1"
-          depth="0.1"
-          color="white"
-          animation="property: position; to: -1 -2 0; dur: 3000; loop: true"
-        >
-        </a-box>
-        <a-box
-          position="0 0 1"
-          width="0.1"
-          height="0.1"
-          depth="0.1"
-          color="white"
-          animation="property: position; to: 0 -2 1; dur: 5000; loop: true"
-        >
-        </a-box>
-      </a-entity>
-      <!-- Rig VR completo -->
-      <a-entity
-        id="cameraRig"
-        position="0 0 0"
-        movement-controls="fly: false; constrainToNavMesh: false"
-        snap-turn-controls="turnAngle: 45"
-      >
-        <!-- Câmera -->
+      <a-entity id="riverRaidManager" river-raid-proc></a-entity>
+      <a-entity id="cameraRig" position="0 2 0" river-raid-controls>
         <a-camera
           id="mainCamera"
-          position="0 1.6 5"
+          position="0 2 0"
           look-controls="enabled: true; pointerLockEnabled: true"
-          wasd-controls="enabled: true; acceleration: 20"
-          cursor="rayOrigin: mouse"
-        >
-        </a-camera>
+          wasd-controls="enabled: false;"
+        ></a-camera>
 
-        <!-- Controles Meta Touch -->
         <a-entity
-          meta-touch-controls="hand: left; model: true"
-          laser-controls="hand: left"
-          raycaster="objects: .teleportable, .grab; showLine: true; far: 50"
-          move-events
-          grab-handler
+          environment="skyType: atmosphere;horizonColor: #ddd;lightPosition: 0 0.1 -5;fog: 0.9; lighting: distant; shadow: true;  ground: none; horizonColor: #b3e0ff; seed: 42;stageSize: 5000; playArea: 50"
         ></a-entity>
         <a-entity
           meta-touch-controls="hand: right; model: true"
           laser-controls="hand: right"
-          raycaster="objects: .teleportable, .grab; showLine: true; far: 50"
-          move-events
-          grab-handler
+          class="right-control"
+        ></a-entity>
+        <a-entity
+          meta-touch-controls="hand: left; model: true"
+          laser-controls="hand: left"
+          class="left-control"
         ></a-entity>
 
-        <!-- Feedback visual de teletransporte -->
-        <a-text id="teleport-feedback" value="oi" position="0 2 -2" color="#FF0000" align="center" width="4"></a-text>
+        <!-- VR Start Panel -->
+        <a-entity id="vr-start-panel" position="0 2.5 -5" visible="false">
+          <!-- Fundo -->
+          <a-plane width="6" height="7" color="#0a0a14" material="opacity: 0.98; side: double;"></a-plane>
+          <!-- Borda -->
+          <a-plane
+            width="6.1"
+            height="7.1"
+            color="#4CC3D9"
+            position="0 0 -0.05"
+            material="opacity: 0.5; side: double; transparent: true;"
+          ></a-plane>
+          <!-- Título -->
+          <a-text
+            value="NILO RAIDER"
+            align="center"
+            anchor="center"
+            color="#4CC3D9"
+            font="mozillavr"
+            height="20"
+            width="20"
+            position="0 3.15 0.1"
+          ></a-text>
+          <!-- Instruções -->
+          <a-text
+            value="Thumbstick: Move&#10;Trigger: Fire&#10;&#10;Gold: 100 pts&#10;Silver: 50 pts&#10;Bronze: 25 pts&#10;Ruby: 150 pts&#10;&#10;AVOID BLACK CRYSTAL!"
+            align="center"
+            anchor="center"
+            color="#ffffff"
+            font="mozillavr"
+            font-size="5"
+            width="10"
+            line-height="80"
+            position="0 0.4 0.1"
+          ></a-text>
+          <!-- Botão START -->
+          <a-plane
+            id="vr-start-button"
+            width="2.5"
+            height="0.8"
+            color="#7BC8A4"
+            position="0 -2.5 0.15"
+            material="opacity: 0.95;"
+            data-clickable="true"
+          ></a-plane>
+          <!-- Texto do botão -->
+          <a-text
+            value="START GAME"
+            align="center"
+            anchor="center"
+            color="#000000"
+            font="mozillavr"
+            font-size="60"
+            width="8"
+            position="0 -2.3 0.2"
+            material="emissive: #FFD700; emissiveIntensity: 0.5;"
+          ></a-text>
+        </a-entity>
 
-        <a-sphere
-          id="cameraMarker"
-          position="0 1.6 5"
-          radius="0.05"
-          color="yellow"
-          visible="false"
-          class="debug-marker"
-        >
-        </a-sphere>
+        <!-- VR Game Over Panel -->
+        <a-entity id="vr-game-over-panel" position="0 2.5 -5" visible="false">
+          <!-- Fundo -->
+          <a-plane width="6" height="7" color="#1a0a1a" material="opacity: 0.98; side: double;"></a-plane>
+          <!-- Borda -->
+          <a-plane
+            width="6.1"
+            height="7.1"
+            color="#ff6b6b"
+            position="0 0 -0.05"
+            material="opacity: 0.5; side: double; transparent: true;"
+          ></a-plane>
+          <!-- Título -->
+          <a-text
+            value="GAME OVER"
+            align="center"
+            anchor="center"
+            color="#ff6b6b"
+            font="mozillavr"
+            height="20"
+            width="20"
+            position="0 3 0.1"
+          ></a-text>
+          <!-- Label Score Final -->
+          <a-text
+            value="FINAL SCORE"
+            align="center"
+            anchor="center"
+            color="#FFD700"
+            font="mozillavr"
+            width="10"
+            position="0 1.5 0.1"
+          ></a-text>
+          <!-- Score Final -->
+          <a-text
+            id="vr-final-score"
+            value="0"
+            align="center"
+            anchor="center"
+            color="#FFD700"
+            font="mozillavr"
+            width="15"
+            position="0 1 0.1"
+          ></a-text>
+          <!-- Label High Score -->
+          <a-text
+            value="HIGH SCORE"
+            align="center"
+            anchor="center"
+            color="#4CC3D9"
+            font="mozillavr"
+            width="8"
+            position="0 -0.4 0.1"
+          ></a-text>
+          <!-- High Score -->
+          <a-text
+            id="vr-highscore"
+            value="0"
+            align="center"
+            anchor="center"
+            color="#4CC3D9"
+            font="mozillavr"
+            width="12"
+            position="0 -0.8 0.1"
+          ></a-text>
+          <!-- Botão RESTART -->
+          <a-plane
+            id="vr-restart-button"
+            width="2.5"
+            height="0.8"
+            color="#7BC8A4"
+            position="0 -2.5 0.15"
+            material="opacity: 0.95;"
+            data-clickable="true"
+          ></a-plane>
+          <!-- Texto do botão -->
+          <a-text
+            value="RESTART"
+            align="center"
+            anchor="center"
+            color="#000000"
+            font="mozillavr"
+            font-size="60"
+            width="8"
+            position="0 -2.3 0.2"
+            material="emissive: #FFD700; emissiveIntensity: 0.5;"
+          ></a-text>
+        </a-entity>
       </a-entity>
     </a-scene>
-
-    <!-- JavaScript personalizado -->
-    <script type="module" src="./js/main.js"></script>
+    <script type="module" src="./js/river-raid-proc.js"></script>
   </body>
 </html>
