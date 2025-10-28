@@ -32,13 +32,14 @@
             "height": 0.3,
             "depth": 3
           },
-          "color": "#555555",
+          "color": "#ffffff",
           "movable": true,
           "body": {
             "type": "static"
           },
           "rotateAxis": "z",
-          "minY": 0
+          "minY": 0,
+          "objTexture": "#woodTex"
         },
         {
           "id": "target-platform",
@@ -606,11 +607,11 @@
       "description": "Position a weight to make the seesaw catapult the ball",
       "elements": [
         {
-          "id": "weight-cube",
-          "type": "cube",
+          "id": "bola",
+          "type": "sphere",
           "position": {
             "x": 2,
-            "y": 4,
+            "y": 6,
             "z": -5
           },
           "dimensions": {
@@ -618,15 +619,22 @@
             "height": 0.8,
             "depth": 0.8
           },
-          "color": "#0000ff",
+          "color": "#1e00ff",
           "movable": false,
-          "isStart": true,
+          "isStart": false,
           "body": {
-            "mass": 5,
-            "type": "dynamic"
+            "type": "dynamic",
+            "mass": 6
           },
           "minY": 0,
-          "canFinish": false
+          "canFinish": false,
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "radius": 0.5,
+          "isTarget": false
         },
         {
           "id": "target-platform",
@@ -670,11 +678,11 @@
           "minY": 0.05
         },
         {
-          "id": "bola",
+          "id": "weight-cube",
           "type": "sphere",
           "position": {
-            "x": 3,
-            "y": 1,
+            "x": 5,
+            "y": 0.3,
             "z": -5
           },
           "rotation": {
@@ -682,7 +690,7 @@
             "y": 0,
             "z": 0
           },
-          "color": "#ffffff",
+          "color": "#ff0000",
           "movable": true,
           "body": {
             "type": "dynamic",
@@ -692,7 +700,12 @@
           "isStart": false,
           "isTarget": false,
           "minY": 0,
-          "canFinish": true
+          "canFinish": true,
+          "dimensions": {
+            "width": 0.5,
+            "height": 0.5,
+            "depth": 0.5
+          }
         },
         {
           "id": "element-1761099859559",
@@ -712,7 +725,7 @@
             "height": 0.3,
             "depth": 3
           },
-          "color": "#8a3e00",
+          "color": "#ffffff",
           "movable": false,
           "body": {
             "type": "static"
@@ -731,7 +744,7 @@
     {
       "id": 6,
       "name": "Swing",
-      "difficulty": "medium",
+      "difficulty": "easy",
       "objective": "Arrange the swing to reach the target",
       "description": "Position the swing to create the chain reaction",
       "elements": [

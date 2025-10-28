@@ -95,7 +95,7 @@ class ElementFactory {
             case 'sphere':
                 element = document.createElement('a-sphere');
                 element.setAttribute('radius', data.radius || 0.4);
-                element.setAttribute('material', 'src: #soccerTex; repeat: 2 1;');
+                element.setAttribute('material', 'repeat: 2 1;roughness: 0.1; metalness: 0.3;');
                 break;
 
             case 'cube':
@@ -114,7 +114,7 @@ class ElementFactory {
                     element.setAttribute('height', data.dimensions.height);
                     element.setAttribute('depth', data.dimensions.depth);
                 }
-                element.setAttribute('material', 'src: #brickTex; repeat: 1 0.5;');
+                element.setAttribute('material', 'repeat: 1 0.5;');
                 break;
 
             case 'model':
@@ -133,7 +133,7 @@ class ElementFactory {
                     element.setAttribute('height', data.dimensions.height || 0.3);
                     element.setAttribute('depth', data.dimensions.depth || 3);
                 }
-
+                element.setAttribute('material', 'repeat: 2 0.1;');
                 break;
 
             case 'platform':
@@ -437,7 +437,7 @@ class ElementFactory {
             const textureValue = data.objTexture.trim();
             // Verifica se é um ID (começa com #) ou uma URL
             const src = textureValue.startsWith('#') ? textureValue : `url(${textureValue})`;
-            element.setAttribute('material', `src: ${src};roughness: 0.7; metalness: 0.2;shader: flat;`);
+            element.setAttribute('material', `src: ${src};shader: flat;`);
         }
 
         element.setAttribute('shadow', 'cast: true; receive: false');

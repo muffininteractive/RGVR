@@ -10,26 +10,10 @@
         "preset": "forest",
         "groundColor": "#2a4a2a",
         "dressingColor": "#4a8a4a",
-        "dressingAmount": 30
+        "dressingAmount": 30,
+        "playArea": null
       },
       "elements": [
-        {
-          "id": "start-ball",
-          "type": "sphere",
-          "position": {
-            "x": -5,
-            "y": 3,
-            "z": -5
-          },
-          "color": "#2e4ecc",
-          "radius": 0.4,
-          "isStart": true,
-          "movable": false,
-          "body": {
-            "type": "dynamic",
-            "mass": 2.5
-          }
-        },
         {
           "id": "ramp-1",
           "type": "ramp",
@@ -53,7 +37,8 @@
           "body": {
             "type": "static"
           },
-          "rotateAxis": "z"
+          "rotateAxis": "z",
+          "minY": 0
         },
         {
           "id": "target-platform",
@@ -73,14 +58,42 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0,
+          "canFinish": false
+        },
+        {
+          "id": "element-1760989538970",
+          "type": "sphere",
+          "position": {
+            "x": -5,
+            "y": 4,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "movable": false,
+          "body": {
+            "type": "dynamic",
+            "mass": 5
+          },
+          "radius": 0.3,
+          "isStart": true,
+          "isTarget": false,
+          "minY": 0,
+          "canFinish": true
         }
-      ]
+      ],
+      "active": true
     },
     {
       "id": 2,
       "name": "Double Ramp",
-      "difficulty": "easy",
+      "difficulty": "basics",
       "objective": "Use two ramps to create a path to the target",
       "description": "Connect two ramps to guide the ball on a longer course",
       "environment": {
@@ -94,27 +107,29 @@
           "id": "start-ball",
           "type": "sphere",
           "position": {
-            "x": -6,
+            "x": 0,
             "y": 4,
-            "z": -5
+            "z": -4
           },
-          "color": "#ff0000",
+          "color": "#ffffff",
           "radius": 0.4,
           "movable": false,
           "isStart": true,
           "body": {
-            "mass": 0.1,
+            "mass": 1,
             "restitution": 0.1,
             "type": "dynamic"
-          }
+          },
+          "minY": 0,
+          "canFinish": true
         },
         {
           "id": "ramp-1",
           "type": "ramp",
           "position": {
             "x": -4,
-            "y": 2.5,
-            "z": -5
+            "y": 0.1,
+            "z": -4
           },
           "rotation": {
             "x": 0,
@@ -122,23 +137,26 @@
             "z": 0
           },
           "dimensions": {
-            "width": 3,
-            "height": 0.3,
+            "width": 2,
+            "height": 0.1,
             "depth": 2.5
           },
           "color": "#555555",
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0,
+          "rotateAxis": "z",
+          "canFinish": false
         },
         {
           "id": "ramp-2",
           "type": "ramp",
           "position": {
-            "x": 0,
-            "y": 1.5,
-            "z": -5
+            "x": 4,
+            "y": 0.1,
+            "z": -4
           },
           "rotation": {
             "x": 0,
@@ -146,23 +164,25 @@
             "z": 0
           },
           "dimensions": {
-            "width": 3.5,
-            "height": 0.3,
+            "width": 2,
+            "height": 0.1,
             "depth": 2.5
           },
           "color": "#666666",
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0,
+          "rotateAxis": "z"
         },
         {
           "id": "target-platform",
           "type": "platform",
           "position": {
-            "x": 5,
-            "y": 0.5,
-            "z": -5
+            "x": 0,
+            "y": 0.1,
+            "z": -4
           },
           "dimensions": {
             "width": 2,
@@ -174,101 +194,16 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
-        }
-      ]
-    },
-    {
-      "id": 3,
-      "name": "Three Dominoes",
-      "difficulty": "easy",
-      "objective": "Knock down the dominoes in sequence to reach the target",
-      "description": "Position the dominoes correctly to create a chain reaction",
-      "elements": [
-        {
-          "id": "push-ball",
-          "type": "sphere",
-          "position": {
-            "x": -6,
-            "y": 3.5,
-            "z": -5
           },
-          "color": "#ff0000",
-          "radius": 0.4,
-          "movable": false,
-          "isStart": true,
-          "body": {
-            "mass": 2,
-            "type": "dynamic"
-          }
+          "minY": 0
         },
         {
-          "id": "domino-1",
-          "type": "domino",
+          "id": "wall-1",
+          "type": "wall",
           "position": {
-            "x": -4,
-            "y": 1,
-            "z": -5
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "mass": 0.5,
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "domino-2",
-          "type": "domino",
-          "position": {
-            "x": -3,
-            "y": 1,
-            "z": -5
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "mass": 0.5,
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "domino-3",
-          "type": "domino",
-          "position": {
-            "x": -1,
-            "y": 1,
-            "z": -5
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "mass": 0.5,
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "ramp-1",
-          "type": "ramp",
-          "position": {
-            "x": 2,
-            "y": 0.5,
-            "z": -5
+            "x": 0,
+            "y": 2.5,
+            "z": -4
           },
           "rotation": {
             "x": 0,
@@ -276,48 +211,83 @@
             "z": 0
           },
           "dimensions": {
-            "width": 3,
-            "height": 0.3,
-            "depth": 2.5
-          },
-          "color": "#555555",
-          "movable": true,
-          "body": {
-            "type": "static"
-          }
-        },
-        {
-          "id": "target-button",
-          "type": "platform",
-          "position": {
-            "x": 4,
-            "y": 0.5,
-            "z": -5
-          },
-          "dimensions": {
-            "width": 1,
-            "height": 0.5,
+            "width": 4,
+            "height": 0.2,
             "depth": 1
           },
-          "color": "#00ff00",
+          "color": "#944300",
           "movable": false,
-          "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "isStart": false,
+          "isTarget": false,
+          "radius": 0,
+          "minY": 0
+        },
+        {
+          "id": "wall-2",
+          "type": "wall",
+          "position": {
+            "x": 3,
+            "y": 1,
+            "z": -4
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 1
+          },
+          "color": "#944300",
+          "movable": false,
+          "body": {
+            "type": "static"
+          },
+          "isStart": false,
+          "isTarget": false,
+          "radius": 0,
+          "minY": 0
+        },
+        {
+          "id": "wall-3",
+          "type": "wall",
+          "position": {
+            "x": -3,
+            "y": 1,
+            "z": -4
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 1
+          },
+          "color": "#944300",
+          "movable": false,
+          "body": {
+            "type": "static"
+          },
+          "isStart": false,
+          "isTarget": false,
+          "radius": 0,
+          "minY": 0
         }
       ],
-      "environment": {
-        "preset": "checkerboard",
-        "groundColor": "#333366",
-        "gridColor": "#6666aa",
-        "dressingAmount": 50
-      }
+      "active": true
     },
     {
-      "id": 4,
+      "id": 3,
       "name": "Ramp and Dominoes",
-      "difficulty": "medium",
+      "difficulty": "basics",
       "objective": "Combine ramp and dominoes to activate the target",
       "description": "Use a ramp to give speed to the ball and knock down the dominoes",
       "elements": [
@@ -329,14 +299,16 @@
             "y": 3.5,
             "z": -5
           },
-          "color": "#ff0000",
+          "color": "#ffffff",
           "radius": 0.4,
           "movable": false,
           "isStart": true,
           "body": {
-            "mass": 1.5,
+            "mass": 5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0,
+          "canFinish": true
         },
         {
           "id": "ramp-1",
@@ -353,14 +325,17 @@
           },
           "dimensions": {
             "width": 3,
-            "height": 0.3,
+            "height": 0.2,
             "depth": 2.5
           },
           "color": "#555555",
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "rotateAxis": "z",
+          "minY": 0,
+          "canFinish": false
         },
         {
           "id": "domino-1",
@@ -375,11 +350,13 @@
             "height": 2,
             "depth": 1
           },
-          "color": "#8B4513",
+          "color": "#ce1212",
           "movable": true,
           "body": {
-            "type": "dynamic"
-          }
+            "type": "dynamic",
+            "mass": 4
+          },
+          "minY": 0
         },
         {
           "id": "domino-2",
@@ -394,11 +371,13 @@
             "height": 2,
             "depth": 1
           },
-          "color": "#8B4513",
+          "color": "#06933c",
           "movable": true,
           "body": {
-            "type": "dynamic"
-          }
+            "type": "dynamic",
+            "mass": 4
+          },
+          "minY": 0
         },
         {
           "id": "domino-3",
@@ -413,11 +392,14 @@
             "height": 2,
             "depth": 1
           },
-          "color": "#8B4513",
+          "color": "#13178b",
           "movable": true,
           "body": {
-            "type": "dynamic"
-          }
+            "type": "dynamic",
+            "mass": 4
+          },
+          "minY": 0,
+          "canFinish": true
         },
         {
           "id": "target-platform",
@@ -437,54 +419,33 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "canFinish": false,
+          "minY": 0
         }
       ],
       "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
-      }
+        "preset": "japan",
+        "groundColor": "#4a2a2a",
+        "dressingColor": "#ff6b9d",
+        "dressingAmount": 40
+      },
+      "active": true
     },
     {
-      "id": 5,
-      "name": "Simple Seesaw",
-      "difficulty": "medium",
-      "objective": "Use a lever to launch the ball at the target",
-      "description": "Position a weight to make the seesaw catapult the ball",
+      "id": 4,
+      "name": "Cannon & Candle",
+      "difficulty": "basics",
+      "objective": "Reach the target with the cannon ball",
+      "description": "Position the candle to fire up the cannon",
       "elements": [
         {
-          "id": "lever-fulcrum",
-          "type": "cylinder",
+          "id": "cannon",
+          "type": "cannon",
+          "modelUrl": "../assets/models/cannon.glb",
           "position": {
-            "x": 0,
-            "y": 0.5,
+            "x": -2,
+            "y": 0,
             "z": -5
           },
           "rotation": {
@@ -492,57 +453,164 @@
             "y": 0,
             "z": 0
           },
-          "radius": 0.5,
-          "height": 1,
-          "color": "#666666",
-          "movable": false,
-          "body": {
-            "type": "static"
-          }
-        },
-        {
-          "id": "lever-arm",
-          "type": "lever",
-          "position": {
-            "x": 0,
-            "y": 1.2,
-            "z": -5
+          "scale": {
+            "x": 1,
+            "y": 1,
+            "z": 1
           },
-          "dimensions": {
-            "width": 5,
-            "height": 0.15,
-            "depth": 0.5
-          },
-          "color": "#ff6600",
-          "movable": false,
-          "body": {
-            "mass": 2,
-            "angularDamping": 0.6,
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "projectile-ball",
-          "type": "sphere",
-          "position": {
-            "x": -2.3,
-            "y": 1.5,
-            "z": -5
-          },
-          "color": "#ffff00",
-          "radius": 0.4,
           "movable": true,
           "body": {
-            "mass": 0.5,
+            "type": "dynamic",
+            "shape": "none"
+          },
+          "minY": 0,
+          "maxX": 3,
+          "canFinish": true
+        },
+        {
+          "id": "candle",
+          "type": "candle",
+          "position": {
+            "x": -6,
+            "y": 0.75,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "radius": 0.2,
+          "height": 1.5,
+          "minY": 0.75,
+          "maxX": 4,
+          "color": "#FFFCCB",
+          "movable": true,
+          "body": {
             "type": "dynamic"
           }
         },
         {
-          "id": "weight-cube",
-          "type": "cube",
+          "id": "start-ball",
+          "type": "sphere",
+          "position": {
+            "x": -12,
+            "y": 3,
+            "z": -5
+          },
+          "color": "#ffffff",
+          "radius": 0.4,
+          "movable": false,
+          "isStart": true,
+          "body": {
+            "type": "dynamic",
+            "mass": 2.5
+          },
+          "minY": 0
+        },
+        {
+          "id": "ramp-1",
+          "type": "ramp",
+          "position": {
+            "x": -10,
+            "y": 0.15,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.3,
+            "depth": 3
+          },
+          "color": "#4d4d4d",
+          "movable": true,
+          "body": {
+            "type": "static"
+          },
+          "minY": 0.2,
+          "maxX": 4,
+          "rotateAxis": "z"
+        },
+        {
+          "id": "target-platform",
+          "type": "platform",
+          "position": {
+            "x": 10,
+            "y": 2,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 90
+          },
+          "dimensions": {
+            "width": 1,
+            "height": 0.2,
+            "depth": 1
+          },
+          "color": "#00ff00",
+          "movable": false,
+          "isTarget": true,
+          "body": {
+            "type": "static"
+          },
+          "minY": 0
+        },
+        {
+          "id": "element-1761098727365",
+          "type": "wall",
+          "position": {
+            "x": 10.2,
+            "y": 2,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 0.2,
+            "height": 4,
+            "depth": 2.5
+          },
+          "color": "#3d3d3d",
+          "movable": false,
+          "body": {
+            "type": "static",
+            "mass": 200
+          },
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0
+        }
+      ],
+      "environment": {
+        "preset": "checkerboard",
+        "groundColor": "#333366",
+        "gridColor": "#6666aa",
+        "dressingAmount": 100
+      },
+      "active": true
+    },
+    {
+      "id": 5,
+      "name": "Simple Seesaw",
+      "difficulty": "easy",
+      "objective": "Use a lever to launch the ball at the target",
+      "description": "Position a weight to make the seesaw catapult the ball",
+      "elements": [
+        {
+          "id": "bola",
+          "type": "sphere",
           "position": {
             "x": 2,
-            "y": 4,
+            "y": 6,
             "z": -5
           },
           "dimensions": {
@@ -550,20 +618,29 @@
             "height": 0.8,
             "depth": 0.8
           },
-          "color": "#0000ff",
+          "color": "#1e00ff",
           "movable": false,
-          "isStart": true,
+          "isStart": false,
           "body": {
-            "mass": 5,
-            "type": "dynamic"
-          }
+            "type": "dynamic",
+            "mass": 6
+          },
+          "minY": 0,
+          "canFinish": false,
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "radius": 0.5,
+          "isTarget": false
         },
         {
           "id": "target-platform",
           "type": "platform",
           "position": {
-            "x": -5,
-            "y": 2,
+            "x": -2,
+            "y": 2.7,
             "z": -5
           },
           "dimensions": {
@@ -576,72 +653,66 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
-        }
-      ],
-      "environment": {
-        "preset": "default",
-        "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
-        "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
-        "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
-        "groundDensity": 64,
-        "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
-      }
-    },
-    {
-      "id": 6,
-      "name": "Curved Dominoes",
-      "difficulty": "medium",
-      "objective": "Arrange dominoes in a curve to reach the target",
-      "description": "Position 5 dominoes forming a curve to create the chain reaction",
-      "elements": [
+          },
+          "minY": 0
+        },
         {
-          "id": "push-ball",
+          "id": "gangorra",
+          "type": "seesaw",
+          "position": {
+            "x": 0,
+            "y": 0.05,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "movable": true,
+          "body": {
+            "type": "static"
+          },
+          "minY": 0.05
+        },
+        {
+          "id": "weight-cube",
           "type": "sphere",
           "position": {
-            "x": -5,
-            "y": 1.5,
-            "z": -6
+            "x": 5,
+            "y": 0,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
           },
           "color": "#ff0000",
-          "radius": 0.4,
-          "movable": false,
-          "isStart": true,
+          "movable": true,
           "body": {
-            "mass": 2,
-            "type": "dynamic"
+            "type": "dynamic",
+            "mass": 1
+          },
+          "radius": 0.2,
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "canFinish": true,
+          "dimensions": {
+            "width": 0.5,
+            "height": 0.5,
+            "depth": 0.5
           }
         },
         {
-          "id": "domino-1",
-          "type": "domino",
+          "id": "element-1761099859559",
+          "type": "wall",
           "position": {
-            "x": -3,
-            "y": 1,
-            "z": -6
+            "x": -2,
+            "y": 3,
+            "z": -5
           },
           "rotation": {
             "x": 0,
@@ -649,118 +720,58 @@
             "z": 0
           },
           "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
+            "width": 3,
+            "height": 0.3,
+            "depth": 3
           },
-          "color": "#8B4513",
-          "movable": true,
+          "color": "#ffffff",
+          "movable": false,
           "body": {
-            "type": "dynamic"
-          }
-        },
+            "type": "static"
+          },
+          "isStart": false,
+          "isTarget": false,
+          "canFinish": false,
+          "minY": 0
+        }
+      ],
+      "environment": {
+        "preset": "threetowers"
+      },
+      "active": true
+    },
+    {
+      "id": 6,
+      "name": "Swing",
+      "difficulty": "easy",
+      "objective": "Arrange the swing to reach the target",
+      "description": "Position the swing to create the chain reaction",
+      "elements": [
         {
-          "id": "domino-2",
-          "type": "domino",
+          "id": "push-ball",
+          "type": "sphere",
           "position": {
-            "x": -1.5,
-            "y": 1,
-            "z": -5.5
+            "x": -5,
+            "y": 4,
+            "z": -2.5
           },
-          "rotation": {
-            "x": 0,
-            "y": 20,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
+          "color": "#ffffff",
+          "radius": 0.4,
+          "movable": false,
+          "isStart": true,
           "body": {
+            "mass": 5,
             "type": "dynamic"
-          }
-        },
-        {
-          "id": "domino-3",
-          "type": "domino",
-          "position": {
-            "x": 0,
-            "y": 1,
-            "z": -4.5
           },
-          "rotation": {
-            "x": 0,
-            "y": 40,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "domino-4",
-          "type": "domino",
-          "position": {
-            "x": 1.5,
-            "y": 1,
-            "z": -3.5
-          },
-          "rotation": {
-            "x": 0,
-            "y": 60,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          }
-        },
-        {
-          "id": "domino-5",
-          "type": "domino",
-          "position": {
-            "x": 3,
-            "y": 1,
-            "z": -3
-          },
-          "rotation": {
-            "x": 0,
-            "y": 80,
-            "z": 0
-          },
-          "dimensions": {
-            "width": 0.3,
-            "height": 2,
-            "depth": 1
-          },
-          "color": "#8B4513",
-          "movable": true,
-          "body": {
-            "type": "dynamic"
-          }
+          "minY": 0,
+          "objTexture": "#ballTex"
         },
         {
           "id": "target-button",
           "type": "platform",
           "position": {
             "x": 4.5,
-            "y": 0.5,
+            "y": 0.25,
             "z": -2.5
           },
           "dimensions": {
@@ -773,40 +784,178 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
+        },
+        {
+          "id": "ramp",
+          "type": "ramp",
+          "position": {
+            "x": -5,
+            "y": 0.2,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#555555",
+          "movable": true,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "rotateAxis": "z"
+        },
+        {
+          "id": "element-1761138880435",
+          "type": "swing",
+          "position": {
+            "x": 0,
+            "y": 2.4,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "movable": false,
+          "body": {
+            "type": "static"
+          },
+          "minY": 0,
+          "canFinish": false
+        },
+        {
+          "id": "ramp-2",
+          "type": "ramp",
+          "position": {
+            "x": -3,
+            "y": 0.7,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 4,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#555555",
+          "movable": true,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "rotateAxis": "z"
+        },
+        {
+          "id": "ground",
+          "type": "wall",
+          "position": {
+            "x": 2,
+            "y": 1.2,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 7,
+            "height": 0.2,
+            "depth": 3
+          },
+          "color": "#ffffff",
+          "objTexture": "#brickTex",
+          "movable": false,
+          "body": {
+            "type": "static",
+            "mass": 0
+          },
+          "isStart": false,
+          "isTarget": false,
+          "canFinish": false,
+          "minY": 0
+        },
+        {
+          "id": "finish-ball",
+          "type": "sphere",
+          "position": {
+            "x": -0.7,
+            "y": 1.6,
+            "z": -2.5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "color": "#ffffff",
+          "objTexture": "#soccerTex",
+          "movable": false,
+          "body": {
+            "type": "dynamic",
+            "mass": 1
+          },
+          "radius": 0.3,
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0,
+          "canFinish": true
         }
       ],
       "environment": {
-        "preset": "default",
         "active": true,
-        "skyType": "atmosphere",
-        "skyColor": "",
-        "horizonColor": "",
-        "lighting": "distant",
-        "shadow": false,
-        "shadowSize": 10,
-        "lightPosition": "0 1 -0.2",
-        "fog": 0,
+        "dressing": "pyramids",
+        "dressingAmount": 7,
+        "dressingColor": "#9e7b47",
+        "dressingOnPlayArea": 0,
+        "dressingScale": 5,
+        "dressingUniformScale": true,
+        "dressingVariance": "30 30 30",
         "flatShading": false,
-        "playArea": 1,
-        "stageSize": 200,
+        "fog": 0,
+        "grid": "dots",
+        "gridColor": "#daa452",
         "ground": "hills",
-        "groundYScale": 3,
-        "groundTexture": "none",
-        "groundColor": "#553e35",
-        "groundColor2": "#694439",
+        "groundColor": "#9e7b47",
+        "groundColor2": "#9e7b47",
         "groundDensity": 64,
         "groundFrequency": 10,
-        "dressing": "none",
-        "dressingAmount": 10,
-        "dressingColor": "#795449",
-        "dressingScale": 5,
-        "dressingVariance": "1 1 1",
-        "dressingUniformScale": true,
-        "grid": "none",
-        "gridColor": "#ccc",
-        "seed": 1
-      }
+        "groundTexture": "none",
+        "groundYScale": 3,
+        "horizonColor": "#ddd",
+        "lightPosition": "0 0.05 -2.32",
+        "lighting": "distant",
+        "playArea": 1,
+        "preset": "osiris",
+        "seed": 46,
+        "shadow": false,
+        "shadowSize": 10,
+        "skyColor": "#88c",
+        "skyType": "atmosphere",
+        "stageSize": 200
+      },
+      "active": true
     },
     {
       "id": 7,
@@ -831,7 +980,8 @@
             "mass": 1.2,
             "restitution": 0.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-1",
@@ -855,7 +1005,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-2",
@@ -879,7 +1030,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "landing-platform",
@@ -899,7 +1051,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -960,7 +1113,8 @@
           "body": {
             "mass": 6,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-fulcrum",
@@ -981,7 +1135,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-arm",
@@ -1000,7 +1155,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "transfer-ball",
@@ -1015,7 +1171,8 @@
           "body": {
             "mass": 1,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-fulcrum",
@@ -1036,7 +1193,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-arm",
@@ -1055,7 +1213,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "projectile-ball",
@@ -1070,7 +1229,8 @@
           "body": {
             "mass": 0.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "target-platform",
@@ -1090,7 +1250,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -1147,7 +1308,8 @@
           "body": {
             "mass": 2.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-1",
@@ -1166,7 +1328,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-2",
@@ -1190,7 +1353,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-3",
@@ -1214,7 +1378,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-4",
@@ -1238,7 +1403,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-5",
@@ -1262,7 +1428,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-6",
@@ -1286,7 +1453,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-7",
@@ -1310,7 +1478,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "target-button",
@@ -1330,7 +1499,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -1387,7 +1557,8 @@
           "body": {
             "mass": 1.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-1",
@@ -1411,7 +1582,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-1",
@@ -1430,7 +1602,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-2",
@@ -1449,7 +1622,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-3",
@@ -1468,7 +1642,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-fulcrum",
@@ -1489,7 +1664,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-arm",
@@ -1508,7 +1684,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "projectile-ball",
@@ -1523,7 +1700,8 @@
           "body": {
             "mass": 0.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "target-platform",
@@ -1543,7 +1721,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -1604,7 +1783,8 @@
           "body": {
             "mass": 7,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-fulcrum",
@@ -1625,7 +1805,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-arm",
@@ -1644,7 +1825,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ball-1",
@@ -1659,7 +1841,8 @@
           "body": {
             "mass": 0.4,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-fulcrum",
@@ -1680,7 +1863,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-arm",
@@ -1699,7 +1883,8 @@
           "body": {
             "mass": 1.8,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ball-2",
@@ -1714,7 +1899,8 @@
           "body": {
             "mass": 0.3,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-3-fulcrum",
@@ -1735,7 +1921,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-3-arm",
@@ -1754,7 +1941,8 @@
           "body": {
             "mass": 1.5,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ball-3",
@@ -1769,7 +1957,8 @@
           "body": {
             "mass": 0.2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "target-platform",
@@ -1789,7 +1978,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -1846,7 +2036,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-1",
@@ -1870,7 +2061,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-2",
@@ -1894,7 +2086,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-1",
@@ -1913,7 +2106,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-2",
@@ -1937,7 +2131,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "domino-3",
@@ -1961,7 +2156,8 @@
           "movable": true,
           "body": {
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-fulcrum",
@@ -1982,7 +2178,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-1-arm",
@@ -2001,7 +2198,8 @@
           "body": {
             "mass": 2,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "transfer-ball",
@@ -2016,7 +2214,8 @@
           "body": {
             "mass": 0.6,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-3",
@@ -2040,7 +2239,8 @@
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-fulcrum",
@@ -2061,7 +2261,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "lever-2-arm",
@@ -2080,7 +2281,8 @@
           "body": {
             "mass": 1.8,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "final-ball",
@@ -2095,7 +2297,8 @@
           "body": {
             "mass": 0.4,
             "type": "dynamic"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "target-platform",
@@ -2115,7 +2318,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -2162,7 +2366,7 @@
           "type": "cannon",
           "modelUrl": "../assets/models/cannon.glb",
           "position": {
-            "x": -8,
+            "x": 2,
             "y": 0,
             "z": -5
           },
@@ -2188,7 +2392,7 @@
           "id": "candle",
           "type": "candle",
           "position": {
-            "x": 4,
+            "x": 0,
             "y": 0.75,
             "z": -5
           },
@@ -2215,20 +2419,21 @@
             "y": 3,
             "z": -5
           },
-          "color": "#00ff2a",
+          "color": "#ffffff",
           "radius": 0.4,
           "movable": false,
           "isStart": true,
           "body": {
             "type": "dynamic",
             "mass": 2.5
-          }
+          },
+          "minY": 0
         },
         {
           "id": "ramp-1",
           "type": "ramp",
           "position": {
-            "x": -1,
+            "x": -8,
             "y": 0.15,
             "z": -5
           },
@@ -2242,7 +2447,7 @@
             "height": 0.3,
             "depth": 3
           },
-          "color": "#555555",
+          "color": "#4d4d4d",
           "movable": true,
           "body": {
             "type": "static"
@@ -2274,7 +2479,8 @@
           "isTarget": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "topWall",
@@ -2298,7 +2504,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "rightWall",
@@ -2322,7 +2529,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "bottomWall",
@@ -2346,7 +2554,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         },
         {
           "id": "leftWall",
@@ -2370,7 +2579,8 @@
           "movable": false,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0
         }
       ],
       "environment": {
@@ -2378,7 +2588,8 @@
         "groundColor": "#8a6a4a",
         "dressingColor": "#cc9966",
         "dressingAmount": 5
-      }
+      },
+      "active": true
     },
     {
       "id": 14,
@@ -2388,43 +2599,67 @@
       "description": "Descreva o nível",
       "elements": [
         {
-          "id": "seesaw",
+          "id": "cube",
+          "type": "sphere",
+          "position": {
+            "x": 2,
+            "y": 3,
+            "z": -5
+          },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
+          "dimensions": {
+            "width": 1,
+            "height": 1,
+            "depth": 1
+          },
+          "color": "#ffffff",
+          "movable": false,
+          "body": {
+            "type": "dynamic",
+            "mass": 1
+          },
+          "radius": 0.3,
+          "rotateAxis": "z",
+          "minY": 0,
+          "isStart": false,
+          "isTarget": false
+        },
+        {
+          "id": "element-1760980202257",
           "type": "seesaw",
           "position": {
             "x": 0,
             "y": 0.05,
             "z": -5
           },
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
+          },
           "color": "#ffffff",
           "movable": true,
           "body": {
             "type": "static"
-          }
+          },
+          "minY": 0.05
         },
         {
-          "id": "bola",
-          "type": "sphere",
+          "id": "element-1760980320385",
+          "type": "cube",
           "position": {
-            "x": -1.5,
+            "x": -2,
             "y": 3,
             "z": -5
           },
-          "color": "#bb00ff",
-          "movable": true,
-          "body": {
-            "type": "dynamic",
-            "mass": 30
-          },
-          "radius": 0.3,
-          "isStart": true
-        },
-        {
-          "id": "cube",
-          "type": "sphere",
-          "position": {
-            "x": 1,
-            "y": 2,
-            "z": -5
+          "rotation": {
+            "x": 0,
+            "y": 0,
+            "z": 0
           },
           "dimensions": {
             "width": 1,
@@ -2435,10 +2670,12 @@
           "movable": true,
           "body": {
             "type": "dynamic",
-            "mass": 1
+            "mass": 10
           },
-          "radius": 0.27,
-          "rotateAxis": "z"
+          "radius": 0.5,
+          "isStart": false,
+          "isTarget": false,
+          "minY": 0
         }
       ],
       "environment": {

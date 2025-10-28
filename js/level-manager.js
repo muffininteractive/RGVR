@@ -36,7 +36,7 @@ AFRAME.registerComponent('level-manager', {
         try {
             const response = await fetch('../data/levels-data.json');
             const data = await response.json();
-
+            console.log('--- FETCHED LEVEL DATA ---', data);
             levelState.levelData = data.levels.find(level => level.id === this.levelId);
 
             if (levelState.levelData) {

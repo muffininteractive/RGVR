@@ -28,7 +28,7 @@ export default defineConfig({
                 level: resolve(__dirname, 'scenes/level.html'),
                 'level-select': resolve(__dirname, 'scenes/level-select.html'),
                 'level-editor': resolve(__dirname, 'scenes/level-editor.html'),
-                'physics-demo': resolve(__dirname, 'scenes/physics-demo.html'),
+                'physics-demo': resolve(__dirname, 'scenes/physics-demo.html')
             },
             output: {
                 entryFileNames: '[name].js',
@@ -46,7 +46,13 @@ export default defineConfig({
         '**/*.fbx',
         '**/*.dae',
         '**/*.hdr',
-        '**/*.exr'
+        '**/*.exr',
+        '**/levels-data.json',
+        '**/element-defaults.json',
+        '**/*.png',
+        '**/*.jpg',
+        '**/*.jpeg',
+        '**/*.svg'
     ],
 
     // Aliases para imports mais limpos
@@ -90,6 +96,6 @@ export default defineConfig({
     logLevel: 'info',
     clearScreen: false,
 
-    // Configurações de base path (útil para deploy)
-    base: process.env.NODE_ENV === 'production' ? './' : '/'
-})
+    // Configuração de base path para deploy em qualquer pasta
+    base: './'
+});

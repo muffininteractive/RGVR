@@ -5,7 +5,7 @@ let elementDefaults = null;
 async function loadElementDefaults() {
     if (elementDefaults) return elementDefaults;
     try {
-        const response = await fetch('/data/element-defaults.json');
+        const response = await fetch('../data/element-defaults.json');
         elementDefaults = await response.json();
         return elementDefaults;
     } catch (error) {
@@ -797,7 +797,7 @@ function duplicateLevelByIndex(index) {
     // Gerar novo ID único
     const newId = Math.max(...levelsData.levels.map(l => l.id)) + 1;
     newLevel.id = newId;
-    newLevel.name = `${originalLevel.name} (Cópia)`;
+    newLevel.name = `${originalLevel.name} -Copy`;
 
     // Adicionar à lista
     levelsData.levels.push(newLevel);
